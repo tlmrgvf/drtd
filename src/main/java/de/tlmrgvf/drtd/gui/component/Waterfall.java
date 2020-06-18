@@ -167,8 +167,8 @@ public final class Waterfall extends Canvas {
 
         waterfallGraphics.copyArea(0, 0, getWidth(), getHeight() - MARKER_AREA_HEIGHT, 0, 1);
         final Color[] paletteColors = palette.getColors();
-        int i = binOffset;
-        for (; i < pseudoBins / 2 && i < getWidth(); ++i) {
+        int x = 0;
+        for (int i = binOffset; i < pseudoBins / 2 && x < getWidth(); ++i, ++x) {
             float value = zoomOut ? binValues[i] :
                     Utils.linearInterpolate(i / (float) pseudoBins * bins, binValues);
             if (Float.isNaN(value))
@@ -194,11 +194,11 @@ public final class Waterfall extends Canvas {
                     (int) ((mixAmount * mixColor.getGreen()) + (baseAmount * baseColor.getGreen())),
                     (int) ((mixAmount * mixColor.getBlue()) + (baseAmount * baseColor.getBlue()))
             ));
-            waterfallGraphics.drawRect(i - binOffset, 0, 0, 0);
+            waterfallGraphics.drawRect(x, 0, 0, 0);
         }
 
         waterfallGraphics.setColor(Color.BLACK);
-        waterfallGraphics.drawLine(i - binOffset, 0, getWidth(), 0);
+        waterfallGraphics.drawLine(x, 0, getWidth(), 0);
 
         drawLayers(false);
     }
