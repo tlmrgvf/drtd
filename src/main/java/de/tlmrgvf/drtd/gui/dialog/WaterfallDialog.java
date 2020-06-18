@@ -48,6 +48,9 @@ import java.awt.event.MouseEvent;
 public final class WaterfallDialog extends JFrame {
     private final static int MIN_BINS_EXP = 10;
     private final static int MAX_BINS_EXP = 16;
+    public final static float MAX_CONTRAST = .001F;
+    public final static float MIN_CONTRAST = 1F;
+    public final static int MAX_ZOOM = 10;
 
     private static WaterfallDialog instance;
 
@@ -94,7 +97,7 @@ public final class WaterfallDialog extends JFrame {
         speedMultiplier.setMajorTickSpacing(1);
         speedMultiplier.setPaintTicks(true);
 
-        zoom = new JSlider(-90, 90, 0);
+        zoom = new JSlider(-MAX_ZOOM * 10 + 10, MAX_ZOOM * 10 - 10, 0);
         zoom.setPaintTicks(true);
         zoom.setSnapToTicks(true);
         zoom.setMajorTickSpacing(1);
@@ -172,8 +175,8 @@ public final class WaterfallDialog extends JFrame {
         speedMultiplier.setValue(waterfall.getSpeedMultiplier());
         fStartModel.setMaximum(waterfall.getSampleRate() / 2);
         powerSpectrum.setSelected(waterfall.isPowerSpectrum());
-        contrast.setValue((int) (1 - ((waterfall.getContrast() - Waterfall.MAX_CONTRAST)
-                / (Waterfall.MIN_CONTRAST - Waterfall.MAX_CONTRAST)) * contrast.getMaximum()));
+        contrast.setValue((int) (1 - ((waterfall.getContrast() - MAX_CONTRAST)
+                / (MIN_CONTRAST - MAX_CONTRAST)) * contrast.getMaximum()));
         palette.setSelectedItem(waterfall.getPalette());
 
         ignoreUpdates = false;
@@ -195,8 +198,7 @@ public final class WaterfallDialog extends JFrame {
         waterfall.setWindow(windowSelector.getItemAt(windowSelector.getSelectedIndex()));
         waterfall.setFrequencyOffset((Integer) fStart.getValue());
         waterfall.setSpeedMultiplier(speedMultiplier.getValue());
-        waterfall.setContrast(contrastNorm * (Waterfall.MIN_CONTRAST - Waterfall.MAX_CONTRAST)
-                + Waterfall.MAX_CONTRAST);
+        waterfall.setContrast(contrastNorm * (MIN_CONTRAST - MAX_CONTRAST) + MAX_CONTRAST);
         waterfall.setPowerSpectrum(powerSpectrum.isSelected());
         waterfall.setPalette((WaterfallPalette) palette.getSelectedItem());
     }

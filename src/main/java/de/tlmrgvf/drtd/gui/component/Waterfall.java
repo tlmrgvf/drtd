@@ -54,8 +54,6 @@ import java.util.logging.Logger;
 
 public final class Waterfall extends Canvas {
     private final static SettingsManager SETTINGS_MANAGER = SettingsManager.createFor(Waterfall.class);
-    public final static float MAX_CONTRAST = .001F;
-    public final static float MIN_CONTRAST = 1F;
 
     private final static int MARKER_AREA_HEIGHT = 30;
     private final static int MARKER_MAJOR_HEIGHT = 10;
@@ -78,7 +76,7 @@ public final class Waterfall extends Canvas {
 
     private int frequencyOffset = 0;
     private int binOffset = 0;
-    private float contrast = MIN_CONTRAST;
+    private float contrast = WaterfallDialog.MIN_CONTRAST;
     private float zoom = 1F;
     private int bins;
     private int speedMultiplier = 1;
@@ -107,7 +105,7 @@ public final class Waterfall extends Canvas {
         markerFont = Utils.FONT.deriveFont(14F);
 
         SETTINGS_MANAGER
-                .mapOption(Float.class, this::getContrast, this::setContrast, MIN_CONTRAST)
+                .mapOption(Float.class, this::getContrast, this::setContrast, WaterfallDialog.MIN_CONTRAST)
                 .mapOption(Integer.class, this::getBins, this::setBins, 4096)
                 .mapOption(Window.class, this::getWindow, this::setWindow, new RectangularWindow())
                 .mapOption(Integer.class, this::getSpeedMultiplier, this::setSpeedMultiplier, 1)
@@ -176,7 +174,7 @@ public final class Waterfall extends Canvas {
 
             final float floatIndex = (float) Utils.scaleLog(
                     max == 0 ? 0 : value / max,
-                    MIN_CONTRAST - contrast,
+                    WaterfallDialog.MIN_CONTRAST - contrast,
                     1,
                     0,
                     paletteColors.length - 1,
@@ -364,7 +362,7 @@ public final class Waterfall extends Canvas {
     }
 
     public synchronized void setContrast(float contrast) {
-        this.contrast = Utils.clampBetween(MAX_CONTRAST, MIN_CONTRAST, contrast);
+        this.contrast = contrast;
     }
 
     public synchronized void setDecoder(Decoder<?> decoder) {
@@ -478,7 +476,7 @@ public final class Waterfall extends Canvas {
                     zoomOut = !zoomOut;
                     setZoom(1.1F);
                 } else {
-                    setZoom(zoom);
+                    setZoom(Math.min(zoom, WaterfallDialog.MAX_ZOOM));
                 }
             }
 
