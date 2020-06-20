@@ -92,6 +92,7 @@ public class Canvas extends JComponent {
             return;
         lastUpdate = time;
 
+        layers.forEach(Layer::createSnapshot);
         super.repaint();
     }
 

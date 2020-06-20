@@ -36,6 +36,7 @@ public final class Layer {
     public final static int PARENT_SIZE = -1;
 
     private BufferedImage image;
+    private BufferedImage snapshot;
     private Graphics2D graphics;
     private final Canvas canvas;
     private int x;
@@ -84,9 +85,16 @@ public final class Layer {
         graphics.setColor(Color.BLACK);
     }
 
+    public void createSnapshot() {
+        snapshot = new BufferedImage(image.getColorModel(),
+                image.copyData(null),
+                image.isAlphaPremultiplied(),
+                null);
+    }
+
     public void drawOn(Graphics toDrawOn) {
         if (getWidth() == 0 || getHeight() == 0) return;
-        toDrawOn.drawImage(image, x, y, null);
+        toDrawOn.drawImage(snapshot, x, y, null);
     }
 
     public int getWidth() {
