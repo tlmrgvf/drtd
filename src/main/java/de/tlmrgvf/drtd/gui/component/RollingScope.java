@@ -33,10 +33,10 @@ import de.tlmrgvf.drtd.gui.utils.Canvas;
 import de.tlmrgvf.drtd.gui.utils.Layer;
 import de.tlmrgvf.drtd.utils.structure.RingBuffer;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
 public final class RollingScope extends Canvas {
     private final Layer valueLayer;
@@ -52,7 +52,6 @@ public final class RollingScope extends Canvas {
         valueLayer = createLayer(0, 0, Layer.PARENT_SIZE, Layer.PARENT_SIZE);
         buffer = new RingBuffer(1);
 
-        setBorder(BorderFactory.createLoweredBevelBorder());
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -79,15 +78,20 @@ public final class RollingScope extends Canvas {
     }
 
     private void fullRedraw() {
-        valueLayer.clear();
-        previousPoint = null;
+        if (willDraw()) {
+            valueLayer.clear();
+            previousPoint = null;
 
-        for (int x = 0; x < valueLayer.getWidth(); ++x)
-            drawValue(valueLayer.getGraphics(), buffer.peek(x), x);
+            var graphics = valueLayer.getGraphics();
+            graphics.setColor(Color.BLUE);
+            for (int x = 0; x < valueLayer.getWidth(); ++x)
+                drawValue(graphics, buffer.peek(x), x);
+
+            drawLayers(false);
+        }
     }
 
     private void drawValue(Graphics2D graphics, float value, int x) {
-        graphics.setColor(Color.BLUE);
         final float normalized = 1 - (value - minValue) / (maxValue - minValue);
 
         final var currentPoint = new Point(x, (int) (normalized * valueLayer.getHeight()));
@@ -118,13 +122,17 @@ public final class RollingScope extends Canvas {
             minValue = value;
             fullRedraw();
         } else {
-            var copy = valueLayer.getImage();
+            var image = valueLayer.getImage();
+            var newImage = new BufferedImage(image.getColorModel(),
+                    image.copyData(null),
+                    image.isAlphaPremultiplied(),
+                    null);
             valueLayer.clear();
             var graphics = valueLayer.getGraphics();
-            graphics.drawImage(copy, -1, 0, null);
+            graphics.drawImage(newImage, -1, 0, null);
+            graphics.setColor(Color.BLUE);
             drawValue(graphics, value, valueLayer.getWidth() - 1);
+            drawLayers(false);
         }
-
-        drawLayers(false);
     }
 }
