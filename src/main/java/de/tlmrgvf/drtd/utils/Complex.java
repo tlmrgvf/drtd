@@ -105,7 +105,11 @@ public final class Complex {
     }
 
     public Complex normalize() {
-        return scale(1 / magnitude());
+        float magnitude = magnitude();
+        if (magnitude == 0)
+            return new Complex();
+
+        return scale(1 / magnitude);
     }
 
     public Complex scale(float factor) {
