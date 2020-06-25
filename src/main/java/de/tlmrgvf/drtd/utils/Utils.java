@@ -194,15 +194,17 @@ public final class Utils {
                                   double resultMin,
                                   double resultMax,
                                   boolean invert) {
+        value = Utils.clampBetween(sourceMin, sourceMax, value);
+
         if (invert)
             value = sourceMax - value;
 
-        value = Utils.clampBetween(sourceMin, sourceMax, value);
-        value -= sourceMin;
         sourceMax -= sourceMin;
+        value -= sourceMin;
+        value /= sourceMax;
         resultMax -= resultMin;
 
-        double result = resultMax / Math.log10(1 + sourceMax) * Math.log10(1 + value) + resultMin;
+        double result = Math.pow(value + 1, 10) / 1024 * resultMax + resultMin;
         return invert ? resultMax - result : result;
     }
 
