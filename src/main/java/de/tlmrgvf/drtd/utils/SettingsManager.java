@@ -106,7 +106,8 @@ public final class SettingsManager {
                 return saveClass.cast(saved);
             } else {
                 JOptionPane.showMessageDialog(null,
-                        "Outdated save file!",
+                        "Outdated save file!\nDelete the old file \"" + FILE.getAbsolutePath() +
+                                "\"and restart the application!",
                         "Save file",
                         JOptionPane.ERROR_MESSAGE);
                 Utils.die();
