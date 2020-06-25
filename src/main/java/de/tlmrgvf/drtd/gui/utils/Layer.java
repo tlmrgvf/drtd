@@ -104,6 +104,7 @@ public final class Layer {
     public void setWidth(int width) {
         parentWidth = width == PARENT_SIZE;
         this.width = parentWidth ? canvas.getWidth() - canvas.getInsets().left - canvas.getInsets().right : width;
+        resize(getWidth(), getHeight());
     }
 
     public int getHeight() {
@@ -113,6 +114,7 @@ public final class Layer {
     public void setHeight(int height) {
         parentHeight = height == PARENT_SIZE;
         this.height = parentHeight ? canvas.getHeight() : height;
+        resize(getWidth(), getHeight());
     }
 
     public BufferedImage getImage() {
