@@ -76,7 +76,6 @@ public final class Waterfall extends Canvas {
 
     private int frequencyOffset = 0;
     private int binOffset = 0;
-    private float contrast = WaterfallDialog.MIN_CONTRAST;
     private float zoom = 1F;
     private int bins;
     private int speedMultiplier = 1;
@@ -105,7 +104,6 @@ public final class Waterfall extends Canvas {
         markerFont = Utils.FONT.deriveFont(14F);
 
         SETTINGS_MANAGER
-                .mapOption(Float.class, this::getContrast, this::setContrast, WaterfallDialog.MIN_CONTRAST)
                 .mapOption(Integer.class, this::getBins, this::setBins, 4096)
                 .mapOption(Window.class, this::getWindow, this::setWindow, new RectangularWindow())
                 .mapOption(Integer.class, this::getSpeedMultiplier, this::setSpeedMultiplier, 1)
@@ -172,14 +170,12 @@ public final class Waterfall extends Canvas {
             if (Float.isNaN(value))
                 value = 0;
 
-            final float floatIndex = (float) Utils.scaleLog(
-                    max == 0 ? 0 : value / max,
-                    WaterfallDialog.MIN_CONTRAST - contrast,
+            final float floatIndex = (float) Utils.scaleLog(max == 0 ? 0 : value / max,
+                    0,
                     1,
                     0,
                     paletteColors.length - 1,
-                    false
-            );
+                    true);
 
             final int baseIndex = (int) floatIndex;
             final Color baseColor = paletteColors[baseIndex];
@@ -355,14 +351,6 @@ public final class Waterfall extends Canvas {
         sampleBuffer.resize(bins);
         fft = new FloatFFT_1D(bins);
         recomputeParameters();
-    }
-
-    public float getContrast() {
-        return contrast;
-    }
-
-    public synchronized void setContrast(float contrast) {
-        this.contrast = contrast;
     }
 
     public synchronized void setDecoder(Decoder<?> decoder) {

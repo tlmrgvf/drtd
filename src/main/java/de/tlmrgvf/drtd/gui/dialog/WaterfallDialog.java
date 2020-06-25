@@ -48,8 +48,6 @@ import java.awt.event.MouseEvent;
 public final class WaterfallDialog extends JFrame {
     private final static int MIN_BINS_EXP = 10;
     private final static int MAX_BINS_EXP = 16;
-    public final static float MAX_CONTRAST = .001F;
-    public final static float MIN_CONTRAST = 1F;
     public final static int MAX_ZOOM = 10;
 
     private static WaterfallDialog instance;
@@ -57,7 +55,6 @@ public final class WaterfallDialog extends JFrame {
     private final Waterfall waterfall;
     private final JComboBox<Window> windowSelector;
     private final JSlider zoom;
-    private final JSlider contrast;
     private final JSlider speedMultiplier;
     private final JSpinner fStart;
     private final JComboBox<Integer> bins;
@@ -76,7 +73,7 @@ public final class WaterfallDialog extends JFrame {
         setIconImage(Drtd.ICON);
         setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
-        GridLayout gridLayout = new GridLayout(-1, 2);
+        GridLayout gridLayout = new GridLayout(0, 2);
         JPanel rootPanel = new JPanel();
         JPanel settingsPanel = new JPanel(gridLayout);
         rootPanel.setLayout(new BoxLayout(rootPanel, BoxLayout.Y_AXIS));
@@ -113,12 +110,7 @@ public final class WaterfallDialog extends JFrame {
             powersOfTwo[i - MIN_BINS_EXP] = (int) Math.pow(2, i);
 
         bins = new JComboBox<>(new DefaultComboBoxModel<>(powersOfTwo));
-        contrast = new JSlider(0, 100, 0);
-        contrast.setMajorTickSpacing(10);
-        contrast.setPaintTicks(true);
-
         powerSpectrum = new JCheckBox();
-
         palette = new JComboBox<>(WaterfallPalette.values());
 
         add(rootPanel);
@@ -132,8 +124,6 @@ public final class WaterfallDialog extends JFrame {
         settingsPanel.add(speedMultiplier);
         settingsPanel.add(new JLabel("Bins:"));
         settingsPanel.add(bins);
-        settingsPanel.add(new JLabel("Contrast:"));
-        settingsPanel.add(contrast);
         settingsPanel.add(new JLabel("Power spectrum:"));
         settingsPanel.add(powerSpectrum);
         settingsPanel.add(new JLabel("Palette:"));
@@ -146,7 +136,6 @@ public final class WaterfallDialog extends JFrame {
         zoom.addChangeListener(listener);
         fStart.addChangeListener(listener);
         bins.addItemListener(listener);
-        contrast.addChangeListener(listener);
         speedMultiplier.addChangeListener(listener);
         powerSpectrum.addChangeListener(listener);
         palette.addItemListener(listener);
@@ -175,8 +164,6 @@ public final class WaterfallDialog extends JFrame {
         speedMultiplier.setValue(waterfall.getSpeedMultiplier());
         fStartModel.setMaximum(waterfall.getSampleRate() / 2);
         powerSpectrum.setSelected(waterfall.isPowerSpectrum());
-        contrast.setValue((int) (1 - ((waterfall.getContrast() - MAX_CONTRAST)
-                / (MIN_CONTRAST - MAX_CONTRAST)) * contrast.getMaximum()));
         palette.setSelectedItem(waterfall.getPalette());
 
         ignoreUpdates = false;
@@ -190,7 +177,6 @@ public final class WaterfallDialog extends JFrame {
 
     public void updateWaterfallFromUi() {
         assert bins.getSelectedItem() != null;
-        final float contrastNorm = 1 - contrast.getValue() / (float) contrast.getMaximum();
 
         waterfall.setBins((Integer) bins.getSelectedItem());
         waterfall.setZoom(Math.abs(zoom.getValue()) / 10F + 1);
@@ -198,7 +184,6 @@ public final class WaterfallDialog extends JFrame {
         waterfall.setWindow(windowSelector.getItemAt(windowSelector.getSelectedIndex()));
         waterfall.setFrequencyOffset((Integer) fStart.getValue());
         waterfall.setSpeedMultiplier(speedMultiplier.getValue());
-        waterfall.setContrast(contrastNorm * (MIN_CONTRAST - MAX_CONTRAST) + MAX_CONTRAST);
         waterfall.setPowerSpectrum(powerSpectrum.isSelected());
         waterfall.setPalette((WaterfallPalette) palette.getSelectedItem());
     }
