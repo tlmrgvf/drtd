@@ -89,6 +89,7 @@ public class FilterPlot extends JPanel {
         this.min = min;
         this.max = max;
         plot(true);
+        Drtd.getMainGui().getPipelineDialog().redraw();
     }
 
     public void plot(boolean forceDraw) {
@@ -268,7 +269,6 @@ public class FilterPlot extends JPanel {
         }
 
         canvas.drawLayers(forceDraw);
-        Drtd.getMainGui().getPipelineDialog().redraw();
     }
 
     private class ListenerImpl extends MouseAdapter implements ChangeListener {
