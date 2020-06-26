@@ -208,9 +208,11 @@ public final class Utils {
         return invert ? resultMax - result : result;
     }
 
-    public static void drawPath(Graphics g, Point[] path) {
+    public static void drawPath(Graphics g, int... path) {
+        assert path.length % 2 == 0;
         Point last = null;
-        for (Point p : path) {
+        for (int i = 0; i < path.length; i += 2) {
+            Point p = new Point(path[i], path[i + 1]);
             if (last == null) {
                 last = p;
                 continue;

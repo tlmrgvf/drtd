@@ -47,22 +47,22 @@ public abstract class PipelineComponent<T, U> {
     private final static Logger LOGGER = Drtd.getLogger(PipelineComponent.class);
     private final static MainGui MAIN_GUI = Drtd.getMainGui();
 
-    private final static Point[] MARKER_MONITOR_TARGET = new Point[]{
-            new Point(-12, -4),
-            new Point(-4, -4),
-            new Point(0, 0),
-            new Point(0, -4),
-            new Point(0, 0),
-            new Point(-4, 0)
+    private final static int[] MARKER_MONITOR_TARGET = new int[]{
+            -12, -4,
+            -4, -4,
+            0, 0,
+            0, -4,
+            0, 0,
+            -4, 0
     };
 
-    private final static Point[] MARKER_MONITOR_SOURCE = new Point[]{
-            new Point(0, -4),
-            new Point(0, 0),
-            new Point(4, 0),
-            new Point(0, 0),
-            new Point(4, -4),
-            new Point(12, -4)
+    private final static int[] MARKER_MONITOR_SOURCE = new int[]{
+            0, -4,
+            0, 0,
+            4, 0,
+            0, 0,
+            4, -4,
+            12, -4
     };
 
     private static volatile PipelineComponent<?, ?> monitoring;
