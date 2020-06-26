@@ -27,29 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package de.tlmrgvf.drtd.gui.utils.config;
+package de.tlmrgvf.drtd.utils;
 
-import de.tlmrgvf.drtd.utils.Provider;
-import de.tlmrgvf.drtd.utils.Setter;
-
-import javax.swing.*;
-
-public abstract class Setting<T> {
-    protected final String name;
-    protected final Provider<T> provider;
-    protected final Setter<T> setter;
-
-    public Setting(String name, Provider<T> provider, Setter<T> setter) {
-        this.name = name;
-        this.provider = provider;
-        this.setter = setter;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public abstract JComponent createComponent();
-
-    public abstract void loadComponentFromGetter();
+public interface Provider<T> {
+    T get();
 }
+

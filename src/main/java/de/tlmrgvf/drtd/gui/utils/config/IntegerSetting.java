@@ -29,7 +29,7 @@
 
 package de.tlmrgvf.drtd.gui.utils.config;
 
-import de.tlmrgvf.drtd.utils.Getter;
+import de.tlmrgvf.drtd.utils.Provider;
 import de.tlmrgvf.drtd.utils.Setter;
 
 import javax.swing.*;
@@ -37,12 +37,12 @@ import javax.swing.*;
 public final class IntegerSetting extends NumericSetting<Integer> {
 
     public IntegerSetting(String name,
-                          Getter<Integer> getter,
+                          Provider<Integer> provider,
                           Setter<Integer> setter,
                           Integer min,
                           Integer max,
                           Integer step) {
-        super(name, getter, setter, min, max, step);
+        super(name, provider, setter, min, max, step);
     }
 
     @Override

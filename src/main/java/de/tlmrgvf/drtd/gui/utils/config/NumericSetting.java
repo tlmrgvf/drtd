@@ -29,7 +29,7 @@
 
 package de.tlmrgvf.drtd.gui.utils.config;
 
-import de.tlmrgvf.drtd.utils.Getter;
+import de.tlmrgvf.drtd.utils.Provider;
 import de.tlmrgvf.drtd.utils.Setter;
 
 import javax.swing.*;
@@ -40,8 +40,8 @@ public abstract class NumericSetting<T extends Number> extends Setting<T> {
     protected final T step;
     protected JSpinner spinner;
 
-    public NumericSetting(String name, Getter<T> getter, Setter<T> setter, T min, T max, T step) {
-        super(name, getter, setter);
+    public NumericSetting(String name, Provider<T> provider, Setter<T> setter, T min, T max, T step) {
+        super(name, provider, setter);
         this.min = min;
         this.max = max;
         this.step = step;
@@ -60,6 +60,6 @@ public abstract class NumericSetting<T extends Number> extends Setting<T> {
 
     @Override
     public final void loadComponentFromGetter() {
-        spinner.setValue(getter.get());
+        spinner.setValue(provider.get());
     }
 }

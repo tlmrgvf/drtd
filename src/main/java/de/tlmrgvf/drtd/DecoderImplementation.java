@@ -35,7 +35,7 @@ import de.tlmrgvf.drtd.decoder.Null;
 import de.tlmrgvf.drtd.decoder.Rtty;
 import de.tlmrgvf.drtd.decoder.ax25.Ax25;
 import de.tlmrgvf.drtd.decoder.pocsag.Pocsag;
-import de.tlmrgvf.drtd.utils.Constructor;
+import de.tlmrgvf.drtd.utils.Provider;
 
 public enum DecoderImplementation {
     NULL(Null::new, "Null"),
@@ -44,17 +44,17 @@ public enum DecoderImplementation {
     POCSAG(Pocsag::new, "POCSAG"),
     DTMF(Dtmf::new, "DTMF");
 
-    private final Constructor<Decoder<?>> constructor;
+    private final Provider<Decoder<?>> constructor;
     private final String displayName;
     private Decoder<?> instance;
 
-    DecoderImplementation(Constructor<Decoder<?>> constructor, String displayName) {
+    DecoderImplementation(Provider<Decoder<?>> constructor, String displayName) {
         this.constructor = constructor;
         this.displayName = displayName;
     }
 
     public Decoder<?> getInstance() {
-        instance = instance == null ? constructor.construct() : instance;
+        instance = instance == null ? constructor.get() : instance;
         return instance;
     }
 

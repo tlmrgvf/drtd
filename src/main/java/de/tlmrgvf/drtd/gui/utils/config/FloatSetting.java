@@ -29,19 +29,19 @@
 
 package de.tlmrgvf.drtd.gui.utils.config;
 
-import de.tlmrgvf.drtd.utils.Getter;
+import de.tlmrgvf.drtd.utils.Provider;
 import de.tlmrgvf.drtd.utils.Setter;
 
 import javax.swing.*;
 
 public final class FloatSetting extends NumericSetting<Float> {
     public FloatSetting(String name,
-                        Getter<Float> getter,
+                        Provider<Float> provider,
                         Setter<Float> setter,
                         Float min,
                         Float max,
                         Float step) {
-        super(name, getter, setter, min, max, step);
+        super(name, provider, setter, min, max, step);
     }
 
     @Override

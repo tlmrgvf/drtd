@@ -118,10 +118,10 @@ public final class SettingsManager {
     }
 
     public <T extends Serializable> SettingsManager mapOption(Class<T> saveClass,
-                                                              Getter<T> getter,
+                                                              Provider<T> provider,
                                                               Setter<T> setter,
                                                               T initial) {
-        options.add(new Option<>(saveClass, className + "." + index++, initial, setter, getter));
+        options.add(new Option<>(saveClass, className + "." + index++, initial, setter, provider));
         return this;
     }
 
@@ -148,15 +148,15 @@ public final class SettingsManager {
         private final String key;
         private final T initialValue;
         private final Setter<T> setter;
-        private final Getter<T> getter;
+        private final Provider<T> provider;
         private final Class<T> saveClass;
 
-        public Option(Class<T> saveClass, String key, T initialValue, Setter<T> setter, Getter<T> getter) {
+        public Option(Class<T> saveClass, String key, T initialValue, Setter<T> setter, Provider<T> provider) {
             this.saveClass = saveClass;
             this.key = key;
             this.initialValue = initialValue;
             this.setter = setter;
-            this.getter = getter;
+            this.provider = provider;
         }
 
         void load() {
@@ -166,7 +166,7 @@ public final class SettingsManager {
         }
 
         void save() {
-            var value = getter.get();
+            var value = provider.get();
             SettingsManager.setSetting(key, value);
             LOGGER.finer("Save " + key + " as " + value);
         }
