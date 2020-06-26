@@ -53,7 +53,6 @@ public abstract class GenericFirFilter<T> extends PipelineComponent<T, T> {
     private int taps;
     private boolean bandStop;
     private int fStart, fStop;
-    private int sampleRate;
 
     public GenericFirFilter(Class<T> contentClass, T zero, Window window, int taps, int fStart, int fStop) {
         super(contentClass);
@@ -86,7 +85,6 @@ public abstract class GenericFirFilter<T> extends PipelineComponent<T, T> {
 
     @Override
     public int onInit(int calculatedInputSampleRate) {
-        this.sampleRate = calculatedInputSampleRate;
         recalculateFilterCoefficients();
         return calculatedInputSampleRate;
     }
@@ -159,7 +157,7 @@ public abstract class GenericFirFilter<T> extends PipelineComponent<T, T> {
         final float[] windowCoeffs = this.window.calculateCoefficients(taps);
         final float[] coeffs = new float[taps];
         final int center = (taps - 1) / 2;
-        final float sampleRate = this.sampleRate;
+        final float sampleRate = getInputSampleRate();
 
         if (fStart == fStop) {
             for (int i = 0; i < taps; ++i) {
@@ -244,9 +242,5 @@ public abstract class GenericFirFilter<T> extends PipelineComponent<T, T> {
 
         this.fStart = fStart;
         recalculateFilterCoefficients();
-    }
-
-    public int getSampleRate() {
-        return sampleRate;
     }
 }
