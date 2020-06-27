@@ -27,83 +27,93 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package de.tlmrgvf.drtd.dsp;
+package de.tlmrgvf.drtd.dsp.component.biquad;
 
-public final class BiquadFilter {
+public abstract class GenericBiquadFilter<T> {
     /*
      * Formulas: https://www.w3.org/2011/audio/audio-eq-cookbook.html
      * Good explanation of biquad filters: https://arachnoid.com/BiQuadDesigner/index.html
      *                                                      and
      *                                     https://www.earlevel.com/main/2003/02/28/biquads/
      */
-    public final static double INVSQRT = 1 / Math.sqrt(2);
+    public final static float INVSQRT = (float) (1 / Math.sqrt(2));
     private final int sampleRate;
+    private final T initial;
     private Coefficents coefficients;
-    private double z2;
-    private double z1;
-    private double center;
-    private double qbws;
-    private double gain;
+    private T z2;
+    private T z1;
+    private float center;
+    private float qbws;
+    private float gain;
     private Type type;
 
-    public BiquadFilter(Type type, int sampleRate, double center, double qbws, double gain) {
+    public GenericBiquadFilter(T initial, Type type, int sampleRate, float center, float qbws, float gain) {
+        this.initial = initial;
         this.sampleRate = sampleRate;
         update(type, center, qbws, gain);
     }
 
-    public BiquadFilter(Type type, int sampleRate, double center, double qbws) {
-        this(type, sampleRate, center, qbws, 1);
+    public GenericBiquadFilter(T initial, Type type, int sampleRate, float center, float qbws) {
+        this(initial, type, sampleRate, center, qbws, 1);
     }
 
-    public BiquadFilter(Type type, int sampleRate, float center) {
-        this(type, sampleRate, center, INVSQRT, 1);
+    public GenericBiquadFilter(T initial, Type type, int sampleRate, float center) {
+        this(initial, type, sampleRate, center, INVSQRT, 1);
     }
 
-    public int getSampleRate() {
+    public final int getSampleRate() {
         return sampleRate;
     }
 
-    public Coefficents getCoefficients() {
+    public final Coefficents getCoefficients() {
         return new Coefficents(coefficients);
     }
 
-    public void update(Type type, double center, double qbws, double gain) {
+    public final void update(Type type, float center, float qbws, float gain) {
         coefficients = type.calculate(sampleRate, center, qbws, gain).normalize();
         this.center = center;
         this.qbws = qbws;
         this.gain = gain;
         this.type = type;
+        z1 = initial;
+        z2 = initial;
     }
 
-    public void update(Type type, double center, double qbws) {
+    public final void update(Type type, float center, float qbws) {
         update(type, center, qbws, 1);
     }
 
-    public void update(Type type, double center) {
+    public final void update(Type type, float center) {
         update(type, center, INVSQRT);
     }
 
-    public Type getType() {
+    public final Type getType() {
         return type;
     }
 
-    public double getCenter() {
+    public final float getCenter() {
         return center;
     }
 
-    public double getQbws() {
+    public final float getQbws() {
         return qbws;
     }
 
-    public double getGain() {
+    public final float getGain() {
         return gain;
     }
 
-    public float filterSample(float input) {
-        double result = input * coefficients.input0 + z1;
-        z1 = input * coefficients.input1 + z2 - result * coefficients.feedback1;
-        z2 = input * coefficients.input2 - result * coefficients.feedback2;
-        return (float) result;
+    protected abstract T multiply(T multiplier, float multiplicand);
+
+    protected abstract T add(T to, T amount);
+
+    protected abstract T subtract(T from, T amount);
+
+    public final T filterSample(T input) {
+        final T result = add(multiply(input, coefficients.input0), z1);
+        z1 = subtract(add(multiply(input, coefficients.input1), z2), multiply(result, coefficients.feedback1));
+        z2 = subtract(multiply(input, coefficients.input2), multiply(result, coefficients.feedback2));
+        return result;
     }
 
     public enum Type {
@@ -134,7 +144,7 @@ public final class BiquadFilter {
          * Uses bandwidth
          */
         BANDPASS_CONSTANT_SKIRT_GAIN((ret, A, cosomega0, alphaQ, alphaBW, alphaS, omega0) -> {
-            ret.input0 = Math.sin(omega0) / 2;
+            ret.input0 = (float) (Math.sin(omega0) / 2);
             ret.input1 = 0;
             ret.input2 = -ret.input0;
             ret.feedback0 = 1 + alphaBW;
@@ -170,24 +180,24 @@ public final class BiquadFilter {
          * Uses shelf slope
          */
         LOW_SHELF((ret, A, cosomega0, alphaQ, alphaBW, alphaS, omega0) -> {
-            ret.input0 = A * ((A + 1) - (A - 1) * cosomega0 + 2 * Math.sqrt(A) * alphaS);
+            ret.input0 = (float) (A * ((A + 1) - (A - 1) * cosomega0 + 2 * Math.sqrt(A) * alphaS));
             ret.input1 = 2 * A * ((A - 1) - (A + 1) * cosomega0);
-            ret.input2 = A * ((A + 1) - (A - 1) * cosomega0 - 2 * Math.sqrt(A) * alphaS);
-            ret.feedback0 = (A + 1) + (A - 1) * cosomega0 + 2 * Math.sqrt(A) * alphaS;
+            ret.input2 = (float) (A * ((A + 1) - (A - 1) * cosomega0 - 2 * Math.sqrt(A) * alphaS));
+            ret.feedback0 = (float) ((A + 1) + (A - 1) * cosomega0 + 2 * Math.sqrt(A) * alphaS);
             ret.feedback1 = -2 * ((A - 1) + (A + 1) * cosomega0);
-            ret.feedback2 = (A + 1) + (A - 1) * cosomega0 - 2 * Math.sqrt(A) * alphaS;
+            ret.feedback2 = (float) ((A + 1) + (A - 1) * cosomega0 - 2 * Math.sqrt(A) * alphaS);
             return ret;
         }, "Low shelf", true, "Slope"),
         /**
          * Uses shelf slope
          */
         HIGH_SHELF((ret, A, cosomega0, alphaQ, alphaBW, alphaS, omega0) -> {
-            ret.input0 = A * ((A + 1) + (A - 1) * cosomega0 + 2 * Math.sqrt(A) * alphaS);
+            ret.input0 = (float) (A * ((A + 1) + (A - 1) * cosomega0 + 2 * Math.sqrt(A) * alphaS));
             ret.input1 = -2 * A * ((A - 1) + (A + 1) * cosomega0);
-            ret.input2 = A * ((A + 1) + (A - 1) * cosomega0 - 2 * Math.sqrt(A) * alphaS);
-            ret.feedback0 = (A + 1) - (A - 1) * cosomega0 + 2 * Math.sqrt(A) * alphaS;
+            ret.input2 = (float) (A * ((A + 1) + (A - 1) * cosomega0 - 2 * Math.sqrt(A) * alphaS));
+            ret.feedback0 = (float) ((A + 1) - (A - 1) * cosomega0 + 2 * Math.sqrt(A) * alphaS);
             ret.feedback1 = 2 * ((A - 1) - (A + 1) * cosomega0);
-            ret.feedback2 = (A + 1) - (A - 1) * cosomega0 - 2 * Math.sqrt(A) * alphaS;
+            ret.feedback2 = (float) ((A + 1) - (A - 1) * cosomega0 - 2 * Math.sqrt(A) * alphaS);
             return ret;
         }, "High shelf", true, "Slope");
 
@@ -207,16 +217,16 @@ public final class BiquadFilter {
             this.qbwsLabel = qbwsLabel;
         }
 
-        private Coefficents calculate(int sampleRate, double center, double qbws, double gain) {
-            double w0 = 2 * Math.PI * (center / sampleRate);
-            double wsin = Math.sin(w0);
-            double A = Math.pow(10, gain / 40);
+        private Coefficents calculate(int sampleRate, float center, float qbws, float gain) {
+            float w0 = (float) (2 * Math.PI * (center / sampleRate));
+            float wsin = (float) Math.sin(w0);
+            float A = (float) Math.pow(10, gain / 40);
             return calculator.calculate(new Coefficents(sampleRate),
                     A,
-                    Math.cos(w0),
+                    (float) Math.cos(w0),
                     wsin / (2 * qbws),
-                    wsin * Math.sinh(Math.log(2) / 2 * qbws * (w0 / wsin)),
-                    wsin / 2 * Math.sqrt((A + 1 / A) * (1 / qbws - 1) + 2),
+                    (float) (wsin * Math.sinh(Math.log(2) / 2 * qbws * (w0 / wsin))),
+                    (float) (wsin / 2 * Math.sqrt((A + 1 / A) * (1 / qbws - 1) + 2)),
                     w0);
         }
 
@@ -235,23 +245,23 @@ public final class BiquadFilter {
 
         interface CoefficentCalculator {
             Coefficents calculate(Coefficents ret,
-                                  double A,
-                                  double cosomega0,
-                                  double alphaQ,
-                                  double alphaBW,
-                                  double alphaS,
-                                  double omega0);
+                                  float A,
+                                  float cosomega0,
+                                  float alphaQ,
+                                  float alphaBW,
+                                  float alphaS,
+                                  float omega0);
         }
     }
 
     public final static class Coefficents {
         private final int sampleRate;
-        public double feedback0;
-        public double feedback1;
-        public double feedback2;
-        public double input0;
-        public double input1;
-        public double input2;
+        public float feedback0;
+        public float feedback1;
+        public float feedback2;
+        public float input0;
+        public float input1;
+        public float input2;
 
         public Coefficents(int sampleRate) {
             this.sampleRate = sampleRate;
@@ -278,16 +288,16 @@ public final class BiquadFilter {
         }
 
         public float frequencyResponse(float frequency) {
-            double phi = Math.sin(2 * Math.PI * frequency / (2F * sampleRate));
+            float phi = (float) Math.sin(2 * Math.PI * frequency / (2F * sampleRate));
             phi *= phi;
 
-            final double insum = input0 + input1 + input2;
-            final double feedbackSum = feedback1 + feedback2 + 1;
-            final double fsqr = (16 * input0 * input2 * phi * phi + insum * insum - 4 *
+            final float insum = input0 + input1 + input2;
+            final float feedbackSum = feedback1 + feedback2 + 1;
+            final float fsqr = (16 * input0 * input2 * phi * phi + insum * insum - 4 *
                     (input0 * input1 + 4 * input0 * input2 + input1 * input2) * phi) /
                     (16 * feedback2 * phi * phi + feedbackSum * feedbackSum - 4 *
                             (feedback1 * feedback2 + feedback1 + 4 * feedback2) * phi);
-            return (float) (fsqr < 0 ? 0 : Math.sqrt(fsqr));
+            return fsqr < 0 ? 0 : (float) Math.sqrt(fsqr);
         }
 
         @Override

@@ -29,8 +29,9 @@
 
 package de.tlmrgvf.drtd.dsp.component;
 
-import de.tlmrgvf.drtd.dsp.BiquadFilter;
 import de.tlmrgvf.drtd.dsp.PipelineComponent;
+import de.tlmrgvf.drtd.dsp.component.biquad.BiquadFilter;
+import de.tlmrgvf.drtd.dsp.component.biquad.GenericBiquadFilter;
 import de.tlmrgvf.drtd.gui.dialog.BiquadFilterDialog;
 import de.tlmrgvf.drtd.utils.Utils;
 
@@ -39,21 +40,21 @@ import java.awt.*;
 public class BiquadFilterComponent extends PipelineComponent<Float, Float> {
     private final static Dimension SIZE = new Dimension(60, 45);
     private static BiquadFilterDialog dialog;
-    private final BiquadFilter.Type type;
-    private final double center;
-    private final double qbws;
-    private final double gain;
+    private final GenericBiquadFilter.Type type;
+    private final float center;
+    private final float qbws;
+    private final float gain;
     private BiquadFilter filter;
 
-    public BiquadFilterComponent(BiquadFilter.Type type, double center) {
-        this(type, center, BiquadFilter.INVSQRT);
+    public BiquadFilterComponent(GenericBiquadFilter.Type type, float center) {
+        this(type, center, GenericBiquadFilter.INVSQRT);
     }
 
-    public BiquadFilterComponent(BiquadFilter.Type type, double center, double qbws) {
+    public BiquadFilterComponent(GenericBiquadFilter.Type type, float center, float qbws) {
         this(type, center, qbws, 1);
     }
 
-    public BiquadFilterComponent(BiquadFilter.Type type, double center, double qbws, double gain) {
+    public BiquadFilterComponent(GenericBiquadFilter.Type type, float center, float qbws, float gain) {
         super(Float.class);
         this.type = type;
         this.center = center;

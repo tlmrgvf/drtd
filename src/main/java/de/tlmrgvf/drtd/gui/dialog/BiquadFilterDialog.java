@@ -30,7 +30,7 @@
 package de.tlmrgvf.drtd.gui.dialog;
 
 import de.tlmrgvf.drtd.Drtd;
-import de.tlmrgvf.drtd.dsp.BiquadFilter;
+import de.tlmrgvf.drtd.dsp.component.biquad.GenericBiquadFilter;
 import de.tlmrgvf.drtd.gui.component.FilterPlot;
 
 import javax.swing.*;
@@ -44,8 +44,8 @@ import java.awt.event.MouseEvent;
 import java.text.ParseException;
 
 public final class BiquadFilterDialog extends JDialog {
-    private final BiquadFilter filter;
-    private final JComboBox<BiquadFilter.Type> types;
+    private final GenericBiquadFilter<?> filter;
+    private final JComboBox<GenericBiquadFilter.Type> types;
     private final JSpinner center;
     private final JSpinner qbws;
     private final JSpinner gain;
@@ -53,7 +53,7 @@ public final class BiquadFilterDialog extends JDialog {
     private final JLabel gainLabel;
     private final FilterPlot plot;
 
-    public BiquadFilterDialog(BiquadFilter filter) {
+    public BiquadFilterDialog(GenericBiquadFilter<?> filter) {
         this.filter = filter;
         final ListenerImpl listener = new ListenerImpl();
 
@@ -79,7 +79,7 @@ public final class BiquadFilterDialog extends JDialog {
 
         rootPanel.add(settingsPanel, BorderLayout.SOUTH);
 
-        types = new JComboBox<>(BiquadFilter.Type.values());
+        types = new JComboBox<>(GenericBiquadFilter.Type.values());
         center = new JSpinner(new SpinnerNumberModel(filter.getCenter(), 0, sampleRate / 2F, 10));
         qbws = new JSpinner(new SpinnerNumberModel(filter.getQbws(), 0, sampleRate / 2F, 1));
         gain = new JSpinner(new SpinnerNumberModel(filter.getGain(), -1000, 1000, .5));
@@ -131,11 +131,11 @@ public final class BiquadFilterDialog extends JDialog {
     }
 
     public void updateFromFilter() {
-        gain.setValue(filter.getGain());
+        gain.setValue((double) filter.getGain());
         types.setSelectedItem(filter.getType());
-        center.setValue(filter.getCenter());
+        center.setValue((double) filter.getCenter());
         qbwsLabel.setText(filter.getType().getQbwsLabel());
-        qbws.setValue(filter.getQbws());
+        qbws.setValue((double) filter.getQbws());
         gain.setEnabled(filter.getType().usesGain());
         gainLabel.setEnabled(gain.isEnabled());
 
@@ -144,10 +144,10 @@ public final class BiquadFilterDialog extends JDialog {
 
     private class ListenerImpl extends MouseAdapter implements ChangeListener, ItemListener {
         private void update() {
-            filter.update((BiquadFilter.Type) types.getSelectedItem(),
-                    (double) center.getValue(),
-                    (double) qbws.getValue(),
-                    (double) gain.getValue());
+            filter.update((GenericBiquadFilter.Type) types.getSelectedItem(),
+                    (float) (double) center.getValue(),
+                    (float) (double) qbws.getValue(),
+                    (float) (double) gain.getValue());
             gain.setEnabled(filter.getType().usesGain());
             gainLabel.setEnabled(gain.isEnabled());
             qbwsLabel.setText(filter.getType().getQbwsLabel());
