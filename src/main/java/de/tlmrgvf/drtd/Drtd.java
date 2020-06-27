@@ -78,6 +78,16 @@ public final class Drtd {
         LOGGER.info("Parsed options: " + OPTIONS);
 
         try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException |
+                InstantiationException |
+                IllegalAccessException |
+                UnsupportedLookAndFeelException e) {
+            LOGGER.throwing("Drtd", "main", e);
+            Utils.die();
+        }
+
+        try {
             ICON = ImageIO.read(Drtd.readResourceStream("drtd.png"));
         } catch (IOException e) {
             Drtd.getLogger(BitConverter.class).throwing("Drtd", "main", e);

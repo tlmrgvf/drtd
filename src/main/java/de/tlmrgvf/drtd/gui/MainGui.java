@@ -146,7 +146,11 @@ public final class MainGui extends JFrame {
         scope.addMouseListener(listener);
 
         JPanel statusBar = new JPanel(new BorderLayout(10, 0));
-        statusBar.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        statusBar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(0, 2, 2, 2),
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createEtchedBorder(EtchedBorder.RAISED),
+                        BorderFactory.createEmptyBorder(2, 2, 2, 2))));
 
         JPanel statusPanel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(statusPanel, BoxLayout.X_AXIS);
