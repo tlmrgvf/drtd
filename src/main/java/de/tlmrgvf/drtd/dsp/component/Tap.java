@@ -33,7 +33,7 @@ import de.tlmrgvf.drtd.dsp.PipelineComponent;
 
 import java.awt.*;
 
-public class Tap<T> extends PipelineComponent<T, T> {
+public final class Tap<T> extends PipelineComponent<T, T> {
     private final TapFunction<T> function;
 
     public Tap(Class<T> resultClass, TapFunction<T> function) {

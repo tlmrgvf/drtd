@@ -37,7 +37,7 @@ import de.tlmrgvf.drtd.utils.Utils;
 
 import java.awt.*;
 
-public class BiquadFilterComponent extends PipelineComponent<Float, Float> {
+public final class BiquadFilterComponent extends PipelineComponent<Float, Float> {
     private final static Dimension SIZE = new Dimension(60, 45);
     private static BiquadFilterDialog dialog;
     private final GenericBiquadFilter.Type type;
