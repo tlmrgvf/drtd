@@ -34,6 +34,7 @@ import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.decoder.Decoder;
 import de.tlmrgvf.drtd.dsp.Interpreter;
 import de.tlmrgvf.drtd.dsp.component.BiquadFilterComponent;
+import de.tlmrgvf.drtd.dsp.component.PLL;
 import de.tlmrgvf.drtd.dsp.component.firfilter.GenericFirFilter;
 import de.tlmrgvf.drtd.gui.component.Scope;
 import de.tlmrgvf.drtd.gui.component.Waterfall;
@@ -214,6 +215,7 @@ public final class MainGui extends JFrame {
         ConfigureDialog.closeAll();
         GenericFirFilter.closeDialog();
         BiquadFilterComponent.closeDialog();
+        PLL.closeDialog();
         Drtd.getUpdateThread().setDecoder(decoder);
         setMinimumSize(contentPanel.getMinimumSize());
         Drtd.startProcessing(decoder);
