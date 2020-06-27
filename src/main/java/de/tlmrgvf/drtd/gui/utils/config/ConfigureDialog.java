@@ -46,7 +46,7 @@ public final class ConfigureDialog extends JDialog {
 
         setTitle(title);
         setResizable(false);
-        setIconImage(Drtd.ICON);
+        setIconImages(Drtd.ICONS);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setMinimumSize(new Dimension(250, 0));
 

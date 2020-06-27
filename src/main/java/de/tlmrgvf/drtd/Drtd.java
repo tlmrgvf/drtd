@@ -41,21 +41,23 @@ import de.tlmrgvf.drtd.utils.Utils;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import javax.swing.*;
-import java.awt.image.BufferedImage;
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Drtd {
     private final static String RESOURCE_LOCATION = "res";
+    public final static List<Image> ICONS = new LinkedList<>();
     private final static Options OPTIONS = new Options();
     private final static LogHandler HANDLER = new LogHandler();
     private final static Map<Class<?>, Interpreter> interpreters = new HashMap<>();
     private final static Mixer.Info[] AUDIO_MIXERS = AudioSystem.getMixerInfo();
     public final static String NAME = "drtd";
-    public static BufferedImage ICON;
+    private final static String[] ICON_NAMES = new String[]{"drtd.png", "drtd64.png", "drtd128.png"};
 
     private static Logger LOGGER;
     private static ProcessingThread processingThread;
@@ -88,7 +90,8 @@ public final class Drtd {
         }
 
         try {
-            ICON = ImageIO.read(Drtd.readResourceStream("drtd.png"));
+            for (var name : ICON_NAMES)
+                ICONS.add(ImageIO.read(Drtd.readResourceStream(name)));
         } catch (IOException e) {
             Drtd.getLogger(BitConverter.class).throwing("Drtd", "main", e);
             Utils.die();

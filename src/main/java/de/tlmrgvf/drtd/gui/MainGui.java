@@ -77,7 +77,7 @@ public final class MainGui extends JFrame {
         setLayout(new BorderLayout());
         setMinimumSize(new Dimension(480, 240));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setIconImage(Drtd.ICON);
+        setIconImages(Drtd.ICONS);
 
         ListenerImpl listener = new ListenerImpl();
         rootSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);

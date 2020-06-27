@@ -59,7 +59,7 @@ public final class BiquadFilterDialog extends JDialog {
 
         setTitle("Configure filter");
         setResizable(true);
-        setIconImage(Drtd.ICON);
+        setIconImages(Drtd.ICONS);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setMinimumSize(new Dimension(400, 400));
 

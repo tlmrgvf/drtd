@@ -59,7 +59,7 @@ public final class ScopeDialog extends JFrame {
         instance = this;
         setTitle("Scope settings");
         setResizable(false);
-        setIconImage(Drtd.ICON);
+        setIconImages(Drtd.ICONS);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         GridLayout gridLayout = new GridLayout(0, 2);

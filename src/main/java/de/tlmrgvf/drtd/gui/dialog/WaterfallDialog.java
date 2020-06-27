@@ -70,7 +70,7 @@ public final class WaterfallDialog extends JFrame {
 
         setTitle("Waterfall settings");
         setResizable(false);
-        setIconImage(Drtd.ICON);
+        setIconImages(Drtd.ICONS);
         setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
         GridLayout gridLayout = new GridLayout(0, 2);

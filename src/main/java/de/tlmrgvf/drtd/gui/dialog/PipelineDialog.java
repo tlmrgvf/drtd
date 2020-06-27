@@ -55,6 +55,7 @@ public final class PipelineDialog extends JFrame {
     public PipelineDialog() {
         setTitle("Pipeline");
         setLayout(new BorderLayout());
+        setIconImages(Drtd.ICONS);
         setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
         setMinimumSize(new Dimension(200, 200));
         canvas = new Canvas();

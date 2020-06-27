@@ -72,7 +72,7 @@ public final class FilterDialog extends JDialog {
         setTitle("Configure filter");
         setResizable(true);
         setLocation(getParent().getLocation());
-        setIconImage(Drtd.ICON);
+        setIconImages(Drtd.ICONS);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setMinimumSize(new Dimension(400, 400));
 
