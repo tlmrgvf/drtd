@@ -43,7 +43,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.ParseException;
 
-public final class BiquadFilterDialog extends JDialog {
+public final class BiquadFilterDialog extends JFrame {
     private final GenericBiquadFilter<?> filter;
     private final JComboBox<GenericBiquadFilter.Type> types;
     private final JSpinner center;
@@ -60,7 +60,7 @@ public final class BiquadFilterDialog extends JDialog {
         setTitle("Configure filter");
         setResizable(true);
         setIconImages(Drtd.ICONS);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
         setMinimumSize(new Dimension(400, 400));
 
         var sampleRate = filter.getSampleRate();
