@@ -53,6 +53,7 @@ public final class Normalizer extends PipelineComponent<Float, Float> {
         }
     }
 
+    private final boolean delay;
     private final RingBuffer delayBuffer;
     private int windowSize;
     private float max = Float.MIN_VALUE;
@@ -61,8 +62,9 @@ public final class Normalizer extends PipelineComponent<Float, Float> {
     private float offset = 0;
     private int count;
 
-    public Normalizer(int windowSize) {
+    public Normalizer(boolean delay, int windowSize) {
         super(Float.class);
+        this.delay = delay;
         delayBuffer = new RingBuffer(windowSize);
         this.windowSize = windowSize;
     }
@@ -83,7 +85,7 @@ public final class Normalizer extends PipelineComponent<Float, Float> {
 
     @Override
     protected synchronized Float calculate(Float input) {
-        final float ret = (delayBuffer.push(input) - offset) * factor;
+        final float ret = ((delay ? delayBuffer.push(input) : input) - offset) * factor;
 
         if (count >= windowSize) {
             count = 0;

@@ -125,8 +125,8 @@ public final class Rtty extends Decoder<Boolean> {
         converter = new BitConverter(1);
         spaceFilter = new ComplexMovingAverage(1);
         markFilter = new ComplexMovingAverage(1);
-        spaceNormalizer = new Normalizer(1);
-        markNormalizer = new Normalizer(1);
+        spaceNormalizer = new Normalizer(true, 1);
+        markNormalizer = new Normalizer(true, 1);
 
         usbLsbCheckbox = new JCheckBox("Use LSB");
         escapeCrCheckbox = new JCheckBox("Print CR's");
