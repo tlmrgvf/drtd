@@ -83,6 +83,9 @@ public abstract class Decoder<T> {
 
     protected abstract void onSetup();
 
+    public void onTeardown() {
+    }
+
     protected void onMarkerMoved(int centerFrequency) {
     }
 

@@ -190,8 +190,10 @@ public final class MainGui extends JFrame {
 
     public void updateDecoder() {
         var old = Drtd.getProcessingThread();
-        if (old != null)
+        if (old != null) {
             old.getDecoder().saveSettings();
+            old.getDecoder().onTeardown();
+        }
 
         final Decoder<?> decoder = ((DecoderImplementation) decoderComboBox.getSelectedItem()).getInstance();
         LOGGER.fine("Set new decoder " + decoder);
