@@ -132,7 +132,7 @@ public final class Rtty extends Decoder<Boolean> {
         showTuningCheckbox = new JCheckBox("Show tuning");
 
         updateMarker();
-        getManager().mapOption(Integer.class, this::getShift, this::setShift, 170)
+        getSettingsManager().mapOption(Integer.class, this::getShift, this::setShift, 170)
                 .mapOption(Double.class, this::getBaudrate, this::setBaudrate, 45.45)
                 .mapOption(Integer.class, this::getCenterFrequency, this::setCenterFrequency, 0)
                 .mapOption(Boolean.class, usbLsbCheckbox::isSelected, usbLsbCheckbox::setSelected, false)

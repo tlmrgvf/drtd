@@ -71,7 +71,7 @@ public abstract class Decoder<T> {
         manager.loadAll();
     }
 
-    public final SettingsManager getManager() {
+    public final SettingsManager getSettingsManager() {
         return manager;
     }
 
