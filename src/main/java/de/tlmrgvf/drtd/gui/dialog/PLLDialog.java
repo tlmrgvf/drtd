@@ -33,9 +33,9 @@ import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.dsp.component.PLL;
 import de.tlmrgvf.drtd.gui.component.RollingScope;
 import de.tlmrgvf.drtd.utils.DownSampler;
+import de.tlmrgvf.drtd.utils.Utils;
 
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -71,16 +71,14 @@ public final class PLLDialog extends JDialog {
         final var graphPanel = new JPanel(new BorderLayout());
         graphPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(4, 4, 4, 4),
-                BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED),
-                        "Phase error")));
+                Utils.createLabeledBorder("Phase error")));
         graph = new RollingScope();
         graphPanel.add(graph);
 
         final var settingsPanel = new JPanel(new GridLayout(0, 2, 4, 4));
         settingsPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(4, 4, 4, 4),
-                BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED),
-                        "Settings")));
+                Utils.createLabeledBorder("Settings")));
 
         frequencySpinner = new JSpinner(new SpinnerNumberModel(pll.getFrequency(),
                 0,

@@ -94,8 +94,7 @@ public final class FilterDialog extends JDialog {
         gridLayout.setVgap(10);
         gridLayout.setHgap(10);
         JPanel settingsPanel = new JPanel(gridLayout);
-        settingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
-                "Filter settings"));
+        settingsPanel.setBorder(Utils.createLabeledBorder("Filter settings"));
 
         rootPanel.add(settingsPanel, BorderLayout.SOUTH);
 

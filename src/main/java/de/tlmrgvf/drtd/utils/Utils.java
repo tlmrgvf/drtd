@@ -34,6 +34,7 @@ package de.tlmrgvf.drtd.utils;
 import de.tlmrgvf.drtd.Drtd;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
@@ -121,13 +122,14 @@ public final class Utils {
         return (i == 0 && !set) || (i != 0 && set);
     }
 
+    public static Border createLabeledBorder(String title) {
+        return BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED), title);
+    }
+
     public static void addLabeledComponent(JComponent parent, JComponent component, String title) {
         var panel = new JPanel(new GridLayout(1, 1));
         panel.add(component);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(
-                        BorderFactory.createEtchedBorder(EtchedBorder.RAISED),
-                        title),
+        panel.setBorder(BorderFactory.createCompoundBorder(Utils.createLabeledBorder(title),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5))
         );
         parent.add(panel);

@@ -77,7 +77,7 @@ public final class WaterfallDialog extends JFrame {
         JPanel rootPanel = new JPanel();
         JPanel settingsPanel = new JPanel(gridLayout);
         rootPanel.setLayout(new BoxLayout(rootPanel, BoxLayout.Y_AXIS));
-        settingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Settings"));
+        settingsPanel.setBorder(Utils.createLabeledBorder("Settings"));
         rootPanel.add(settingsPanel);
         gridLayout.setVgap(10);
         gridLayout.setHgap(10);

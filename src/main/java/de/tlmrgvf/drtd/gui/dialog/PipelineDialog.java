@@ -38,7 +38,6 @@ import de.tlmrgvf.drtd.utils.TargetLineWrapper;
 import de.tlmrgvf.drtd.utils.Utils;
 
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -107,10 +106,7 @@ public final class PipelineDialog extends JFrame {
 
         Utils.addLabeledComponent(upperPanel, inputCombobox, "Input device");
 
-        scrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(EtchedBorder.RAISED),
-                "Pipeline")
-        );
+        scrollPane.setBorder(Utils.createLabeledBorder("Pipeline"));
 
         add(scrollPane, BorderLayout.CENTER);
         add(lowerPanel, BorderLayout.SOUTH);

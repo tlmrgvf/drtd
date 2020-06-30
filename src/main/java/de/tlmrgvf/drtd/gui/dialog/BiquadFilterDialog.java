@@ -32,6 +32,7 @@ package de.tlmrgvf.drtd.gui.dialog;
 import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.dsp.component.biquad.GenericBiquadFilter;
 import de.tlmrgvf.drtd.gui.component.FilterPlot;
+import de.tlmrgvf.drtd.utils.Utils;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -74,8 +75,7 @@ public final class BiquadFilterDialog extends JFrame {
         gridLayout.setVgap(10);
         gridLayout.setHgap(10);
         JPanel settingsPanel = new JPanel(gridLayout);
-        settingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
-                "Filter settings"));
+        settingsPanel.setBorder(Utils.createLabeledBorder("Filter settings"));
 
         rootPanel.add(settingsPanel, BorderLayout.SOUTH);
 

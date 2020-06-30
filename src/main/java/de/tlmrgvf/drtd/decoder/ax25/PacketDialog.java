@@ -74,12 +74,10 @@ public final class PacketDialog extends JDialog {
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         tableScroll.setPreferredSize(new Dimension(400, 200));
-        tableScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Address"));
+        tableScroll.setBorder(Utils.createLabeledBorder("Address"));
 
         final Map<String, String> map = packet.getPropertyMap();
-        propertyPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(),
-                "Properties"));
+        propertyPanel.setBorder(Utils.createLabeledBorder("Properties"));
         propertyPanel.setLayout(new GridLayout(4 + map.size(), 2));
         addProperty(propertyPanel, "Type", packet.getType().getName());
         addProperty(propertyPanel, "Command", packet.getSourceAddress().isCommand() ? "Yes" : "No");
@@ -91,7 +89,7 @@ public final class PacketDialog extends JDialog {
         for (String desc : map.keySet())
             addProperty(propertyPanel, desc, map.get(desc));
 
-        rawPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Raw data"));
+        rawPanel.setBorder(Utils.createLabeledBorder("Raw data"));
         final Byte[] data = packet.getRaw();
 
         JTextArea hex = new JTextArea();

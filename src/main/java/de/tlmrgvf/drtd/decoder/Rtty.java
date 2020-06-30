@@ -44,7 +44,6 @@ import de.tlmrgvf.drtd.utils.Utils;
 import de.tlmrgvf.drtd.utils.structure.BitBuffer;
 
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -205,8 +204,7 @@ public final class Rtty extends Decoder<Boolean> {
         tuningPanel = new JPanel();
         tuningPanel.setVisible(showTuningCheckbox.isSelected());
         tuningPanel.setLayout(new BoxLayout(tuningPanel, BoxLayout.X_AXIS));
-        tuningPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED),
-                "Tuning"));
+        tuningPanel.setBorder(Utils.createLabeledBorder("Tuning"));
         tuningPanel.add(scope);
 
         topPanel.add(topLeftPanel);
