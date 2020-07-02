@@ -41,6 +41,7 @@ import de.tlmrgvf.drtd.gui.component.Waterfall;
 import de.tlmrgvf.drtd.gui.dialog.PipelineDialog;
 import de.tlmrgvf.drtd.gui.utils.config.ConfigureDialog;
 import de.tlmrgvf.drtd.utils.SettingsManager;
+import de.tlmrgvf.drtd.utils.Utils;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -63,7 +64,7 @@ public final class MainGui extends JFrame {
     private final JComboBox<DecoderImplementation> decoderComboBox;
     private final JComboBox<String> shownValue;
     private final JPanel decoderPanel;
-    private final JPanel contentPanel;
+    private final JPanel rootPanel;
     private final PipelineDialog pipelineDialog;
     private final JLabel statusLabel;
     private final JSpinner frequencySpinner;
@@ -75,10 +76,11 @@ public final class MainGui extends JFrame {
     public MainGui() {
         super(Drtd.NAME);
 
-        setLayout(new BorderLayout());
         setMinimumSize(new Dimension(480, 240));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIconImages(Drtd.ICONS);
+
+        rootPanel = new JPanel(new BorderLayout());
 
         ListenerImpl listener = new ListenerImpl();
         rootSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -86,9 +88,9 @@ public final class MainGui extends JFrame {
 
         addWindowListener(listener);
         rootSplitPane.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        add(rootSplitPane, BorderLayout.CENTER);
+        rootPanel.add(rootSplitPane, BorderLayout.CENTER);
 
-        contentPanel = new JPanel(new BorderLayout());
+        JPanel contentPanel = new JPanel(new BorderLayout());
         JPanel waterfallPanel = new JPanel(new BorderLayout(0, 0));
 
         rootSplitPane.setLeftComponent(contentPanel);
@@ -168,7 +170,8 @@ public final class MainGui extends JFrame {
 
         statusBar.add(statusPanel, BorderLayout.CENTER);
         statusBar.add(shownValue, BorderLayout.WEST);
-        add(statusBar, BorderLayout.SOUTH);
+        rootPanel.add(statusBar, BorderLayout.SOUTH);
+        add(rootPanel);
 
         waveSplitPane.setResizeWeight(0);
         rootSplitPane.setResizeWeight(1);
@@ -219,7 +222,10 @@ public final class MainGui extends JFrame {
         BiquadFilterComponent.closeDialog();
         PLL.closeDialog();
         Drtd.getUpdateThread().setDecoder(decoder);
-        setMinimumSize(contentPanel.getMinimumSize());
+        final var insets = getInsets();
+        setMinimumSize(Utils.resize(rootPanel.getMinimumSize(),
+                insets.left + insets.right,
+                insets.top + insets.bottom));
         Drtd.startProcessing(decoder);
     }
 
