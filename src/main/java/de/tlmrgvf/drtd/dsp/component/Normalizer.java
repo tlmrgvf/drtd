@@ -54,17 +54,24 @@ public final class Normalizer extends PipelineComponent<Float, Float> {
     }
 
     private final boolean delay;
+    private final boolean averageValues;
     private final RingBuffer delayBuffer;
     private int windowSize;
     private float max = Float.MIN_VALUE;
     private float min = Float.MAX_VALUE;
+    private float average = 0;
     private float factor = 1;
     private float offset = 0;
     private int count;
 
     public Normalizer(boolean delay, int windowSize) {
+        this(delay, false, windowSize);
+    }
+
+    public Normalizer(boolean delay, boolean averageValues, int windowSize) {
         super(Float.class);
         this.delay = delay;
+        this.averageValues = averageValues;
         delayBuffer = new RingBuffer(windowSize);
         this.windowSize = windowSize;
     }
@@ -78,6 +85,7 @@ public final class Normalizer extends PipelineComponent<Float, Float> {
         delayBuffer.resize(windowSize);
         delayBuffer.clear(true);
         factor = 1;
+        average = 0;
         count = 0;
         max = Float.MIN_VALUE;
         min = Float.MAX_VALUE;
@@ -88,13 +96,19 @@ public final class Normalizer extends PipelineComponent<Float, Float> {
         final float ret = ((delay ? delayBuffer.push(input) : input) - offset) * factor;
 
         if (count >= windowSize) {
+            if (averageValues)
+                offset = average / count;
+            else
+                offset = min;
+
+            average = 0;
+            factor = 1 / ((averageValues ? offset : max) - min);
             count = 0;
-            offset = min;
-            factor = 1 / (max - min);
             max = Float.MIN_VALUE;
             min = Float.MAX_VALUE;
         } else {
             ++count;
+            average += input;
             max = Math.max(max, input);
             min = Math.min(min, input);
         }
