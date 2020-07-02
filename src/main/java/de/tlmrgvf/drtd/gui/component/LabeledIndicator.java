@@ -33,10 +33,12 @@ import javax.swing.*;
 import java.awt.*;
 
 public final class LabeledIndicator extends JComponent {
-    public final static Color YELLOW_OFF_COLOR = new Color(.4F, .3F, 0);
-    public final static Color YELLOW_ON_COLOR = new Color(.9F, .8F, 0);
-    public final static Color GREEN_OFF_COLOR = new Color(0, .3F, 0);
-    public final static Color GREEN_ON_COLOR = new Color(0, .8F, 0);
+    public final static Color YELLOW_OFF_COLOR = new Color(.4F, .3F, 0F);
+    public final static Color YELLOW_ON_COLOR = new Color(.9F, .8F, 0F);
+    public final static Color GREEN_OFF_COLOR = new Color(0F, .3F, 0F);
+    public final static Color GREEN_ON_COLOR = new Color(0F, .8F, 0F);
+    public final static Color RED_ON_COLOR = new Color(.85F, 0F, 0F);
+    public final static Color RED_OFF_COLOR = new Color(.3F, 0F, 0F);
 
     public final static Dimension DIMENSIONS = new Dimension(25, 18);
     private final static int UPDATE_LIMIT = 30;
