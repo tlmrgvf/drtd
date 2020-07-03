@@ -248,9 +248,7 @@ public final class Waterfall extends Canvas {
             halfWidth = translateXWithoutOffset(Math.max(halfWidth,
                     Math.abs(mark.getOffset() + mark.getBandwidth() / 2)));
 
-        if (halfWidth == 0) return;
-        markerLayer.setWidth(2 * halfWidth);
-
+        markerLayer.setWidth(Math.max(2 * halfWidth, 1));
         markerLayer.clear();
         Graphics markerGraphics = markerLayer.getGraphics();
 
