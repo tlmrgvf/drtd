@@ -7,13 +7,13 @@ A digital radio transmission decoder
 * RTTY
 * POCSAG 512/1200/2400
 * DTMF
-
-## Planned to be added
-* ADS-B
 * DCF77
+
+## Planned
+* ADS-B
+* BPSK/QPSK/8-PSK
 * NAVTEX
 * SSTV
-
 
 ## Build
 **Required:**
@@ -21,7 +21,12 @@ A digital radio transmission decoder
 * Maven
 
 **To build:**  
-``mvn clean package``  
+````shell
+mvn clean package
+````  
   
 **To run:**  
-``java -jar drtd/drtd.jar``, pass ``--help`` to show command line options
+````shell
+java -jar drtd/drtd.jar
+````  
+Pass ``--help`` to show command line options
