@@ -29,10 +29,7 @@
 
 package de.tlmrgvf.drtd;
 
-import de.tlmrgvf.drtd.decoder.Decoder;
-import de.tlmrgvf.drtd.decoder.Dtmf;
-import de.tlmrgvf.drtd.decoder.Null;
-import de.tlmrgvf.drtd.decoder.Rtty;
+import de.tlmrgvf.drtd.decoder.*;
 import de.tlmrgvf.drtd.decoder.ax25.Ax25;
 import de.tlmrgvf.drtd.decoder.pocsag.Pocsag;
 import de.tlmrgvf.drtd.utils.Provider;
@@ -42,7 +39,8 @@ public enum DecoderImplementation {
     AX25(Ax25::new, "AX.25/APRS"),
     RTTY(Rtty::new, "RTTY"),
     POCSAG(Pocsag::new, "POCSAG"),
-    DTMF(Dtmf::new, "DTMF");
+    DTMF(Dtmf::new, "DTMF"),
+    DCF77(Dcf77::new, "DCF77");
 
     private final Provider<Decoder<?>> constructor;
     private final String displayName;
