@@ -22,10 +22,12 @@ A digital radio transmission decoder
 
 **To build:**  
 ````shell
+git clone https://github.com/tlmrgvf/drtd.git
+cd drtd
 mvn clean package
 ````  
   
-**To run:**  
+**And to run:**  
 ````shell
 java -jar drtd/drtd.jar
 ````  
