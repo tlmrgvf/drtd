@@ -31,6 +31,7 @@ package de.tlmrgvf.drtd.gui.dialog;
 
 import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.decoder.Decoder;
+import de.tlmrgvf.drtd.dsp.Interpreter;
 import de.tlmrgvf.drtd.dsp.PipelineComponent;
 import de.tlmrgvf.drtd.gui.utils.Canvas;
 import de.tlmrgvf.drtd.gui.utils.Layer;
@@ -45,18 +46,18 @@ public final class PipelineDialog extends JFrame {
     private final static int PADDING = 20;
     private final Canvas canvas;
     private final Layer draw;
-    private final JScrollPane scrollPane;
     private final JLabel performanceLabel;
 
     private Decoder<?> decoder;
     private final JComboBox<TargetLineWrapper> inputCombobox;
+    private final JComboBox<String> shownValue;
 
     public PipelineDialog() {
         setTitle("Pipeline");
         setLayout(new BorderLayout());
         setIconImages(Drtd.ICONS);
         setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-        setMinimumSize(new Dimension(200, 200));
+        setMinimumSize(new Dimension(340, 200));
         canvas = new Canvas();
         draw = canvas.createLayer(0, 0, 10, 10);
 
@@ -65,7 +66,7 @@ public final class PipelineDialog extends JFrame {
 
         var listener = new ListenerImpl();
         canvas.addMouseListener(listener);
-        scrollPane = new JScrollPane(
+        JScrollPane scrollPane = new JScrollPane(
                 centerPanel,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
@@ -104,7 +105,13 @@ public final class PipelineDialog extends JFrame {
         var upperPanel = new JPanel();
         upperPanel.setLayout(new BoxLayout(upperPanel, BoxLayout.Y_AXIS));
 
+        shownValue = new JComboBox<>(new String[]{"(Nothing available)"});
+        shownValue.setEnabled(false);
+        shownValue.setEditable(false);
+        shownValue.addItemListener(listener);
+
         Utils.addLabeledComponent(upperPanel, inputCombobox, "Input device");
+        Utils.addLabeledComponent(upperPanel, shownValue, "Monitored value");
 
         scrollPane.setBorder(Utils.createLabeledBorder("Pipeline"));
 
@@ -114,6 +121,18 @@ public final class PipelineDialog extends JFrame {
 
         addComponentListener(listener);
         Utils.addEscapeHandler(scrollPane, this);
+    }
+
+    public void setInterpreter(Interpreter interpreter) {
+        if (interpreter == null) {
+            shownValue.setModel(new DefaultComboBoxModel<>(new String[]{"(Nothing available)"}));
+            shownValue.setEnabled(false);
+        } else {
+            shownValue.setModel(new DefaultComboBoxModel<>(interpreter.getViewableValues()));
+            shownValue.setEnabled(true);
+        }
+
+        shownValue.setSelectedIndex(0);
     }
 
     public void setDecoder(Decoder<?> decoder) {
@@ -213,6 +232,8 @@ public final class PipelineDialog extends JFrame {
             if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
                 if (itemEvent.getSource() == inputCombobox) {
                     Drtd.setActiveTargetLineIndex(inputCombobox.getSelectedIndex());
+                } else if (itemEvent.getSource() == shownValue) {
+                    Drtd.getMainGui().getValueInterpreter().view(shownValue.getSelectedIndex());
                 }
             }
         }

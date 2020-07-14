@@ -62,7 +62,6 @@ public final class MainGui extends JFrame {
     private final BasicSplitPaneDivider splitPaneDivider;
     private final JButton config;
     private final JComboBox<DecoderImplementation> decoderComboBox;
-    private final JComboBox<String> shownValue;
     private final JPanel decoderPanel;
     private final JPanel rootPanel;
     private final PipelineDialog pipelineDialog;
@@ -160,16 +159,11 @@ public final class MainGui extends JFrame {
         statusPanel.setLayout(boxLayout);
 
         statusLabel = new JLabel("Ready.");
-        shownValue = new JComboBox<>(new String[]{"(Nothing available)"});
-        shownValue.setEnabled(false);
-        shownValue.setEditable(false);
-        shownValue.addItemListener(listener);
 
         statusPanel.add(statusLabel);
         statusPanel.add(Box.createHorizontalGlue());
 
         statusBar.add(statusPanel, BorderLayout.CENTER);
-        statusBar.add(shownValue, BorderLayout.WEST);
         rootPanel.add(statusBar, BorderLayout.SOUTH);
         add(rootPanel);
 
@@ -240,6 +234,7 @@ public final class MainGui extends JFrame {
 
     public void resetInterpreter() {
         valueInterpreter = null;
+        pipelineDialog.setInterpreter(null);
     }
 
     public Waterfall getWaterfall() {
@@ -250,26 +245,14 @@ public final class MainGui extends JFrame {
         return pipelineDialog;
     }
 
-    private void chooseInterpreter(Class<?> obj) {
-        valueInterpreter = Drtd.getInterpreter(obj);
-        LOGGER.fine("Use interpreter for " + obj.getName());
-
-        if (valueInterpreter == null) {
-            shownValue.setModel(new DefaultComboBoxModel<>(new String[]{"(Nothing available)"}));
-            shownValue.setEnabled(false);
-        } else {
-            shownValue.setModel(new DefaultComboBoxModel<>(valueInterpreter.getViewableValues()));
-            shownValue.setEnabled(true);
-        }
-
-        shownValue.setSelectedIndex(0);
-    }
-
     public void updateMonitor(Object sample) {
-        if (sample == null || waterfall == null || pauseGui)
+        if (sample == null || waterfall == null || pauseGui) {
             return;
-        else if (valueInterpreter == null)
-            chooseInterpreter(sample.getClass());
+        } else if (valueInterpreter == null) {
+            valueInterpreter = Drtd.getInterpreter(sample.getClass());
+            pipelineDialog.setInterpreter(valueInterpreter);
+            LOGGER.fine("Use interpreter for " + sample.getClass().getName());
+        }
 
         Float value = valueInterpreter.interpret(sample);
 
@@ -277,6 +260,10 @@ public final class MainGui extends JFrame {
             scope.process(value);
             waterfall.process(value);
         }
+    }
+
+    public Interpreter getValueInterpreter() {
+        return valueInterpreter;
     }
 
     public JFrame getFrame() {
@@ -318,10 +305,7 @@ public final class MainGui extends JFrame {
         @Override
         public void itemStateChanged(ItemEvent itemEvent) {
             if (itemEvent.getStateChange() == ItemEvent.SELECTED)
-                if (itemEvent.getSource() == shownValue)
-                    valueInterpreter.view(shownValue.getSelectedIndex());
-                else
-                    updateDecoder();
+                updateDecoder();
         }
 
         @Override
