@@ -123,7 +123,7 @@ public final class ScopeDialog extends JFrame {
         Utils.addEscapeHandler(rootPanel, this);
         pack();
 
-        setLocationRelativeTo(Drtd.getMainGui().getFrame());
+        setLocationRelativeTo(Drtd.getMainGui());
     }
 
     public static ScopeDialog getInstance(Scope scope) {

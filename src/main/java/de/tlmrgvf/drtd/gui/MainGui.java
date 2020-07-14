@@ -266,10 +266,6 @@ public final class MainGui extends JFrame {
         return valueInterpreter;
     }
 
-    public JFrame getFrame() {
-        return this;
-    }
-
     private class ListenerImpl extends MouseAdapter implements ActionListener, WindowListener, ItemListener, ChangeListener {
 
         @Override

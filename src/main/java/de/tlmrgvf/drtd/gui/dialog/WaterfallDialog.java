@@ -142,7 +142,7 @@ public final class WaterfallDialog extends JFrame {
         zoom.addMouseListener(listener);
 
         pack();
-        setLocationRelativeTo(Drtd.getMainGui().getFrame());
+        setLocationRelativeTo(Drtd.getMainGui());
         Utils.addEscapeHandler(rootPanel, this);
     }
 

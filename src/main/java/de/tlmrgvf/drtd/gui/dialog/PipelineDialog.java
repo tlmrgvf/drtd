@@ -181,7 +181,7 @@ public final class PipelineDialog extends JFrame {
 
         @Override
         public void componentShown(ComponentEvent componentEvent) {
-            setLocationRelativeTo(Drtd.getMainGui().getFrame());
+            setLocationRelativeTo(Drtd.getMainGui());
         }
 
         @Override
