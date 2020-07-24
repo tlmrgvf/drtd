@@ -44,7 +44,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Collections;
 
-public class FilterPlot extends JPanel {
+public final class FilterPlot extends JPanel {
     private final static int DB_SCALE_MAX = 200, DB_SCALE_MIN = 4;
     private final static int FDIVS = 40;
     private final static int ADIVS = 10;
