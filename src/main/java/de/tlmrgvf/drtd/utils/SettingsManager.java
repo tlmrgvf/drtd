@@ -47,13 +47,14 @@ public final class SettingsManager {
 
     private final String className;
     private final boolean needsExplicitSave;
+    private final boolean enableInHeadless;
     private final List<Option<?>> options = new LinkedList<>();
     private int index;
-    private final boolean used = false;
 
-    private SettingsManager(Class<?> cls, boolean needsExplicitSave) {
+    private SettingsManager(Class<?> cls, boolean needsExplicitSave, boolean enableInHeadless) {
         this.className = cls.getName();
         this.needsExplicitSave = needsExplicitSave;
+        this.enableInHeadless = enableInHeadless;
     }
 
     public static void saveManagers() {
@@ -61,14 +62,14 @@ public final class SettingsManager {
     }
 
     public static SettingsManager createFor(Class<?> cls) {
-        return createFor(cls, false);
+        return createFor(cls, false, false);
     }
 
-    public static SettingsManager createFor(Class<?> cls, boolean needsExplicitSave) {
+    public static SettingsManager createFor(Class<?> cls, boolean needsExplicitSave, boolean enableInHeadless) {
         if (managers.containsKey(cls))
             return managers.get(cls);
 
-        SettingsManager manager = new SettingsManager(cls, needsExplicitSave);
+        SettingsManager manager = new SettingsManager(cls, needsExplicitSave, enableInHeadless);
         managers.put(cls, manager);
         return manager;
     }
@@ -121,7 +122,12 @@ public final class SettingsManager {
                                                               Provider<T> provider,
                                                               Setter<T> setter,
                                                               T initial) {
-        options.add(new Option<>(saveClass, className + "." + index++, initial, setter, provider));
+        options.add(new Option<>(saveClass,
+                className + "." + index++,
+                initial,
+                setter,
+                provider,
+                enableInHeadless));
         return this;
     }
 
@@ -150,25 +156,36 @@ public final class SettingsManager {
         private final Setter<T> setter;
         private final Provider<T> provider;
         private final Class<T> saveClass;
+        private final boolean enableEvenWhenHeadless;
 
-        public Option(Class<T> saveClass, String key, T initialValue, Setter<T> setter, Provider<T> provider) {
+        public Option(Class<T> saveClass,
+                      String key,
+                      T initialValue,
+                      Setter<T> setter,
+                      Provider<T> provider,
+                      boolean enableEvenWhenHeadless) {
             this.saveClass = saveClass;
             this.key = key;
             this.initialValue = initialValue;
             this.setter = setter;
             this.provider = provider;
+            this.enableEvenWhenHeadless = enableEvenWhenHeadless;
         }
 
         void load() {
-            var value = SettingsManager.getSetting(key, initialValue, saveClass);
-            setter.set(value);
-            LOGGER.finer("Load " + key + " as " + value);
+            if (Drtd.isGuiMode() || enableEvenWhenHeadless) {
+                var value = SettingsManager.getSetting(key, initialValue, saveClass);
+                setter.set(value);
+                LOGGER.finer("Load " + key + " as " + value);
+            }
         }
 
         void save() {
-            var value = provider.get();
-            SettingsManager.setSetting(key, value);
-            LOGGER.finer("Save " + key + " as " + value);
+            if (Drtd.isGuiMode()) {
+                var value = provider.get();
+                SettingsManager.setSetting(key, value);
+                LOGGER.finer("Save " + key + " as " + value);
+            }
         }
     }
 

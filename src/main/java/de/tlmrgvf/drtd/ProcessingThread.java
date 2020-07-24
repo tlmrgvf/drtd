@@ -49,7 +49,6 @@ public final class ProcessingThread extends Thread {
 
     public ProcessingThread(TargetDataLine line, Decoder<?> decoder, int sampleRate) {
         super("ProcessingThread");
-        setDaemon(true);
         this.line = line;
         this.decoder = decoder;
         this.sampleRate = sampleRate;

@@ -131,11 +131,13 @@ public abstract class PipelineComponent<T, U> {
     }
 
     public final void setMonitoring(boolean monitoringOutput) {
-        synchronized (PipelineComponent.class) {
-            LOGGER.finer("Set monitoring to " + this + ", monitoring output: " + monitoringOutput);
-            MAIN_GUI.resetInterpreter();
-            monitoring = this;
-            PipelineComponent.monitoringOutput = monitoringOutput;
+        if (Drtd.isGuiMode()) {
+            synchronized (PipelineComponent.class) {
+                LOGGER.finer("Set monitoring to " + this + ", monitoring output: " + monitoringOutput);
+                MAIN_GUI.resetInterpreter();
+                monitoring = this;
+                PipelineComponent.monitoringOutput = monitoringOutput;
+            }
         }
     }
 

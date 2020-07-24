@@ -32,28 +32,61 @@ package de.tlmrgvf.drtd;
 import de.tlmrgvf.drtd.decoder.*;
 import de.tlmrgvf.drtd.decoder.ax25.Ax25;
 import de.tlmrgvf.drtd.decoder.pocsag.Pocsag;
-import de.tlmrgvf.drtd.utils.Provider;
+import de.tlmrgvf.drtd.utils.Utils;
+import org.apache.commons.math3.analysis.function.Log;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Logger;
 
 public enum DecoderImplementation {
-    NULL(Null::new, "Null"),
-    AX25(Ax25::new, "AX.25/APRS"),
-    RTTY(Rtty::new, "RTTY"),
-    POCSAG(Pocsag::new, "POCSAG"),
-    DTMF(Dtmf::new, "DTMF"),
-    DCF77(Dcf77::new, "DCF77");
+    NULL(Null.class, "Null"),
+    AX25(Ax25.class, "AX.25/APRS"),
+    RTTY(Rtty.class, "RTTY"),
+    POCSAG(Pocsag.class, "POCSAG"),
+    DTMF(Dtmf.class, "DTMF"),
+    DCF77(Dcf77.class, "DCF77");
 
-    private final Provider<Decoder<?>> constructor;
+    private final Class<? extends Decoder<?>> decoderClass;
     private final String displayName;
     private Decoder<?> instance;
 
-    DecoderImplementation(Provider<Decoder<?>> constructor, String displayName) {
-        this.constructor = constructor;
+    DecoderImplementation(Class<? extends Decoder<?>> decoderClass, String displayName) {
+        this.decoderClass = decoderClass;
         this.displayName = displayName;
     }
 
     public Decoder<?> getInstance() {
-        instance = instance == null ? constructor.get() : instance;
+        if (instance == null) {
+            try {
+                instance = decoderClass.getConstructor().newInstance();
+            } catch (InstantiationException |
+                    IllegalAccessException |
+                    InvocationTargetException |
+                    NoSuchMethodException e) {
+                /* This has to be done here because the log level will not be set yet if this would be static */
+                Logger logger = Drtd.getLogger(DecoderImplementation.class);
+                logger.severe("Error while instantiating decoder \"" + this.name() + "\", probably because an " +
+                        "exception occurred in the constructor or because no default constructor exists!");
+                logger.throwing("DecoderImplementation", "getInstance", e);
+                Utils.die();
+            }
+        }
+
         return instance;
+    }
+
+    public boolean hasHeadlessAvailable() {
+        return HeadlessDecoder.class.isAssignableFrom(decoderClass);
+    }
+
+    public static DecoderImplementation findByName(String name) {
+        name = name.trim();
+        for (var implementation : values()) {
+            if (implementation.name().equalsIgnoreCase(name))
+                return implementation;
+        }
+
+        return null;
     }
 
     @Override

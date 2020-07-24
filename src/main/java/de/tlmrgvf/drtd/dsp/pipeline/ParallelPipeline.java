@@ -63,8 +63,15 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
                      List<PipelineComponent<T, U>> pipelineComponents) {
         super(resultClass, pipelineComponents.toArray(PipelineComponent[]::new), ComponentType.PARALLEL_PIPELINE);
         assert pipelineComponents.size() > 1;
-        this.inputColor = Drtd.getInterpreter(inputClass).getColor();
-        this.intermediateColor = Drtd.getInterpreter(pipelineComponents.get(0).getResultClass()).getColor();
+
+        if (Drtd.isGuiMode()) {
+            this.inputColor = Drtd.getInterpreter(inputClass).getColor();
+            this.intermediateColor = Drtd.getInterpreter(pipelineComponents.get(0).getResultClass()).getColor();
+        } else {
+            this.inputColor = null;
+            this.intermediateColor = null;
+        }
+
         this.func = func;
         this.pipelineComponents = pipelineComponents;
         us = (U[]) Array.newInstance(pipelineComponents.get(0).getResultClass(), pipelineComponents.size());

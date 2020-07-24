@@ -186,27 +186,15 @@ public final class MainGui extends JFrame {
     }
 
     public void updateDecoder() {
-        var old = Drtd.getProcessingThread();
-        if (old != null) {
-            old.getDecoder().saveSettings();
-            old.getDecoder().onTeardown();
-        }
-
         final Decoder<?> decoder = ((DecoderImplementation) decoderComboBox.getSelectedItem()).getInstance();
-        LOGGER.fine("Set new decoder " + decoder);
-        assert decoder != null;
-
-        Drtd.stopProcessing();
+        Drtd.useDecoder(decoder);
 
         updateStatus("Ready.");
         decoderPanel.removeAll();
         resetInterpreter();
         waterfall.setDecoder(decoder);
-
-        decoder.setup();
         decoder.addGuiComponents(decoderPanel);
         decoderPanel.repaint();
-
         if (rootSplitPane.getMinimumDividerLocation() > rootSplitPane.getDividerLocation())
             rootSplitPane.setDividerLocation(rootSplitPane.getMinimumDividerLocation());
 
@@ -215,12 +203,10 @@ public final class MainGui extends JFrame {
         GenericFirFilter.closeDialog();
         BiquadFilterComponent.closeDialog();
         PLL.closeDialog();
-        Drtd.getUpdateThread().setDecoder(decoder);
         final var insets = getInsets();
         setMinimumSize(Utils.resize(rootPanel.getMinimumSize(),
                 insets.left + insets.right,
                 insets.top + insets.bottom));
-        Drtd.startProcessing(decoder);
     }
 
     public void updateFrequencySpinner(int max, int frequency) {
@@ -255,7 +241,6 @@ public final class MainGui extends JFrame {
         }
 
         Float value = valueInterpreter.interpret(sample);
-
         if (value != null) {
             scope.process(value);
             waterfall.process(value);

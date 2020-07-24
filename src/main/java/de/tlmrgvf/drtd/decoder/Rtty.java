@@ -29,6 +29,7 @@
 
 package de.tlmrgvf.drtd.decoder;
 
+import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.decoder.utils.Marker;
 import de.tlmrgvf.drtd.decoder.utils.MarkerGroup;
 import de.tlmrgvf.drtd.dsp.PipelineComponent;
@@ -49,8 +50,9 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Logger;
 
-public final class Rtty extends Decoder<Boolean> {
+public final class Rtty extends HeadlessDecoder<Boolean, String> {
     private final static int SAMPLE_RATE = 7350;
     private final static BaudotCode[] BAUDOT_CODES = new BaudotCode[32];
     private final static char FIGURES = 0x1B;
@@ -112,6 +114,7 @@ public final class Rtty extends Decoder<Boolean> {
     private MarkerGroup marker;
     private boolean waitStart = true;
     private boolean figures = false;
+    private boolean forceLsb = false;
     private int shift = 170;
     private double baudrate = 45.45;
     private double scopePhase;
@@ -181,6 +184,55 @@ public final class Rtty extends Decoder<Boolean> {
                 }, mark, space)
                 .then(new Mapper<>(Boolean.class, m -> m > 0))
                 .build(converter);
+    }
+
+    @Override
+    public boolean setupParameters(String[] args) {
+        int param = 0;
+        try {
+            var center = Integer.parseInt(args[0]);
+            ++param;
+            var shift = Integer.parseInt(args[1]);
+            ++param;
+            var baudRate = Float.parseFloat(args[2]);
+
+            if (shift < 10 || shift > 1500) {
+                printInvalidParameterErrorMessage(1);
+                return false;
+            }
+
+            if (baudRate < 40 || baudRate > 300) {
+                printInvalidParameterErrorMessage(2);
+                return false;
+            }
+
+            if (center - shift / 2 < 0 || center + shift / 2 > SAMPLE_RATE / 2) {
+                printInvalidParameterErrorMessage(0);
+                return false;
+            }
+
+            if (!(args[3].equalsIgnoreCase("usb") || args[3].equalsIgnoreCase("lsb"))) {
+                printInvalidParameterErrorMessage(3);
+                return false;
+            }
+
+            forceLsb = args[3].equalsIgnoreCase("lsb");
+            setCenterFrequency(center);
+            setShift(shift);
+            setBaudrate(baudRate);
+            updateFilters();
+            updateMixers();
+            return true;
+        } catch (NumberFormatException e) {
+            printInvalidParameterErrorMessage(param);
+        }
+
+        return false;
+    }
+
+    @Override
+    protected void showResultInGui(String result) {
+        Utils.doSmartAutoscroll(outputTextArea, result);
     }
 
     @Override
@@ -266,34 +318,34 @@ public final class Rtty extends Decoder<Boolean> {
     }
 
     @Override
-    protected void onPipelineResult(Boolean result) {
+    protected String calculateResult(Boolean result) {
         /*
          *   RTTY is "idle on mark"
          *   Start bit  5 Baudot bits  1, 1.5 or 2 stop bits
          *   0          XXXXX          1(1)
          */
-        result = result ^ usbLsbCheckbox.isSelected();
+        result = result ^ (usbLsbCheckbox.isSelected() || forceLsb);
         inputBuffer.push(result);
 
         if (waitStart && !inputBuffer.get(0) && inputBuffer.get(6)) {
             waitStart = false;
             inputBuffer.resetBitCounter();
         } else if (waitStart || !inputBuffer.bitsAligned()) {
-            return;
+            return null;
         }
 
         if (inputBuffer.get(0) || !inputBuffer.get(6)) {
             waitStart = true;
-            return;
+            return null;
         }
 
         char bits = (char) ((inputBuffer.getBuffer() & 0x3F) >> 1);
         if (bits == LETTERS) {
             figures = false;
-            return;
+            return null;
         } else if (bits == FIGURES) {
             figures = true;
-            return;
+            return null;
         }
 
         BaudotCode baudotCode = BAUDOT_CODES[bits];
@@ -303,7 +355,7 @@ public final class Rtty extends Decoder<Boolean> {
         else
             toAdd = baudotCode.nonEscaped;
 
-        Utils.doSmartAutoscroll(outputTextArea, toAdd);
+        return toAdd;
     }
 
     private int getShift() {
@@ -320,6 +372,11 @@ public final class Rtty extends Decoder<Boolean> {
 
     private void setBaudrate(double baudrate) {
         this.baudrate = baudrate;
+    }
+
+    @Override
+    public String[] getChangeableParameters() {
+        return new String[]{"Center frequency (Int)", "Shift (Int)", "Baud rate (Float)", "USB/LSB"};
     }
 
     private static class BaudotCode {

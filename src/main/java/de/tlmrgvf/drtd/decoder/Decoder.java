@@ -63,12 +63,17 @@ public abstract class Decoder<T> {
 
         this.resultClass = resultClass;
         this.inputSampleRate = inputSampleRate;
-        var waterfall = mainGui.getWaterfall();
-        manager = SettingsManager.createFor(getClass(), true)
-                .mapOption(Float.class, waterfall::getZoom, waterfall::setZoom, 1F)
-                .mapOption(Integer.class, waterfall::getFrequencyOffset, waterfall::setFrequencyOffset, 0)
-                .mapOption(Boolean.class, waterfall::isZoomOut, waterfall::setZoomOut, false);
-        manager.loadAll();
+
+        if (Drtd.isGuiMode()) {
+            var waterfall = mainGui.getWaterfall();
+            manager = SettingsManager.createFor(getClass(), true, false)
+                    .mapOption(Float.class, waterfall::getZoom, waterfall::setZoom, 1F)
+                    .mapOption(Integer.class, waterfall::getFrequencyOffset, waterfall::setFrequencyOffset, 0)
+                    .mapOption(Boolean.class, waterfall::isZoomOut, waterfall::setZoomOut, false);
+            manager.loadAll();
+        } else {
+            manager = SettingsManager.createFor(getClass(), true, false);
+        }
     }
 
     public final SettingsManager getSettingsManager() {
@@ -130,8 +135,11 @@ public abstract class Decoder<T> {
 
         frequency = Math.max(-marker.getSmallestFrequency(), frequency);
         marker.setCenter(Math.min(getInputSampleRate(), frequency));
-        mainGui.updateFrequencySpinner(getInputSampleRate(), frequency);
-        mainGui.getWaterfall().redrawMarker(true);
+        if (Drtd.isGuiMode()) {
+            mainGui.updateFrequencySpinner(getInputSampleRate(), frequency);
+            mainGui.getWaterfall().redrawMarker(true);
+        }
+
         onMarkerMoved(frequency);
     }
 
@@ -140,21 +148,28 @@ public abstract class Decoder<T> {
         final T result = pipeline.calculateGeneric(sample);
         final long diff = System.nanoTime() - start;
 
-        totalComputationDuration += diff;
-        ++samplesTaken;
+        if (Drtd.isGuiMode()) {
+            totalComputationDuration += diff;
+            ++samplesTaken;
 
-        if (System.currentTimeMillis() - lastPerformanceDebug >= 500) {
-            float average = (totalComputationDuration / (float) samplesTaken) / 1000F;
-            SwingUtilities.invokeLater(() -> mainGui.getPipelineDialog().updatePerformance(average));
-            lastPerformanceDebug = System.currentTimeMillis();
-            totalComputationDuration = 0;
-            samplesTaken = 0;
+            if (System.currentTimeMillis() - lastPerformanceDebug >= 500) {
+                float average = (totalComputationDuration / (float) samplesTaken) / 1000F;
+                SwingUtilities.invokeLater(() -> mainGui.getPipelineDialog().updatePerformance(average));
+                lastPerformanceDebug = System.currentTimeMillis();
+                totalComputationDuration = 0;
+                samplesTaken = 0;
+            }
         }
 
-        if (result != null)
-            synchronized (this) {
-                collectedResults.add(result);
+        if (result != null) {
+            if (Drtd.isGuiMode()) {
+                synchronized (this) {
+                    collectedResults.add(result);
+                }
+            } else {
+                onPipelineResult(result);
             }
+        }
     }
 
     public final void processBatch() {
@@ -184,9 +199,11 @@ public abstract class Decoder<T> {
 
     protected final void setMarker(MarkerGroup marker) {
         this.marker = marker;
-        mainGui.getWaterfall().enableMarker(marker != null);
+        if (Drtd.isGuiMode()) {
+            mainGui.getWaterfall().enableMarker(marker != null);
+            mainGui.enableFrequencySpinner(marker != null && marker.isMoveable());
+        }
 
-        mainGui.enableFrequencySpinner(marker != null && marker.isMoveable());
         if (marker != null)
             setCenterFrequency(marker.getCenter());
     }

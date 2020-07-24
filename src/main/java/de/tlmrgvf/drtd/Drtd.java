@@ -30,6 +30,7 @@
 package de.tlmrgvf.drtd;
 
 import de.tlmrgvf.drtd.decoder.Decoder;
+import de.tlmrgvf.drtd.decoder.HeadlessDecoder;
 import de.tlmrgvf.drtd.dsp.Interpreter;
 import de.tlmrgvf.drtd.dsp.component.BitConverter;
 import de.tlmrgvf.drtd.gui.MainGui;
@@ -44,10 +45,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.security.cert.PKIXRevocationChecker;
 import java.util.List;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public final class Drtd {
     private final static String RESOURCE_LOCATION = "res";
@@ -65,6 +69,7 @@ public final class Drtd {
     private static TargetLineWrapper[] availableLines;
     private static int activeTargetLineIndex;
     private static UIUpdateThread updateThread;
+    private static boolean guiMode;
 
     private Drtd() {
         assert false;
@@ -72,30 +77,12 @@ public final class Drtd {
 
     public static void main(String[] args) {
         processArgs(args); //Need to parse log level first
-
+        guiMode = OPTIONS.headlessDecoder == null;
         if (OPTIONS.aaFont)
             System.setProperty("awt.useSystemAAFontSettings", "on");
 
         LOGGER = Drtd.getLogger(Drtd.class);
         LOGGER.info("Parsed options: " + OPTIONS);
-
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException |
-                InstantiationException |
-                IllegalAccessException |
-                UnsupportedLookAndFeelException e) {
-            LOGGER.throwing("Drtd", "main", e);
-            Utils.die();
-        }
-
-        try {
-            for (var name : ICON_NAMES)
-                ICONS.add(ImageIO.read(Drtd.readResourceStream(name)));
-        } catch (IOException e) {
-            Drtd.getLogger(BitConverter.class).throwing("Drtd", "main", e);
-            Utils.die();
-        }
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             LOGGER.severe("Uncaught exception in thread \"" + t.getName() + "\"!");
@@ -104,25 +91,110 @@ public final class Drtd {
         });
 
         SettingsManager.loadFile();
-        SettingsManager.createFor(Drtd.class)
+        SettingsManager.createFor(Drtd.class, false, true)
                 .mapOption(Integer.class, () -> activeTargetLineIndex, i -> activeTargetLineIndex = i, 0)
                 .loadAll();
-
         getAudioLines();
 
-        for (ValueInterpreter i : ValueInterpreter.values())
-            interpreters.put(i.getClassType(), i.getInstance());
+        if (OPTIONS.inputIndex == Options.INPUT_SHOW_AVAILABLE || OPTIONS.inputIndex >= availableLines.length) {
+            System.out.println("Available audio inputs:");
+            Arrays.stream(availableLines).map(w -> "\t" + w).forEach(System.out::println);
+            System.exit(0);
+            assert false;
+        } else if (OPTIONS.inputIndex != Options.INPUT_NONE_SPECIFIED) {
+            activeTargetLineIndex = OPTIONS.inputIndex;
+        }
+        LOGGER.fine("Selected input " + availableLines[activeTargetLineIndex]);
 
-        updateThread = new UIUpdateThread();
-        updateThread.start();
+        if (guiMode) {
+            LOGGER.info("Starting in UI mode");
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (ClassNotFoundException |
+                    InstantiationException |
+                    IllegalAccessException |
+                    UnsupportedLookAndFeelException e) {
+                LOGGER.throwing("Drtd", "main", e);
+                Utils.die();
+            }
 
-        SwingUtilities.invokeLater(() ->
-        {
-            mainGui = new MainGui();
+            try {
+                for (var name : ICON_NAMES)
+                    ICONS.add(ImageIO.read(Drtd.readResourceStream(name)));
+            } catch (IOException e) {
+                Drtd.getLogger(BitConverter.class).throwing("Drtd", "main", e);
+                Utils.die();
+            }
 
-            mainGui.loadSettings();
-            mainGui.setVisible(true);
-        });
+            for (ValueInterpreter i : ValueInterpreter.values())
+                interpreters.put(i.getClassType(), i.getInstance());
+
+            updateThread = new UIUpdateThread();
+            updateThread.start();
+
+            SwingUtilities.invokeLater(() ->
+            {
+                mainGui = new MainGui();
+
+                mainGui.loadSettings();
+                mainGui.setVisible(true);
+            });
+        } else {
+            LOGGER.info("Starting in headless mode");
+            var decoder = OPTIONS.headlessDecoder.getInstance();
+
+            if (!(decoder instanceof HeadlessDecoder)) {
+                LOGGER.severe("Selected decoder is not a headless decoder");
+                Utils.die();
+            }
+
+            var headlessDecoder = (HeadlessDecoder<?, ?>) decoder;
+            var paramList = OPTIONS.decoderParameters;
+            var availableParameters = headlessDecoder.getChangeableParameters();
+            if (paramList.size() == availableParameters.length) {
+                if (headlessDecoder.setupParameters(paramList.toArray(String[]::new))) {
+                    decoder.setup();
+                    startProcessing(decoder);
+                } else {
+                    showDecoderParameterErrorAndExit(headlessDecoder);
+                }
+            } else {
+                showDecoderParameterErrorAndExit(headlessDecoder);
+            }
+        }
+    }
+
+    private static void showDecoderParameterErrorAndExit(HeadlessDecoder<?, ?> headlessDecoder) {
+        var availableParams = headlessDecoder.getChangeableParameters();
+        System.out.print("Invalid arguments! Available parameters: ");
+        if (availableParams.length == 0) {
+            System.out.println("None");
+        } else {
+            System.out.print("[");
+            System.out.print(String.join("] [", availableParams));
+            System.out.println("]");
+        }
+        printUsageAndExit();
+    }
+
+    public static boolean isGuiMode() {
+        return guiMode;
+    }
+
+    public static void useDecoder(Decoder<?> decoder) {
+        assert decoder != null;
+
+        var old = Drtd.getProcessingThread();
+        if (old != null) {
+            old.getDecoder().saveSettings();
+            old.getDecoder().onTeardown();
+        }
+
+        LOGGER.fine("Set new decoder " + decoder);
+        stopProcessing();
+        decoder.setup();
+        Drtd.getUpdateThread().setDecoder(decoder);
+        startProcessing(decoder);
     }
 
     private static void getAudioLines() {
@@ -213,7 +285,7 @@ public final class Drtd {
         return processingThread;
     }
 
-    public static void stopProcessing() {
+    private static void stopProcessing() {
         if (processingThread != null) {
             processingThread.requestStop();
             try {
@@ -221,15 +293,15 @@ public final class Drtd {
             } catch (InterruptedException e) {
                 Utils.die();
             }
-            //Now the processing thread should be dead
+            /* Now the processing thread should be dead */
         }
     }
 
-    public static void startProcessing(Decoder<?> decoder) {
-
+    private static void startProcessing(Decoder<?> decoder) {
         processingThread = new ProcessingThread(availableLines[activeTargetLineIndex].getDataLine(),
                 decoder,
                 decoder.getInputSampleRate());
+        processingThread.setDaemon(guiMode);
         processingThread.start();
     }
 
@@ -243,27 +315,87 @@ public final class Drtd {
 
     private static void processArgs(String[] args) {
         Iterator<String> iterator = Arrays.asList(args).iterator();
+        boolean collectDecoderParameters = false;
 
         while (iterator.hasNext()) {
             String arg = iterator.next();
-            switch (arg) {
-                case "--no-text-aa":
-                    OPTIONS.aaFont = false;
-                    break;
-                case "-l":
-                case "--level":
-                    if (iterator.hasNext()) {
-                        OPTIONS.logLevel = Level.parse(iterator.next());
-                        if (OPTIONS.logLevel == null) printUsageAndExit();
-                        HANDLER.setLevel(OPTIONS.logLevel);
-                    } else {
+
+            if (collectDecoderParameters) {
+                OPTIONS.decoderParameters.add(arg);
+            } else {
+                switch (arg) {
+                    case "--no-text-aa":
+                        OPTIONS.aaFont = false;
+                        break;
+                    case "-i":
+                    case "--input":
+                        if (iterator.hasNext()) {
+                            try {
+                                int index = Integer.parseInt(iterator.next());
+                                if (index < 0)
+                                    printUsageAndExit();
+
+                                OPTIONS.inputIndex = index;
+                            } catch (NumberFormatException e) {
+                                OPTIONS.inputIndex = Options.INPUT_SHOW_AVAILABLE;
+                            }
+                        } else {
+                            printUsageAndExit();
+                        }
+                        break;
+                    case "-l":
+                    case "--level":
+                        if (iterator.hasNext()) {
+                            OPTIONS.logLevel = Level.parse(iterator.next());
+                            if (OPTIONS.logLevel == null) printUsageAndExit();
+                            HANDLER.setLevel(OPTIONS.logLevel);
+                        } else {
+                            printUsageAndExit();
+                        }
+                        break;
+                    case "-g":
+                    case "--headless":
+                        if (iterator.hasNext()) {
+                            var decoder = DecoderImplementation.findByName(iterator.next());
+                            if (decoder == null) {
+                                System.out.println("Unknown decoder!");
+                                showAvailableDecoders();
+                                printUsageAndExit();
+                            } else if (!decoder.hasHeadlessAvailable()) {
+                                System.out.println("The specified decoder can not be run in headless mode!");
+                                showAvailableDecoders();
+                                printUsageAndExit();
+                            }
+
+                            OPTIONS.headlessDecoder = decoder;
+                        } else {
+                            showAvailableDecoders();
+                            printUsageAndExit();
+                        }
+                        break;
+                    case "-h":
+                    case "--help":
                         printUsageAndExit();
-                    }
-                    break;
-                default:
-                    printUsageAndExit();
+                        break;
+                    default:
+                        if (OPTIONS.headlessDecoder == null) {
+                            System.out.println("Decoder parameters can only be specified in headless mode!");
+                            printUsageAndExit();
+                        } else {
+                            collectDecoderParameters = true;
+                            OPTIONS.decoderParameters.add(arg);
+                        }
+                }
             }
         }
+    }
+
+    private static void showAvailableDecoders() {
+        System.out.print("Available decoders: ");
+        System.out.println(Arrays.stream(DecoderImplementation.values())
+                .filter(DecoderImplementation::hasHeadlessAvailable)
+                .map(Enum::name)
+                .collect(Collectors.joining(", ")));
     }
 
     public static InputStream readResourceStream(String location) {
@@ -271,16 +403,21 @@ public final class Drtd {
     }
 
     private static void printUsageAndExit() {
-        System.out.println("Usage: java -jar " + NAME.toLowerCase() + ".jar [OPTIONS]");
+        System.out.println("Usage: java -jar " + NAME.toLowerCase() + ".jar [Options] [Decoder parameters]");
         System.out.println("Options:");
-        System.out.println("    -h,--help               Show this help");
-        System.out.println("       --no-text-aa         Don't force text anti-aliasing");
-        System.out.println("    -l,--level <LEVEL>      Set the log level");
-        System.out.println("        Levels: OFF, SEVERE, WARNING,\n" +
-                "                INFO, CONFIG, FINE,\n" +
-                "                FINER, FINEST, ALL");
+        System.out.println("    -g <Decoder>, --headless        Headless mode using the specified decoder. " +
+                "Specify none to show available decoders.\n" +
+                "                                    Leave parameters empty to show available arguments.");
+        System.out.println("    -i, --input <Device index>      Use input device. Specify \"-\" to show all available");
+        System.out.println("    -h, --help                      Show this help");
+        System.out.println("          --no-text-aa              Don't force text anti-aliasing");
+        System.out.println("    -l, --level <LEVEL>             Set the log level");
+        System.out.println("                                    Levels: OFF, SEVERE, WARNING,\n" +
+                "                                          INFO, CONFIG, FINE,\n" +
+                "                                          FINER, FINEST, ALL");
 
         System.exit(0);
+        assert false;
     }
 
     public static MainGui getMainGui() {
@@ -288,14 +425,22 @@ public final class Drtd {
     }
 
     private static class Options {
+        private final static int INPUT_NONE_SPECIFIED = -1;
+        private final static int INPUT_SHOW_AVAILABLE = -2;
         private Level logLevel = Level.OFF;
         private boolean aaFont = true;
+        private DecoderImplementation headlessDecoder;
+        private final List<String> decoderParameters = new LinkedList<>();
+        private int inputIndex = INPUT_NONE_SPECIFIED;
 
         @Override
         public String toString() {
             return "Options{" +
                     "logLevel=" + logLevel +
                     ", aaFont=" + aaFont +
+                    ", headlessDecoder=" + headlessDecoder +
+                    ", decoderParameters=" + decoderParameters +
+                    ", inputIndex=" + inputIndex +
                     '}';
         }
     }

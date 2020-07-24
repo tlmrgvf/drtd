@@ -29,37 +29,34 @@
 
 package de.tlmrgvf.drtd.decoder;
 
-import de.tlmrgvf.drtd.dsp.PipelineComponent;
-import de.tlmrgvf.drtd.dsp.component.Nothing;
-import de.tlmrgvf.drtd.utils.Utils;
+import de.tlmrgvf.drtd.Drtd;
 
-import javax.swing.*;
-import java.awt.*;
+public abstract class HeadlessDecoder<T, U> extends Decoder<T> {
 
-public final class Null extends Decoder<Float> {
-    public Null() {
-        super(Float.class, 44100);
+    public HeadlessDecoder(Class<T> resultClass, int inputSampleRate) {
+        super(resultClass, inputSampleRate);
     }
 
-    @Override
-    public void addGuiComponents(JPanel parent) {
-        parent.setLayout(new BorderLayout());
-        JLabel label = new JLabel("Choose a decoder");
-        label.setFont(Utils.FONT.deriveFont(Font.BOLD, 24F));
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        parent.add(label);
+    public abstract boolean setupParameters(String[] args);
+
+    public abstract String[] getChangeableParameters();
+
+    protected abstract void showResultInGui(U result);
+
+    protected abstract U calculateResult(T input);
+
+    protected final void printInvalidParameterErrorMessage(int index){
+        System.out.println("Parameter \"" + getChangeableParameters()[index] + "\" is invalid!");
     }
 
-    @Override
-    protected PipelineComponent<Float, Float> buildPipeline() {
-        return new Nothing<>(Float.class);
-    }
+    protected final void onPipelineResult(T input) {
+        U result = calculateResult(input);
 
-    @Override
-    protected void onSetup() {
-    }
-
-    @Override
-    protected void onPipelineResult(Float result) {
+        if (result != null) {
+            if (Drtd.isGuiMode())
+                showResultInGui(result);
+            else
+                System.out.print(result);
+        }
     }
 }
