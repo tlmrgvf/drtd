@@ -57,6 +57,7 @@ public final class Layer {
         this.parentHeight = height == PARENT_SIZE;
         image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
         graphics = image.createGraphics();
+        graphics.setClip(new Rectangle(getWidth(), getHeight()));
     }
 
     public void resize(int width, int height) {
@@ -69,6 +70,7 @@ public final class Layer {
         BufferedImage bufferedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
         graphics = bufferedImage.createGraphics();
 
+        graphics.setClip(new Rectangle(getWidth(), getHeight()));
         graphics.drawImage(image, 0, 0, null);
         image = bufferedImage;
     }
