@@ -60,6 +60,12 @@ public final class UIUpdateThread extends Thread {
             SwingUtilities.invokeLater(() -> {
                 if (decoder != null)
                     decoder.processBatch();
+
+                if (Drtd.getMainGui().getScope() != null)
+                    Drtd.getMainGui().getScope().processValues();
+
+                if (Drtd.getMainGui().getWaterfall() != null)
+                    Drtd.getMainGui().getWaterfall().processValues();
             });
         }
     }

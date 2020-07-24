@@ -227,6 +227,10 @@ public final class MainGui extends JFrame {
         return waterfall;
     }
 
+    public Scope getScope() {
+        return scope;
+    }
+
     public PipelineDialog getPipelineDialog() {
         return pipelineDialog;
     }
@@ -242,8 +246,8 @@ public final class MainGui extends JFrame {
 
         Float value = valueInterpreter.interpret(sample);
         if (value != null) {
-            scope.process(value);
-            waterfall.process(value);
+            scope.addValue(value);
+            waterfall.addValue(value);
         }
     }
 

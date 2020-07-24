@@ -38,11 +38,14 @@ import de.tlmrgvf.drtd.utils.Utils;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.AbstractQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Scope extends Canvas {
     private final static SettingsManager SETTINGS_MANAGER = SettingsManager.createFor(Scope.class);
 
     private final Layer scopeLayer;
+    private final AbstractQueue<Float> bufferedValues = new ConcurrentLinkedQueue<>();
 
     private float[] samples;
     private int width;
@@ -128,10 +131,27 @@ public final class Scope extends Canvas {
         samplesCaptured = 0;
     }
 
-    public synchronized void process(Float sample) {
-        if (paused && !singleShot)
-            return;
+    public void addValue(Float sample) {
+        bufferedValues.offer(sample);
+    }
 
+    public synchronized void processValues() {
+        var iterator = bufferedValues.iterator();
+        boolean draw = false;
+        while (iterator.hasNext()) {
+            draw |= processValue(iterator.next());
+            iterator.remove();
+        }
+
+        if (draw)
+            drawLayers(false);
+    }
+
+    private boolean processValue(Float sample) {
+        if (paused && !singleShot)
+            return false;
+
+        boolean dirty = false;
         if ((!oversampling && samplesCaptured >= width) || (oversampling && samplesCaptured * sampleRatio >= width)) {
             if (samples != null && willDraw()) {
                 recalculateBias();
@@ -183,9 +203,8 @@ public final class Scope extends Canvas {
                         ++x;
                         if (oversampling) x += sampleRatio;
                     }
-
-                    drawLayers(false);
                 }
+                dirty = true;
             }
 
             samplesCaptured = 0;
@@ -210,7 +229,7 @@ public final class Scope extends Canvas {
 
                 if (!(old < p && nxt >= p) && !freerun) {
                     lastSample = sample;
-                    return;
+                    return false;
                 }
             }
             maxSampleValue = Float.MIN_VALUE;
@@ -234,6 +253,7 @@ public final class Scope extends Canvas {
         }
 
         lastSample = sample;
+        return dirty;
     }
 
     private float getBias() {

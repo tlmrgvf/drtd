@@ -27,11 +27,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.tlmrgvf.drtd.gui.component;
 
 import de.tlmrgvf.drtd.Drtd;
@@ -50,6 +45,8 @@ import org.jtransforms.fft.FloatFFT_1D;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.AbstractQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 public final class Waterfall extends Canvas {
@@ -64,6 +61,7 @@ public final class Waterfall extends Canvas {
     private final Layer scaleLayer;
     private final Font markerFont;
     private final RingBuffer sampleBuffer;
+    private final AbstractQueue<Float> bufferedValues = new ConcurrentLinkedQueue<>();
 
     private Window windowProvider;
     private WaterfallPalette palette;
@@ -114,12 +112,28 @@ public final class Waterfall extends Canvas {
         recomputeParameters();
     }
 
-    public synchronized void process(Float sample) {
+    public void addValue(Float sample) {
+        bufferedValues.offer(sample);
+    }
+
+    public synchronized void processValues() {
+        var iterator = bufferedValues.iterator();
+        boolean draw = false;
+        while (iterator.hasNext()) {
+            draw |= processValue(iterator.next());
+            iterator.remove();
+        }
+
+        if (draw)
+            drawLayers(false);
+    }
+
+    private boolean processValue(Float sample) {
         sampleBuffer.push(sample);
 
         if (sampleCount < bins / speedMultiplier) {
             ++sampleCount;
-            return;
+            return false;
         }
 
         sampleCount = 0;
@@ -193,8 +207,7 @@ public final class Waterfall extends Canvas {
 
         waterfallGraphics.setColor(Color.BLACK);
         waterfallGraphics.drawLine(x, 0, getWidth(), 0);
-
-        drawLayers(false);
+        return true;
     }
 
     private synchronized void redrawScale() {
