@@ -30,6 +30,7 @@
 package de.tlmrgvf.drtd.dsp.window;
 
 public final class HannWindow extends Window {
+    private static final long serialVersionUID = -8514830931505315465L;
 
     @Override
     public String getDisplayName() {

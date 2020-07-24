@@ -32,6 +32,7 @@ package de.tlmrgvf.drtd.dsp.window;
 import java.io.Serializable;
 
 public abstract class Window implements Serializable {
+    private static final long serialVersionUID = 2455507842721106388L;
 
     public abstract String getDisplayName();
 

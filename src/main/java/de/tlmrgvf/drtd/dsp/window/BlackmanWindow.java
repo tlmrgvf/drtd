@@ -30,6 +30,7 @@
 package de.tlmrgvf.drtd.dsp.window;
 
 public final class BlackmanWindow extends Window {
+    private static final long serialVersionUID = -7589894849349869441L;
 
     @Override
     public String getDisplayName() {

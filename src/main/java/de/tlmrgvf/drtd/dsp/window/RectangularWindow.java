@@ -30,6 +30,7 @@
 package de.tlmrgvf.drtd.dsp.window;
 
 public final class RectangularWindow extends Window {
+    private static final long serialVersionUID = 2848816788479101619L;
 
     @Override
     public String getDisplayName() {

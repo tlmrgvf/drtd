@@ -30,6 +30,7 @@
 package de.tlmrgvf.drtd.dsp.window;
 
 public final class HammingWindow extends Window {
+    private static final long serialVersionUID = 6498539490120366471L;
 
     @Override
     public String getDisplayName() {

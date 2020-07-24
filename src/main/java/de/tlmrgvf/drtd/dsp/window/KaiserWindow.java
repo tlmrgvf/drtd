@@ -30,6 +30,7 @@
 package de.tlmrgvf.drtd.dsp.window;
 
 public final class KaiserWindow extends Window {
+    private static final long serialVersionUID = 3312418553667924412L;
     private final static double BESSEL_FUNC_APPROX = 1e-11;
     private int attenuation;
 
