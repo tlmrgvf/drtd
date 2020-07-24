@@ -37,9 +37,9 @@ import de.tlmrgvf.drtd.utils.SettingsManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.AbstractQueue;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class Decoder<T> {
 
@@ -55,7 +55,7 @@ public abstract class Decoder<T> {
     private long lastPerformanceDebug = System.currentTimeMillis();
     private long totalComputationDuration = 0;
     private int samplesTaken = 0;
-    private final List<T> collectedResults = new LinkedList<>();
+    private final AbstractQueue<T> collectedResults = new ConcurrentLinkedQueue<>();
 
     public Decoder(Class<T> resultClass, int inputSampleRate) {
         if (inputSampleRate < 0 || inputSampleRate > 44100)
@@ -163,9 +163,7 @@ public abstract class Decoder<T> {
 
         if (result != null) {
             if (Drtd.isGuiMode()) {
-                synchronized (this) {
-                    collectedResults.add(result);
-                }
+                collectedResults.offer(result);
             } else {
                 onPipelineResult(result);
             }
@@ -173,11 +171,10 @@ public abstract class Decoder<T> {
     }
 
     public final void processBatch() {
-        synchronized (this) {
-            for (T result : collectedResults)
-                onPipelineResult(result);
-
-            collectedResults.clear();
+        var iterator = collectedResults.iterator();
+        while (iterator.hasNext()) {
+            onPipelineResult(iterator.next());
+            iterator.remove();
         }
     }
 
