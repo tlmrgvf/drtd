@@ -69,6 +69,8 @@ public final class Pocsag extends Decoder<Boolean> {
     private final PocsagData[] receivingBatch = new PocsagData[PocsagMessage.CODEWORDS_PER_BATCH];
     private final List<PocsagData> allMessages = new ArrayList<>();
     private final JTextArea outputTextArea;
+    private final JCheckBox showAlphaCheckBox;
+    private final JCheckBox showNumericCheckBox;
     private final LabeledIndicator dataIndicator;
     private final LabeledIndicator syncIndicator;
     private final MovingAverage filter;
@@ -103,6 +105,12 @@ public final class Pocsag extends Decoder<Boolean> {
                 25,
                 512, 1200, 2400);
         bitBuffer = new BitBuffer(false, PocsagData.CODEWORD_BITS);
+        showAlphaCheckBox = new JCheckBox("Show Alphanumeric");
+        showNumericCheckBox = new JCheckBox("Show Numeric");
+        getSettingsManager()
+                .mapOption(Boolean.class, showAlphaCheckBox::isSelected, showAlphaCheckBox::setSelected, true)
+                .mapOption(Boolean.class, showNumericCheckBox::isSelected, showNumericCheckBox::setSelected, true)
+                .loadAll();
         Utils.setupSmartAutoscroll(outputTextArea);
     }
 
@@ -143,10 +151,15 @@ public final class Pocsag extends Decoder<Boolean> {
                     builder.append(" ; Errors detected!");
 
                 if (message.containsData()) {
-                    builder.append("\n\tAlphanumeric: ");
-                    builder.append(message.getAlphanumericalContents());
-                    builder.append("\n\tNumeric: ");
-                    builder.append(message.getNumericalContents());
+                    if (showAlphaCheckBox.isSelected()) {
+                        builder.append("\n\tAlphanumeric: ");
+                        builder.append(message.getAlphanumericalContents());
+                    }
+
+                    if (showNumericCheckBox.isSelected()) {
+                        builder.append("\n\tNumeric: ");
+                        builder.append(message.getNumericalContents());
+                    }
                 }
 
                 builder.append('\n');
@@ -284,6 +297,10 @@ public final class Pocsag extends Decoder<Boolean> {
         indicatorContainer.add(syncIndicator);
         indicatorContainer.add(Box.createHorizontalStrut(8));
         indicatorContainer.add(dataIndicator);
+        indicatorContainer.add(Box.createHorizontalStrut(8));
+        indicatorContainer.add(showAlphaCheckBox);
+        indicatorContainer.add(Box.createHorizontalStrut(8));
+        indicatorContainer.add(showNumericCheckBox);
         indicatorContainer.add(Box.createHorizontalGlue());
 
         parent.add(indicatorContainer, BorderLayout.NORTH);
