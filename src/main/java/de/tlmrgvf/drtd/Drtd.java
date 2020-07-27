@@ -45,8 +45,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.security.cert.PKIXRevocationChecker;
 import java.util.List;
 import java.util.*;
 import java.util.logging.Level;
@@ -166,7 +164,7 @@ public final class Drtd {
 
     private static void showDecoderParameterErrorAndExit(HeadlessDecoder<?, ?> headlessDecoder) {
         var availableParams = headlessDecoder.getChangeableParameters();
-        System.out.print("Invalid arguments! Available parameters: ");
+        System.out.print("Invalid parameters! Available parameters: ");
         if (availableParams.length == 0) {
             System.out.println("None");
         } else {

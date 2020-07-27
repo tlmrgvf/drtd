@@ -33,7 +33,9 @@ import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.decoder.utils.Marker;
 import de.tlmrgvf.drtd.decoder.utils.MarkerGroup;
 import de.tlmrgvf.drtd.dsp.PipelineComponent;
-import de.tlmrgvf.drtd.dsp.component.*;
+import de.tlmrgvf.drtd.dsp.component.IQMixer;
+import de.tlmrgvf.drtd.dsp.component.Mapper;
+import de.tlmrgvf.drtd.dsp.component.Normalizer;
 import de.tlmrgvf.drtd.dsp.component.movingaverage.ComplexMovingAverage;
 import de.tlmrgvf.drtd.gui.component.LabeledIndicator;
 import de.tlmrgvf.drtd.utils.Complex;
@@ -43,7 +45,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.logging.Logger;
 
-public final class Dcf77 extends Decoder<Boolean> {
+public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
     private final static int SAMPLE_RATE = 6000;
     private final static int BAUDRATE = 10;
     private final static int STATUS_MASK_CALL = 0b10000;
@@ -138,12 +140,19 @@ public final class Dcf77 extends Decoder<Boolean> {
         mixer.setFrequency(centerFrequency);
     }
 
-    private void updateMinute() {
+    private String createDateString() {
         final var domString = time.dom == 0 ? "--" : String.format("%02d", time.dom);
         final var monthString = time.month == 0 ? "--" : String.format("%02d", time.month);
         final var yearString = time.year < 0 ? "----" : String.format("20%02d", time.year); //:^)
+        return String.format("%s, %s.%s.%s", DOW_LOOKUP[time.dow], domString, monthString, yearString);
+    }
 
-        dateLabel.setText(String.format("%s, %s.%s.%s", DOW_LOOKUP[time.dow], domString, monthString, yearString));
+    private String createTimeString() {
+        return String.format("%02d:%02d:%02d", time.hours, time.minutes, seconds);
+    }
+
+    private void updateMinute() {
+        dateLabel.setText(createDateString());
 
         minuteParityIndicator.forceState(time.minuteParityError);
         hourParityIndicator.forceState(time.hourParityError);
@@ -153,13 +162,17 @@ public final class Dcf77 extends Decoder<Boolean> {
         callIndicator.forceState(time.call);
     }
 
-    private void tickTime() {
+    private boolean tickTime() {
         if (!tick)
-            return;
+            return false;
 
         ++ticks;
-        if (ticks >= SAMPLE_RATE)
+        if (ticks >= SAMPLE_RATE * 1.1F) {
             advanceTime();
+            return true;
+        }
+
+        return false;
     }
 
     private void advanceTime() {
@@ -171,7 +184,7 @@ public final class Dcf77 extends Decoder<Boolean> {
         ++seconds;
         seconds %= 60;
 
-        timeLabel.setText(String.format("%02d:%02d:%02d", time.hours, time.minutes, seconds));
+        timeLabel.setText(createTimeString());
     }
 
     @Override
@@ -196,7 +209,36 @@ public final class Dcf77 extends Decoder<Boolean> {
     }
 
     @Override
-    protected void onPipelineResult(Boolean result) {
+    public boolean setupParameters(String[] args) {
+        try {
+            var center = Integer.parseInt(args[0]);
+            if (center < 0 || center > SAMPLE_RATE / 2) {
+                printInvalidParameterErrorMessage(0);
+                return false;
+            }
+
+            setCenterFrequency(center);
+            return true;
+        } catch (NumberFormatException e) {
+            printInvalidParameterErrorMessage(0);
+        }
+
+        return false;
+    }
+
+    @Override
+    public String[] getChangeableParameters() {
+        return new String[]{"Center frequency (Int)"};
+    }
+
+    @Override
+    protected void showResultInGui(String result) {
+    }
+
+    @Override
+    protected String calculateResult(Boolean result) {
+        boolean newSecond = false;
+
         if (result != lastLevel) {
             int bitCount = Math.round(levelCount / (float) SAMPLES_PER_BIT);
             if (bitCount > 0) {
@@ -298,6 +340,7 @@ public final class Dcf77 extends Decoder<Boolean> {
                         lastUpdate = System.currentTimeMillis();
                         advanceTime();
                         tick = true;
+                        newSecond = true;
                     }
                 }
 
@@ -307,8 +350,22 @@ public final class Dcf77 extends Decoder<Boolean> {
             lastLevel = result;
         }
 
-        tickTime();
         ++levelCount;
+        if (tickTime() || newSecond) {
+            boolean timeValid = (time.cest & !time.cet) | (time.cet & !time.cest);
+            return String.format("%s - %s ; %s %s %s\n",
+                    createDateString(),
+                    createTimeString(),
+                    ((time.hourParityError |
+                            time.minuteParityError |
+                            time.dateParityError |
+                            !timeValid) ? "E" : ""),
+                    (time.cest ? "CEST" : ""),
+                    (time.cet ? "CET" : "")
+            );
+        }
+
+        return null;
     }
 
     @Override
