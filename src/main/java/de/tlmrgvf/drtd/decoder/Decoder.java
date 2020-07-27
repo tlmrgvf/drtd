@@ -122,7 +122,8 @@ public abstract class Decoder<T> {
     }
 
     protected final void setStatus(String status) {
-        mainGui.updateStatus(status);
+        if (Drtd.isGuiMode())
+            mainGui.updateStatus(status);
     }
 
     public final int getCenterFrequency() {
