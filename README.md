@@ -7,7 +7,7 @@ A digital radio transmission decoder
 * AX.25/APRS
 * RTTY _(*)_
 * POCSAG 512/1200/2400 _(*)_ 
-* DTMF
+* DTMF _(*)_
 * DCF77 _(*)_
   
 _(*) Can be run in headless mode right now_
