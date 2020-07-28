@@ -194,7 +194,7 @@ public final class MainGui extends JFrame {
         resetInterpreter();
         waterfall.setDecoder(decoder);
         decoder.addGuiComponents(decoderPanel);
-        decoderPanel.repaint();
+
         if (rootSplitPane.getMinimumDividerLocation() > rootSplitPane.getDividerLocation())
             rootSplitPane.setDividerLocation(rootSplitPane.getMinimumDividerLocation());
 
@@ -207,6 +207,11 @@ public final class MainGui extends JFrame {
         setMinimumSize(Utils.resize(rootPanel.getMinimumSize(),
                 insets.left + insets.right,
                 insets.top + insets.bottom));
+
+        SwingUtilities.invokeLater(() -> {
+            decoderPanel.revalidate();
+            decoderPanel.repaint();
+        });
     }
 
     public void updateFrequencySpinner(int max, int frequency) {
