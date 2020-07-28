@@ -38,7 +38,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
 
-public final class Dtmf extends Decoder<Integer> {
+public final class Dtmf extends HeadlessDecoder<Integer, Character> {
     private final static int SAMPLE_RATE = 5512;
     private final static int FILTER_TAPS = SAMPLE_RATE / 50; //About 50 Hz per bin
     private final static int NEEDED_SAMPLES_FOR_SYMBOL = (int) (SAMPLE_RATE * .05);//> 50 ms
@@ -105,7 +105,6 @@ public final class Dtmf extends Decoder<Integer> {
         outputTextArea.setFont(Utils.FONT);
         outputTextArea.setBackground(parent.getBackground());
         outputTextArea.setLineWrap(true);
-        outputTextArea.setAutoscrolls(true);
 
         Utils.addClearContextMenu(outputTextArea, () -> outputTextArea.setText(""));
 
@@ -116,21 +115,38 @@ public final class Dtmf extends Decoder<Integer> {
         );
 
         scroll.setBorder(BorderFactory.createLoweredBevelBorder());
+        parent.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         parent.add(scroll);
     }
 
     @Override
-    protected void onPipelineResult(Integer result) {
+    public boolean setupParameters(String[] args) {
+        return true;
+    }
+
+    @Override
+    protected void showResultInGui(Character result) {
+        Utils.doSmartAutoscroll(outputTextArea, Character.toString(result));
+    }
+
+    @Override
+    protected Character calculateResult(Integer result) {
         final char received = MAP[result / 10][result % 10];
 
         if (received != lastSymbol) {
             if (sampleCount > NEEDED_SAMPLES_FOR_SYMBOL) {
-                if (lastValid == lastSymbol && lastInterruptionLength < MINIMAL_PAUSE_SAMPLES)
-                    return;
+                if (lastValid == lastSymbol &&
+                        (lastInterruptionLength < MINIMAL_PAUSE_SAMPLES && lastInterruptionLength > 0)) {
+                    lastInterruptionLength = 0;
+                    return null;
+                }
 
+                char character = lastSymbol;
                 lastValid = lastSymbol;
-                Utils.doSmartAutoscroll(outputTextArea, Character.toString(lastSymbol));
                 lastInterruptionLength = 0;
+                lastSymbol = received;
+                sampleCount = 0;
+                return character;
             } else {
                 lastInterruptionLength += sampleCount;
             }
@@ -140,6 +156,13 @@ public final class Dtmf extends Decoder<Integer> {
         } else {
             ++sampleCount;
         }
+
+        return null;
+    }
+
+    @Override
+    public String[] getChangeableParameters() {
+        return new String[0];
     }
 
     @Override
