@@ -22,7 +22,7 @@ Some decoders can be run in headless mode. To do this, just pass the `-g` option
 `-g RTTY`.  
 The very last parameters to the program should be the decoder specific parameters, like the center frequency.  
   
-For example, to decode a RTTY transmission at 1000 kHz received on the upper sideband at 50 bauds using a shift of
+For example, to decode a RTTY transmission at 1000 Hz received on the upper sideband at 50 bauds using a shift of
 450 Hz, run:
 ````shell
 java -jar drtd/drtd.jar -g RTTY 1000 450 50 USB
