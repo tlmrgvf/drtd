@@ -6,7 +6,7 @@ A digital radio transmission decoder
 ## Currently supported
 * AX.25/APRS
 * RTTY _(*)_
-* POCSAG 512/1200/2400
+* POCSAG 512/1200/2400 _(*)_ 
 * DTMF
 * DCF77 _(*)_
   
