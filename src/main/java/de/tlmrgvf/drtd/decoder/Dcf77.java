@@ -352,13 +352,13 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
 
         ++levelCount;
         if (tickTime() || newSecond) {
-            boolean timeValid = (time.cest & !time.cet) | (time.cet & !time.cest);
+            boolean timeValid = (time.cest & !time.cet) || (time.cet & !time.cest);
             return String.format("%s - %s ; %s %s %s\n",
                     createDateString(),
                     createTimeString(),
-                    ((time.hourParityError |
-                            time.minuteParityError |
-                            time.dateParityError |
+                    ((time.hourParityError ||
+                            time.minuteParityError ||
+                            time.dateParityError ||
                             !timeValid) ? "E" : ""),
                     (time.cest ? "CEST" : ""),
                     (time.cet ? "CET" : "")

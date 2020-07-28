@@ -31,7 +31,7 @@ package de.tlmrgvf.drtd.decoder.pocsag;
 
 
 import de.tlmrgvf.drtd.Drtd;
-import de.tlmrgvf.drtd.decoder.Decoder;
+import de.tlmrgvf.drtd.decoder.HeadlessDecoder;
 import de.tlmrgvf.drtd.dsp.PipelineComponent;
 import de.tlmrgvf.drtd.dsp.component.BitConverter;
 import de.tlmrgvf.drtd.dsp.component.Mapper;
@@ -52,7 +52,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-public final class Pocsag extends Decoder<Boolean> {
+public final class Pocsag extends HeadlessDecoder<Boolean, String> {
     private final static BchCode BCH_CODE = new BchCode(
             BchCode.EncodingType.PREFIX,
             new Z2Polynomial(0b11101101001), //x^10 + x^9 + x^8 + x^6 + x^5 + x^3 + 1
@@ -85,6 +85,8 @@ public final class Pocsag extends Decoder<Boolean> {
     private boolean receivedParity = false;
     private boolean inverted = false;
     private boolean lastBit = false;
+    private boolean showAlpha = false;
+    private boolean showNumeric = false;
 
     public Pocsag() {
         super(Boolean.class, SAMPLE_RATE);
@@ -129,44 +131,44 @@ public final class Pocsag extends Decoder<Boolean> {
                 .build(bitConverter);
     }
 
-    private void messageDone(boolean discard) {
-        if (!discard) {
-            LOGGER.fine("Received POCSAG message @ " + baudRate + " baud");
-            assert outputTextArea != null;
+    private String buildMessageString() {
+        LOGGER.fine("Received POCSAG message @ " + baudRate + " baud");
 
-            for (PocsagMessage message : PocsagMessage.fromData(allMessages.toArray(PocsagData[]::new))) {
-                PocsagData address = message.getAddress();
-                StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
+        for (PocsagMessage message : PocsagMessage.fromData(allMessages.toArray(PocsagData[]::new))) {
+            PocsagData address = message.getAddress();
 
-                builder.append("POCSAG");
-                builder.append(baudRate);
+            builder.append("POCSAG");
+            builder.append(baudRate);
 
-                builder.append(" ; Address: ");
-                builder.append(address == null ? "-" : address.toString());
+            builder.append(" ; Address: ");
+            builder.append(address == null ? "-" : address.toString());
 
-                builder.append(" ; Function: ");
-                builder.append(address == null ? "-" : address.getFunctionBits());
+            builder.append(" ; Function: ");
+            builder.append(address == null ? "-" : address.getFunctionBits());
 
-                if (message.containsInvalidCodeword())
-                    builder.append(" ; Errors detected!");
+            if (message.containsInvalidCodeword())
+                builder.append(" ; Errors detected!");
 
-                if (message.containsData()) {
-                    if (showAlphaCheckBox.isSelected()) {
-                        builder.append("\n\tAlphanumeric: ");
-                        builder.append(message.getAlphanumericalContents());
-                    }
-
-                    if (showNumericCheckBox.isSelected()) {
-                        builder.append("\n\tNumeric: ");
-                        builder.append(message.getNumericalContents());
-                    }
+            if (message.containsData()) {
+                if (showAlphaCheckBox.isSelected() || showAlpha) {
+                    builder.append("\n\tAlphanumeric: ");
+                    builder.append(message.getAlphanumericalContents());
                 }
 
-                builder.append('\n');
-                Utils.doSmartAutoscroll(outputTextArea, builder.toString());
+                if (showNumericCheckBox.isSelected() || showNumeric) {
+                    builder.append("\n\tNumeric: ");
+                    builder.append(message.getNumericalContents());
+                }
             }
+
+            builder.append('\n');
         }
 
+        return builder.toString();
+    }
+
+    private void reset() {
         bitConverter.waitForSync();
         codewordCount = 0;
         inverted = false;
@@ -181,7 +183,25 @@ public final class Pocsag extends Decoder<Boolean> {
     }
 
     @Override
-    protected void onPipelineResult(Boolean inputBit) {
+    public boolean setupParameters(String[] args) {
+        showAlpha = args[0].equalsIgnoreCase("alpha") || args[0].equalsIgnoreCase("both");
+        showNumeric = args[0].equalsIgnoreCase("numeric") || args[0].equalsIgnoreCase("both");
+        return showAlpha || showNumeric;
+    }
+
+    @Override
+    public String[] getChangeableParameters() {
+        return new String[]{"Alpha/Numeric/Both"};
+    }
+
+    @Override
+    protected void showResultInGui(String result) {
+        Utils.doSmartAutoscroll(outputTextArea, result);
+    }
+
+    @Override
+    protected String calculateResult(Boolean inputBit) {
+        String result = null;
         inputBit = inputBit ^ inverted;
         receivedParity ^= inputBit;
         bitBuffer.push(inputBit);
@@ -196,7 +216,7 @@ public final class Pocsag extends Decoder<Boolean> {
                 bitBuffer.resetBitCounter();
                 if (inputBit == lastBit && preambleCount < PocsagData.PREAMBLE_COUNT / 4) {
                     LOGGER.fine("Invalid preamble!");
-                    messageDone(true);
+                    reset();
                     break;
                 }
 
@@ -204,7 +224,7 @@ public final class Pocsag extends Decoder<Boolean> {
 
                 if (++preambleCount > PocsagData.PREAMBLE_COUNT * 3) {
                     LOGGER.fine("Preamble too long!");
-                    messageDone(true);
+                    reset();
                     break;
                 }
             case WAIT_FOR_IMMEDIATE_SYNC_WORD:
@@ -219,7 +239,8 @@ public final class Pocsag extends Decoder<Boolean> {
                         LOGGER.fine("Inverted Sync detected, inverting all other bits from here on out!");
                     } else if (state == State.WAIT_FOR_IMMEDIATE_SYNC_WORD) {
                         LOGGER.fine("Did not get expected sync codeword, message done.");
-                        messageDone(false);
+                        result = buildMessageString();
+                        reset();
                         break;
                     } else {
                         break;
@@ -259,6 +280,8 @@ public final class Pocsag extends Decoder<Boolean> {
                 receivedParity = true;
                 break;
         }
+
+        return result;
     }
 
     private void updateState(State newState) {
