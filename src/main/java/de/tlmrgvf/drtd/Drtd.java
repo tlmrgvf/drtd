@@ -153,6 +153,7 @@ public final class Drtd {
                 if (headlessDecoder.setupParameters(paramList.toArray(String[]::new))) {
                     decoder.setup();
                     startProcessing(decoder);
+                    System.out.println("Ready.");
                 } else {
                     showDecoderParameterErrorAndExit(headlessDecoder);
                 }
@@ -344,9 +345,13 @@ public final class Drtd {
                     case "-l":
                     case "--level":
                         if (iterator.hasNext()) {
-                            OPTIONS.logLevel = Level.parse(iterator.next());
-                            if (OPTIONS.logLevel == null) printUsageAndExit();
-                            HANDLER.setLevel(OPTIONS.logLevel);
+                            try {
+                                OPTIONS.logLevel = Level.parse(iterator.next());
+                                if (OPTIONS.logLevel == null) printUsageAndExit();
+                                HANDLER.setLevel(OPTIONS.logLevel);
+                            } catch (IllegalArgumentException e) {
+                                printUsageAndExit();
+                            }
                         } else {
                             printUsageAndExit();
                         }
