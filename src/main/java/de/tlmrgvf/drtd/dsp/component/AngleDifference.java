@@ -75,15 +75,15 @@ public final class AngleDifference extends PipelineComponent<Complex, Float> {
         final int width = SIZE.width - 11;
         final int height = SIZE.height - 11;
 
-        final var centerX = (int) Math.sqrt((width * width * .49) / 2);
-        final var centerY = (int) Math.sqrt((height * height * .49) / 2);
+        final int centerX = (int) Math.sqrt((width * width * .49) / 2);
+        final int centerY = (int) Math.sqrt((height * height * .49) / 2);
 
         g.drawLine(0, height, width, 0);
         g.drawLine(0, height, width, height);
 
         g.drawLine(centerX, height - centerY, (int) (.7 * width), height);
 
-        var triangle = new Polygon(new int[]{0, 2, 4}, new int[]{0, -3, 0}, 3);
+        Polygon triangle = new Polygon(new int[]{0, 2, 4}, new int[]{0, -3, 0}, 3);
         triangle.translate(8, height - 2);
         g.drawPolygon(triangle);
     }

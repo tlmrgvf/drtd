@@ -171,7 +171,7 @@ public final class BitConverter extends PipelineComponent<Boolean, Boolean> {
                         syncBits = 0;
                         syncing = false;
 
-                        var bauds = sampleRate / currentSamplesPerBit;
+                        float bauds = sampleRate / currentSamplesPerBit;
                         LOGGER.fine("Synced to " + bauds + " baud");
                         if (callback != null)
                             callback.onSyncAquired(currentSamplesPerBit, bauds);

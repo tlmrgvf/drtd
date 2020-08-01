@@ -64,7 +64,7 @@ public final class RollingScope extends Canvas {
     }
 
     private void clear() {
-        final var graphics = backgroundLayer.getGraphics();
+        final Graphics graphics = backgroundLayer.getGraphics();
         graphics.setColor(Color.BLACK);
         graphics.fillRect(0, 0, backgroundLayer.getWidth(), backgroundLayer.getHeight());
         synchronized (RollingScope.this) {
@@ -82,7 +82,7 @@ public final class RollingScope extends Canvas {
             valueLayer.clear();
             previousPoint = null;
 
-            var graphics = valueLayer.getGraphics();
+            Graphics2D graphics = valueLayer.getGraphics();
             graphics.setColor(Color.BLUE);
             for (int x = 0; x < valueLayer.getWidth(); ++x)
                 drawValue(graphics, buffer.peek(x), x);
@@ -94,7 +94,7 @@ public final class RollingScope extends Canvas {
     private void drawValue(Graphics2D graphics, float value, int x) {
         final float normalized = 1 - (value - minValue) / (maxValue - minValue);
 
-        final var currentPoint = new Point(x, (int) (normalized * valueLayer.getHeight()));
+        final Point currentPoint = new Point(x, (int) (normalized * valueLayer.getHeight()));
         if (previousPoint == null)
             graphics.drawRect(currentPoint.x, currentPoint.y, 1, 1);
         else
@@ -104,7 +104,7 @@ public final class RollingScope extends Canvas {
     }
 
     public synchronized void append(float value) {
-        var old = buffer.push(value);
+        float old = buffer.push(value);
         if (old == minValue || old == maxValue) {
             maxValue = Float.MIN_VALUE;
             minValue = Float.MAX_VALUE;
@@ -122,13 +122,13 @@ public final class RollingScope extends Canvas {
             minValue = value;
             fullRedraw();
         } else {
-            var image = valueLayer.getImage();
-            var newImage = new BufferedImage(image.getColorModel(),
+            BufferedImage image = valueLayer.getImage();
+            BufferedImage newImage = new BufferedImage(image.getColorModel(),
                     image.copyData(null),
                     image.isAlphaPremultiplied(),
                     null);
             valueLayer.clear();
-            var graphics = valueLayer.getGraphics();
+            Graphics2D graphics = valueLayer.getGraphics();
             graphics.drawImage(newImage, -1, 0, null);
             graphics.setColor(Color.BLUE);
             drawValue(graphics, value, valueLayer.getWidth() - 1);

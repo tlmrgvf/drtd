@@ -79,14 +79,14 @@ public final class PipelineBuilder<T, U> {
     public <V> PipelineComponent<T, V> build(PipelineComponent<U, V> end) {
         Utils.ensureNotNull(end);
         pipelineComponents.add(end);
-        return new Pipeline<>(end.getResultClass(), pipelineComponents.toArray(PipelineComponent[]::new));
+        return new Pipeline<>(end.getResultClass(), pipelineComponents.toArray(new PipelineComponent[0]));
     }
 
     public PipelineComponent<T, U> build() {
         if (pipelineComponents.isEmpty())
             throw new IllegalStateException("Pipeline is empty!");
 
-        return new Pipeline<>(resultClass, pipelineComponents.toArray(PipelineComponent[]::new));
+        return new Pipeline<>(resultClass, pipelineComponents.toArray(new PipelineComponent[0]));
     }
 
     @SafeVarargs

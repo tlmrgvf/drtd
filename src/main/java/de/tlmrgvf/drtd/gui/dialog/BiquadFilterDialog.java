@@ -64,14 +64,14 @@ public final class BiquadFilterDialog extends JFrame {
         setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
         setMinimumSize(new Dimension(400, 400));
 
-        var sampleRate = filter.getSampleRate();
+        int sampleRate = filter.getSampleRate();
         plot = new FilterPlot(sampleRate);
 
-        var rootPanel = new JPanel(new BorderLayout()); //Outermost panel
+        JPanel rootPanel = new JPanel(new BorderLayout()); //Outermost panel
         rootPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         rootPanel.add(plot, BorderLayout.CENTER);
 
-        var gridLayout = new GridLayout(0, 2);
+        GridLayout gridLayout = new GridLayout(0, 2);
         gridLayout.setVgap(10);
         gridLayout.setHgap(10);
         JPanel settingsPanel = new JPanel(gridLayout);
@@ -111,13 +111,13 @@ public final class BiquadFilterDialog extends JFrame {
 
     private void recalculate() {
         /* Calculate magnitude and find maximum */
-        final var coeff = filter.getCoefficients();
+        final GenericBiquadFilter.Coefficents coeff = filter.getCoefficients();
         final float[] res = new float[filter.getSampleRate() / 2];
         float minMagnitude = Float.MAX_VALUE;
         float maxMagnitude = Float.MIN_VALUE;
         float last = 0;
         for (int f = 0; f < res.length; ++f) {
-            var magnitude = coeff.frequencyResponse(f + 1);
+            float magnitude = coeff.frequencyResponse(f + 1);
             if (magnitude == 0)
                 magnitude = last;
             res[f] = magnitude;

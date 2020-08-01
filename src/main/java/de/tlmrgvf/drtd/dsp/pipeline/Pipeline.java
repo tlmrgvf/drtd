@@ -47,7 +47,7 @@ public final class Pipeline<T, U> extends PipelineComponent<T, U> {
     public int onInit(int calculatedInputSampleRate) {
         int currentRate = calculatedInputSampleRate;
 
-        for (var comp : pipelineComponents)
+        for (PipelineComponent<?, ?> comp : pipelineComponents)
             currentRate = comp.init(currentRate);
 
         return currentRate;
@@ -57,7 +57,7 @@ public final class Pipeline<T, U> extends PipelineComponent<T, U> {
     @SuppressWarnings("unchecked")
     protected U calculate(T input) {
         Object intermediate = input;
-        for (var comp : pipelineComponents)
+        for (PipelineComponent<?, ?> comp : pipelineComponents)
             if ((intermediate = comp.calculateGeneric(intermediate)) == null)
                 return null;
 
@@ -68,8 +68,8 @@ public final class Pipeline<T, U> extends PipelineComponent<T, U> {
     public Dimension calculateSize(Graphics2D g) {
         int maxHeight = 0;
         int widthSum = 0;
-        for (var comp : pipelineComponents) {
-            var size = comp.calculateSize(g);
+        for (PipelineComponent<?, ?> comp : pipelineComponents) {
+            Dimension size = comp.calculateSize(g);
             maxHeight = Math.max(size.height, maxHeight);
             widthSum += size.width + COMPONENT_HORIZONTAL_SPACING;
         }
@@ -80,13 +80,13 @@ public final class Pipeline<T, U> extends PipelineComponent<T, U> {
 
     @Override
     public void drawRelative(Graphics2D graphics) {
-        var absolutePosition = getAbsolutePosition();
-        var center = calculateSize((Graphics2D) graphics.create()).height / 2;
+        Point absolutePosition = getAbsolutePosition();
+        int center = calculateSize((Graphics2D) graphics.create()).height / 2;
         absolutePosition.translate(0, center);
 
         for (int i = 0; i < pipelineComponents.length; ++i) {
-            var comp = pipelineComponents[i];
-            var size = comp.calculateSize((Graphics2D) graphics.create());
+            PipelineComponent<?, ?> comp = pipelineComponents[i];
+            Dimension size = comp.calculateSize((Graphics2D) graphics.create());
             comp.draw(new Point(absolutePosition.x, absolutePosition.y - size.height / 2), graphics);
             absolutePosition.translate(size.width + COMPONENT_HORIZONTAL_SPACING, 0);
 

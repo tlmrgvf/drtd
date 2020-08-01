@@ -127,7 +127,7 @@ public final class Utils {
     }
 
     public static void addLabeledComponent(JComponent parent, JComponent component, String title) {
-        var panel = new JPanel(new GridLayout(1, 1));
+        JPanel panel = new JPanel(new GridLayout(1, 1));
         panel.add(component);
         panel.setBorder(BorderFactory.createCompoundBorder(Utils.createLabeledBorder(title),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5))
@@ -226,7 +226,7 @@ public final class Utils {
     }
 
     public static void addClearContextMenu(JComponent component, Runnable action) {
-        var contextMenu = new JPopupMenu();
+        JPopupMenu contextMenu = new JPopupMenu();
         contextMenu.add("Clear").addActionListener((ActionEvent event) -> action.run());
         component.setComponentPopupMenu(contextMenu);
     }

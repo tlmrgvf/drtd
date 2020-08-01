@@ -127,7 +127,7 @@ public abstract class GenericFirFilter<T> extends PipelineComponent<T, T> {
         final float yOffset = Utils.center(SIZE.height, (int) height) + 2 * sinHeight * index + sinHeight;
         final float xOffset = Utils.center(SIZE.width, (int) width);
 
-        var path = new GeneralPath();
+        GeneralPath path = new GeneralPath();
         path.moveTo(xOffset, yOffset);
         for (int xi = 1; xi < width; ++xi) {
             final double yi = sinHeight * Math.sin(2 * Math.PI * (xi / width)) + yOffset;

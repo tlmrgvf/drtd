@@ -117,7 +117,7 @@ public final class Drtd {
             }
 
             try {
-                for (var name : ICON_NAMES)
+                for (String name : ICON_NAMES)
                     ICONS.add(ImageIO.read(Drtd.readResourceStream(name)));
             } catch (IOException e) {
                 Drtd.getLogger(BitConverter.class).throwing("Drtd", "main", e);
@@ -139,18 +139,18 @@ public final class Drtd {
             });
         } else {
             LOGGER.info("Starting in headless mode");
-            var decoder = OPTIONS.headlessDecoder.getInstance();
+            Decoder<?> decoder = OPTIONS.headlessDecoder.getInstance();
 
             if (!(decoder instanceof HeadlessDecoder)) {
                 LOGGER.severe("Selected decoder is not a headless decoder");
                 Utils.die();
             }
 
-            var headlessDecoder = (HeadlessDecoder<?, ?>) decoder;
-            var paramList = OPTIONS.decoderParameters;
-            var availableParameters = headlessDecoder.getChangeableParameters();
+            HeadlessDecoder<?, ?> headlessDecoder = (HeadlessDecoder<?, ?>) decoder;
+            List<String> paramList = OPTIONS.decoderParameters;
+            String[] availableParameters = headlessDecoder.getChangeableParameters();
             if (paramList.size() == availableParameters.length) {
-                if (headlessDecoder.setupParameters(paramList.toArray(String[]::new))) {
+                if (headlessDecoder.setupParameters(paramList.toArray(new String[0]))) {
                     decoder.setup();
                     startProcessing(decoder);
                     System.out.println("Ready.");
@@ -164,7 +164,7 @@ public final class Drtd {
     }
 
     private static void showDecoderParameterErrorAndExit(HeadlessDecoder<?, ?> headlessDecoder) {
-        var availableParams = headlessDecoder.getChangeableParameters();
+        String[] availableParams = headlessDecoder.getChangeableParameters();
         System.out.print("Invalid parameters! Available parameters: ");
         if (availableParams.length == 0) {
             System.out.println("None");
@@ -183,7 +183,7 @@ public final class Drtd {
     public static void useDecoder(Decoder<?> decoder) {
         assert decoder != null;
 
-        var old = Drtd.getProcessingThread();
+        ProcessingThread old = Drtd.getProcessingThread();
         if (old != null) {
             old.getDecoder().saveSettings();
             old.getDecoder().onTeardown();
@@ -198,21 +198,20 @@ public final class Drtd {
 
     private static void getAudioLines() {
         LOGGER.info("Reading available audio lines...");
-        var goodLines = new LinkedList<TargetLineWrapper>();
+        LinkedList<TargetLineWrapper> goodLines = new LinkedList<>();
         int lineIndex = 0;
 
-        for (var mixerInfo : AUDIO_MIXERS) {
-            final var description = String.format("%s (%s)", mixerInfo.getName(), mixerInfo.getDescription());
+        for (Mixer.Info mixerInfo : AUDIO_MIXERS) {
+            final String description = String.format("%s (%s)", mixerInfo.getName(), mixerInfo.getDescription());
             LOGGER.info(String.format(
                     "\tMixer %s [%s, %s]",
                     description,
                     mixerInfo.getVendor(),
                     mixerInfo.getVersion())
             );
-            final var mixer = AudioSystem.getMixer(mixerInfo);
-            final var targetLineInfos = mixer.getTargetLineInfo();
+            final Mixer mixer = AudioSystem.getMixer(mixerInfo);
 
-            for (var targetLine : targetLineInfos) {
+            for (Line.Info targetLine : mixer.getTargetLineInfo()) {
                 LOGGER.info(String.format(
                         "\t\tTargetLine Info: %s (%s)",
                         targetLine.toString(),
@@ -237,7 +236,7 @@ public final class Drtd {
             }
         }
 
-        availableLines = goodLines.toArray(TargetLineWrapper[]::new);
+        availableLines = goodLines.toArray(new TargetLineWrapper[0]);
         LOGGER.info(String.format("Got %d usable data lines:", availableLines.length));
         goodLines.stream().map(w -> "\t" + w).forEach(LOGGER::info);
 
@@ -261,7 +260,7 @@ public final class Drtd {
     public static void setActiveTargetLineIndex(int activeTargetLineIndex) {
         Drtd.activeTargetLineIndex = activeTargetLineIndex;
 
-        var decoder = processingThread.getDecoder();
+        Decoder<?> decoder = processingThread.getDecoder();
         stopProcessing();
         startProcessing(decoder);
     }
@@ -271,7 +270,7 @@ public final class Drtd {
     }
 
     public static Interpreter getInterpreter(Class<?> c) {
-        var interpreter = interpreters.get(c);
+        Interpreter interpreter = interpreters.get(c);
         if (interpreter == null) {
             LOGGER.severe(String.format("No interpreter for \"%s\" registered!", c));
             Utils.die();
@@ -359,7 +358,7 @@ public final class Drtd {
                     case "-g":
                     case "--headless":
                         if (iterator.hasNext()) {
-                            var decoder = DecoderImplementation.findByName(iterator.next());
+                            DecoderImplementation decoder = DecoderImplementation.findByName(iterator.next());
                             if (decoder == null) {
                                 System.out.println("Unknown decoder!");
                                 showAvailableDecoders();

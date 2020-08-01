@@ -63,10 +63,10 @@ public final class PocsagMessage {
     }
 
     public static PocsagMessage[] fromData(PocsagData[] dataArray) {
-        var messages = new ArrayList<PocsagMessage>();
-        var builder = PocsagMessage.builder();
+        ArrayList<PocsagMessage> messages = new ArrayList<>();
+        PocsagMessage.MessageBuilder builder = PocsagMessage.builder();
 
-        for (var data : dataArray) {
+        for (PocsagData data : dataArray) {
             if (data == null) {
                 builder.setContainsInvalidCodeword();
                 continue;
@@ -86,7 +86,7 @@ public final class PocsagMessage {
         if (builder.isValid())
             messages.add(builder.build());
 
-        return messages.toArray(PocsagMessage[]::new);
+        return messages.toArray(new PocsagMessage[0]);
     }
 
     public boolean containsInvalidCodeword() {

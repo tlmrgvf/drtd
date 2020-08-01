@@ -100,7 +100,7 @@ public final class BiquadFilterComponent extends PipelineComponent<Float, Float>
     protected void drawRelative(Graphics2D graphics) {
         graphics.drawRect(0, 0, SIZE.width - 1, SIZE.height - 1);
         graphics.translate(8, 8);
-        var drawSize = Utils.resize(SIZE, -16, -16);
+        Dimension drawSize = Utils.resize(SIZE, -16, -16);
         final int oneThirdWidth = drawSize.width / 3;
         final int twoThirdWidth = 2 * oneThirdWidth;
         final int halfWidth = drawSize.width / 2;

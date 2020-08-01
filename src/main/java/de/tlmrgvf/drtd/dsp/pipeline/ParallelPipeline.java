@@ -61,7 +61,7 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
                      Class<V> resultClass,
                      MergeFunction<U, V> func,
                      List<PipelineComponent<T, U>> pipelineComponents) {
-        super(resultClass, pipelineComponents.toArray(PipelineComponent[]::new), ComponentType.PARALLEL_PIPELINE);
+        super(resultClass, pipelineComponents.toArray(new PipelineComponent[0]), ComponentType.PARALLEL_PIPELINE);
         assert pipelineComponents.size() > 1;
 
         if (Drtd.isGuiMode()) {
@@ -80,7 +80,7 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
     @Override
     public int onInit(int calculatedInputSampleRate) {
         int outputSampleRate = -1;
-        for (var comp : pipelineComponents) {
+        for (PipelineComponent<T, U> comp : pipelineComponents) {
             int sr = comp.init(calculatedInputSampleRate);
             if (outputSampleRate < 0)
                 outputSampleRate = sr;
@@ -95,7 +95,7 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
     protected V calculate(T input) {
         int usIndex = 0;
         boolean abort = false;
-        for (var comp : pipelineComponents)
+        for (PipelineComponent<T, U> comp : pipelineComponents)
             if ((us[usIndex++] = comp.calculateGeneric(input)) == null)
                 abort = true;
 
@@ -106,8 +106,8 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
     public Dimension calculateSize(Graphics2D g) {
         int heightSum = 0;
         int maxWidth = 0;
-        for (var comp : pipelineComponents) {
-            var size = comp.calculateSize(g);
+        for (PipelineComponent<T, U>  comp : pipelineComponents) {
+            Dimension size = comp.calculateSize(g);
             maxWidth = Math.max(size.width, maxWidth);
             heightSum += size.height + COMPONENT_VERTICAL_SPACING;
         }
@@ -120,7 +120,7 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
 
     @Override
     protected void drawRelative(Graphics2D graphics) {
-        var absolutePosition = getAbsolutePosition();
+        Point absolutePosition = getAbsolutePosition();
         absolutePosition.translate(PIPELINE_HORIZONTAL_SPACING_ADJUSTED, 0);
 
         int markerIndex = -1;
@@ -128,11 +128,11 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
         Point[] rightPoints = new Point[pipelineComponents.size()];
 
         int pointIndex = 0;
-        for (var comp : pipelineComponents) {
+        for (PipelineComponent<T, U> comp : pipelineComponents) {
             if (comp.isBeingMonitored())
                 markerIndex = pointIndex;
 
-            var size = comp.calculateSize((Graphics2D) graphics.create());
+            Dimension size = comp.calculateSize((Graphics2D) graphics.create());
             comp.draw(absolutePosition, graphics);
 
             leftPoints[pointIndex] = new Point(absolutePosition.x - PIPELINE_HORIZONTAL_SPACING_ADJUSTED,
@@ -160,7 +160,7 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
         xTarget = sourcePoints[0].x + PIPELINE_HORIZONTAL_SPACING_ADJUSTED;
 
         Point previous = null;
-        for (var src : sourcePoints) {
+        for (Point src : sourcePoints) {
             if (previous == null)
                 previous = src;
             else
@@ -168,7 +168,7 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
         }
 
         int index = 0;
-        for (var src : sourcePoints) {
+        for (Point src : sourcePoints) {
             drawSimpleConnector(index == markerIndex ? position : MarkerPosition.NO_MARKER,
                     g, new Point(src.x, src.y),
                     new Point(xTarget, src.y));
@@ -180,7 +180,7 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
                                        Point[] sourcePoints,
                                        Color intermediate,
                                        int markerIndex) {
-        var size = calculateSize((Graphics2D) g.create());
+        Dimension size = calculateSize((Graphics2D) g.create());
         int xTarget;
         g = (Graphics2D) g.create();
         int minY = Integer.MAX_VALUE;
@@ -197,7 +197,7 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
                 .orElse(0D) + PIPELINE_HORIZONTAL_SPACING_ADJUSTED);
 
         g.setColor(intermediate);
-        for (var src : sourcePoints) {
+        for (Point src : sourcePoints) {
             minY = Math.min(minY, src.y);
             maxY = Math.max(maxY, src.y);
         }
@@ -205,7 +205,7 @@ public final class ParallelPipeline<T, U, V> extends PipelineComponent<T, V> {
         drawConnectingLine(g, xTarget, minY, xTarget, maxY);
 
         int index = 0;
-        for (var src : sourcePoints) {
+        for (Point src : sourcePoints) {
             drawSimpleConnector(index == markerIndex ? position : MarkerPosition.NO_MARKER,
                     g, new Point(src.x, src.y),
                     new Point(xTarget, src.y));

@@ -115,10 +115,10 @@ public final class PLL extends PipelineComponent<Float, Complex> {
 
     @Override
     protected Complex calculate(Float input) {
-        var i = input * (float) Math.sin(phase);
-        var q = input * (float) Math.cos(phase);
+        float i = input * (float) Math.sin(phase);
+        float q = input * (float) Math.cos(phase);
 
-        final var result = lowpassFilter.filterSample(new Complex(i, q).normalize());
+        final Complex result = lowpassFilter.filterSample(new Complex(i, q).normalize());
         final float phaseError = loopFilter.filterSample(detector.detect(result) * loopGain);
         phase += (float) (phaseStep + 2 * Math.PI * frequency * phaseError / (float) getInputSampleRate());
         phase %= 2 * Math.PI;

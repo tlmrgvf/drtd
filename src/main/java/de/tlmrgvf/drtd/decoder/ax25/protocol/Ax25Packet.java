@@ -217,7 +217,7 @@ public abstract class Ax25Packet {
 
         byte contol = raw[offset++];
         Type type = Type.getByControl(contol);
-        Ax25Address[] repeaterArray = repeaters.toArray(Ax25Address[]::new);
+        Ax25Address[] repeaterArray = repeaters.toArray(new Ax25Address[0]);
         boolean poll = Utils.compareBit(true, contol, POLL_MASK);
         //FIXME: The FCS byte is currently just appended to the data, we should check it
         //NOTE: APRS seems to not use the FCS, is there a way to detect if it is included?

@@ -157,7 +157,7 @@ public final class WaterfallDialog extends JFrame {
         ignoreUpdates = true;
 
         windowSelector.setSelectedItem(waterfall.getWindow());
-        final var zoomFactor = (waterfall.getZoom() - 1) * 10;
+        final float zoomFactor = (waterfall.getZoom() - 1) * 10;
         zoom.setValue((int) ((waterfall.isZoomOut() ? -zoomFactor : zoomFactor)));
         fStart.setValue(waterfall.getFrequencyOffset());
         bins.setSelectedItem(waterfall.getBins());

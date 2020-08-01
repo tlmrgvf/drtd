@@ -33,12 +33,14 @@ import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.decoder.utils.MarkerGroup;
 import de.tlmrgvf.drtd.dsp.PipelineComponent;
 import de.tlmrgvf.drtd.gui.MainGui;
+import de.tlmrgvf.drtd.gui.component.Waterfall;
 import de.tlmrgvf.drtd.utils.SettingsManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.AbstractQueue;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class Decoder<T> {
@@ -65,7 +67,7 @@ public abstract class Decoder<T> {
         this.inputSampleRate = inputSampleRate;
 
         if (Drtd.isGuiMode()) {
-            var waterfall = mainGui.getWaterfall();
+            Waterfall waterfall = mainGui.getWaterfall();
             manager = SettingsManager.createFor(getClass(), true, false)
                     .mapOption(Float.class, waterfall::getZoom, waterfall::setZoom, 1F)
                     .mapOption(Integer.class, waterfall::getFrequencyOffset, waterfall::setFrequencyOffset, 0)
@@ -172,7 +174,7 @@ public abstract class Decoder<T> {
     }
 
     public final void processBatch() {
-        var iterator = collectedResults.iterator();
+        Iterator<T> iterator = collectedResults.iterator();
         while (iterator.hasNext()) {
             onPipelineResult(iterator.next());
             iterator.remove();

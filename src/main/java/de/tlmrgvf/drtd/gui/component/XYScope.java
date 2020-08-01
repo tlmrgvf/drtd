@@ -52,7 +52,7 @@ public final class XYScope extends Canvas {
         scopeLayer = createLayer(0, 0, Layer.PARENT_SIZE, Layer.PARENT_SIZE);
         setBackground(Color.BLACK);
 
-        var dim = new Dimension(size, size);
+        Dimension dim = new Dimension(size, size);
         setMaximumSize(dim);
         setMinimumSize(dim);
         setPreferredSize(dim);
@@ -64,24 +64,24 @@ public final class XYScope extends Canvas {
 
         if (valuesCollected == values.length) {
             if (willDraw()) {
-                final var g = scopeLayer.getGraphics();
-                final var width = getWidth();
-                final var height = getHeight();
+                final Graphics g = scopeLayer.getGraphics();
+                final int width = getWidth();
+                final int height = getHeight();
                 g.setColor(new Color(0, 0, 0, fadeFactor));
                 g.fillRect(0, 0, width, height);
                 g.setColor(new Color(0, 1F, 0, drawFactor));
 
-                final var factor = (float) (1 / Math.sqrt(maxMagnitude));
+                final float factor = (float) (1 / Math.sqrt(maxMagnitude));
 
                 final int xOffset = width / 2;
                 final int yOffset = height / 2;
 
-                final var scale = Math.min(width, height) * .48F;
+                final float scale = Math.min(width, height) * .48F;
 
                 Point previous = null;
-                for (var toDraw : values) {
-                    final var scaled = toDraw.scale(factor);
-                    final var next = new Point((int) (scaled.real * scale) + xOffset,
+                for (Complex toDraw : values) {
+                    final Complex scaled = toDraw.scale(factor);
+                    final Point next = new Point((int) (scaled.real * scale) + xOffset,
                             (int) (scaled.imag * scale) + yOffset);
 
                     if (connect) {

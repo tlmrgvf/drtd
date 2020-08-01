@@ -39,6 +39,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.AbstractQueue;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Scope extends Canvas {
@@ -136,7 +137,7 @@ public final class Scope extends Canvas {
     }
 
     public synchronized void processValues() {
-        var iterator = bufferedValues.iterator();
+        Iterator<Float> iterator = bufferedValues.iterator();
         boolean draw = false;
         while (iterator.hasNext()) {
             draw |= processValue(iterator.next());
@@ -276,7 +277,7 @@ public final class Scope extends Canvas {
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
             if (mouseEvent.getButton() == MouseEvent.BUTTON3) {
-                var dialog = ScopeDialog.getInstance(Scope.this);
+                ScopeDialog dialog = ScopeDialog.getInstance(Scope.this);
                 dialog.setState(Frame.NORMAL);
                 dialog.setVisible(true);
                 dialog.loadFromScope();

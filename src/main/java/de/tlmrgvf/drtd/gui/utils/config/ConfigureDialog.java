@@ -51,11 +51,11 @@ public final class ConfigureDialog extends JDialog {
         setMinimumSize(new Dimension(250, 0));
 
         GridLayout layout = new GridLayout(-1, 2);
-        var panel = new JPanel(layout);
+        JPanel panel = new JPanel(layout);
         layout.setHgap(10);
         panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
-        for (var setting : settings) {
+        for (Setting<?> setting : settings) {
             panel.add(new JLabel(setting.name + ":"));
             panel.add(setting.createComponent());
             setting.loadComponentFromGetter();
@@ -69,7 +69,7 @@ public final class ConfigureDialog extends JDialog {
         if (instances.containsKey(configuring))
             instances.get(configuring).dispose();
 
-        var dialog = new ConfigureDialog(title, settings);
+        ConfigureDialog dialog = new ConfigureDialog(title, settings);
         dialog.setVisible(true);
         dialog.setLocationRelativeTo(Drtd.getMainGui().getPipelineDialog());
         instances.put(configuring, dialog);

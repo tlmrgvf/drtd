@@ -141,9 +141,9 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
     }
 
     private String createDateString() {
-        final var domString = time.dom == 0 ? "--" : String.format("%02d", time.dom);
-        final var monthString = time.month == 0 ? "--" : String.format("%02d", time.month);
-        final var yearString = time.year < 0 ? "----" : String.format("20%02d", time.year); //:^)
+        final String domString = time.dom == 0 ? "--" : String.format("%02d", time.dom);
+        final String monthString = time.month == 0 ? "--" : String.format("%02d", time.month);
+        final String yearString = time.year < 0 ? "----" : String.format("20%02d", time.year); //:^)
         return String.format("%s, %s.%s.%s", DOW_LOOKUP[time.dow], domString, monthString, yearString);
     }
 
@@ -211,7 +211,7 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
     @Override
     public boolean setupParameters(String[] args) {
         try {
-            var center = Integer.parseInt(args[0]);
+            int center = Integer.parseInt(args[0]);
             if (center < 0 || center > SAMPLE_RATE / 2) {
                 printInvalidParameterErrorMessage(0);
                 return false;
@@ -374,13 +374,13 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
         Utils.addLabeledComponent(parent, dateLabel, "Date");
         Utils.addLabeledComponent(parent, timeLabel, "Time");
 
-        var statusPanel = new JPanel();
+        JPanel statusPanel = new JPanel();
         statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
         parent.add(statusPanel);
 
         statusPanel.add(Box.createHorizontalGlue());
 
-        var errorPanel = new JPanel();
+        JPanel errorPanel = new JPanel();
         errorPanel.setLayout(new BoxLayout(errorPanel, BoxLayout.Y_AXIS));
         errorPanel.setBorder(Utils.createLabeledBorder("Errors"));
         errorPanel.add(minuteParityIndicator);
@@ -391,7 +391,7 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
         statusPanel.add(errorPanel);
         statusPanel.add(Box.createHorizontalGlue());
 
-        var flagPanel = new JPanel();
+        JPanel flagPanel = new JPanel();
         flagPanel.setLayout(new BoxLayout(flagPanel, BoxLayout.Y_AXIS));
         flagPanel.setBorder(Utils.createLabeledBorder("Flags"));
         flagPanel.add(cetIndicator);
@@ -402,7 +402,7 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
         statusPanel.add(flagPanel);
         statusPanel.add(Box.createHorizontalGlue());
 
-        var miscPanel = new JPanel();
+        JPanel miscPanel = new JPanel();
         miscPanel.setLayout(new BoxLayout(miscPanel, BoxLayout.Y_AXIS));
         miscPanel.setBorder(Utils.createLabeledBorder("Miscellaneous"));
         miscPanel.add(rxIndicator);
@@ -467,7 +467,7 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
         }
 
         private static State nextState(State state) {
-            var values = values();
+            State[] values = values();
             for (int i = 0; i < values.length; ++i) {
                 if (values[i] == state) {
                     return values[(i + 1) % values.length];

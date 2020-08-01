@@ -41,7 +41,7 @@ To show other options, just pass the ``--help`` option
 
 ## Build
 **Required:**
-* Java JDK 11
+* Java JDK 8
 * Maven
 
 **To build:**  

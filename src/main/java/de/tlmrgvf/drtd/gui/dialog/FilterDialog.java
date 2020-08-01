@@ -86,11 +86,11 @@ public final class FilterDialog extends JDialog {
         final boolean isKaiser = windowType == WindowType.KAISER;
         plot = new FilterPlot(filter.getInputSampleRate());
 
-        var rootPanel = new JPanel(new BorderLayout()); //Outermost panel
+        JPanel rootPanel = new JPanel(new BorderLayout()); //Outermost panel
         rootPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         rootPanel.add(plot, BorderLayout.CENTER);
 
-        var gridLayout = new GridLayout(6, 2);
+        GridLayout gridLayout = new GridLayout(6, 2);
         gridLayout.setVgap(10);
         gridLayout.setHgap(10);
         JPanel settingsPanel = new JPanel(gridLayout);
@@ -117,7 +117,7 @@ public final class FilterDialog extends JDialog {
         attLabel.setEnabled(isKaiser);
         spinAtt.setEnabled(isKaiser);
 
-        var windowSelector = new JComboBox<>(WindowType.createWindowInstances());
+        JComboBox<Window> windowSelector = new JComboBox<>(WindowType.createWindowInstances());
         windowSelector.addItemListener((e) -> {
             Window newWindow = (Window) e.getItem();
             filter.setWindow(newWindow);

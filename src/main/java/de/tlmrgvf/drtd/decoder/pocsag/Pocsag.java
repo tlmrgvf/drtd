@@ -135,7 +135,7 @@ public final class Pocsag extends HeadlessDecoder<Boolean, String> {
         LOGGER.fine("Received POCSAG message @ " + baudRate + " baud");
 
         StringBuilder builder = new StringBuilder();
-        for (PocsagMessage message : PocsagMessage.fromData(allMessages.toArray(PocsagData[]::new))) {
+        for (PocsagMessage message : PocsagMessage.fromData(allMessages.toArray(new PocsagData[0]))) {
             PocsagData address = message.getAddress();
 
             builder.append("POCSAG");
@@ -300,7 +300,7 @@ public final class Pocsag extends HeadlessDecoder<Boolean, String> {
 
         Utils.addClearContextMenu(outputTextArea, () -> outputTextArea.setText(""));
 
-        var scroll = new JScrollPane(
+        JScrollPane scroll = new JScrollPane(
                 outputTextArea,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
@@ -309,7 +309,7 @@ public final class Pocsag extends HeadlessDecoder<Boolean, String> {
         scroll.setBorder(BorderFactory.createLoweredBevelBorder());
         parent.add(scroll);
 
-        var indicatorContainer = new JPanel();
+        JPanel indicatorContainer = new JPanel();
         indicatorContainer.setLayout(new BoxLayout(indicatorContainer, BoxLayout.X_AXIS));
         indicatorContainer.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(2, 2, 2, 2),

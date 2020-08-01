@@ -42,7 +42,7 @@ class RingBufferTest {
             buffer.push((float) i);
 
         buffer.clear(true);
-        for (var v : buffer.getContents())
+        for (float v : buffer.getContents())
             assertEquals(0F, v);
     }
 

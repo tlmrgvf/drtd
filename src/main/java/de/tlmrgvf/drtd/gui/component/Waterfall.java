@@ -32,6 +32,7 @@ package de.tlmrgvf.drtd.gui.component;
 import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.decoder.Decoder;
 import de.tlmrgvf.drtd.decoder.utils.Marker;
+import de.tlmrgvf.drtd.decoder.utils.MarkerGroup;
 import de.tlmrgvf.drtd.dsp.window.RectangularWindow;
 import de.tlmrgvf.drtd.dsp.window.Window;
 import de.tlmrgvf.drtd.gui.dialog.WaterfallDialog;
@@ -46,6 +47,7 @@ import org.jtransforms.fft.FloatFFT_1D;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.AbstractQueue;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
@@ -117,7 +119,7 @@ public final class Waterfall extends Canvas {
     }
 
     public synchronized void processValues() {
-        var iterator = bufferedValues.iterator();
+        Iterator<Float> iterator = bufferedValues.iterator();
         boolean draw = false;
         while (iterator.hasNext()) {
             draw |= processValue(iterator.next());
@@ -249,7 +251,7 @@ public final class Waterfall extends Canvas {
         if (decoder == null || decoder.getPipeline() == null)
             return;
 
-        var marker = decoder.getMarker();
+        MarkerGroup marker = decoder.getMarker();
         if (marker == null || !showMarker || !decoder.getInput().isBeingMonitored()) {
             markerLayer.setWidth(0);
             drawLayers(false);
@@ -406,7 +408,7 @@ public final class Waterfall extends Canvas {
     }
 
     public synchronized void moveMarkerToFrequency(int hz) {
-        var marker = decoder.getMarker();
+        MarkerGroup marker = decoder.getMarker();
         if (decoder.hasMarker() && marker.isMoveable())
             moveMarker(Math.min(translateX(hz), translateX(sampleRate / 2)), true);
     }
@@ -444,7 +446,7 @@ public final class Waterfall extends Canvas {
             LOGGER.info("Clicked at " + translateFrequency(mouseEvent.getX()) + " Hz");
 
             if (mouseEvent.getButton() == MouseEvent.BUTTON3) {
-                var dialog = WaterfallDialog.getInstance(Waterfall.this);
+                WaterfallDialog dialog = WaterfallDialog.getInstance(Waterfall.this);
                 dialog.setVisible(true);
                 dialog.updateUiFromWaterfall();
                 dialog.setState(Frame.NORMAL);
@@ -470,7 +472,7 @@ public final class Waterfall extends Canvas {
             if ((event.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) == 0) {
                 setFrequencyOffset(getFrequencyOffset() - wheelRotation * 250);
             } else {
-                final var zoom = getZoom() + (wheelRotation / 10F) * (zoomOut ? 2 : -2);
+                final float zoom = getZoom() + (wheelRotation / 10F) * (zoomOut ? 2 : -2);
                 if (zoom < 1) {
                     zoomOut = !zoomOut;
                     setZoom(1.1F);

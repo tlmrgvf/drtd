@@ -56,8 +56,8 @@ public final class Mapper<T, U> extends PipelineComponent<T, U> {
     public void drawRelative(Graphics2D g) {
         g.drawRect(0, 0, SIZE.width - 1, SIZE.height - 1);
         g.translate(3, 3);
-        final var width = SIZE.width - 7;
-        final var height = SIZE.height - 7;
+        final int width = SIZE.width - 7;
+        final int height = SIZE.height - 7;
         final int position = (int) (width * .7F);
 
         for (int i = 0; i < 3; ++i) {

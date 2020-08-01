@@ -40,6 +40,8 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineMetrics;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Collections;
@@ -64,7 +66,7 @@ public final class FilterPlot extends JPanel {
 
     public FilterPlot(int sampleRate) {
         halfSampleRate = sampleRate / 2;
-        final var listener = new ListenerImpl();
+        final ListenerImpl listener = new ListenerImpl();
         setLayout(new BorderLayout());
 
         canvas = new Canvas();
@@ -95,14 +97,14 @@ public final class FilterPlot extends JPanel {
     public void plot(boolean forceDraw) {
         final int width = canvas.getWidth();
         final int height = canvas.getHeight();
-        final var plotGraphics = plot.getGraphics();
-        final var frc = plotGraphics.getFontRenderContext();
-        final var font = Utils.FONT.deriveFont(12F);
+        final Graphics2D plotGraphics = plot.getGraphics();
+        final FontRenderContext frc = plotGraphics.getFontRenderContext();
+        final Font font = Utils.FONT.deriveFont(12F);
         plotGraphics.addRenderingHints(Collections.singletonMap(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON));
 
         /* Make sure we reset all transforms before using graphics */
-        var transform = new AffineTransform();
+        AffineTransform transform = new AffineTransform();
         transform.setToIdentity();
         plotGraphics.setTransform(transform);
 
@@ -116,13 +118,13 @@ public final class FilterPlot extends JPanel {
         final float dbMax = -verticalSize.getValue();
         final float dbPerDiv = -dbMax / (float) ADIVS;
 
-        final var informationMetrics = font.getLineMetrics("|", frc);
+        final LineMetrics informationMetrics = font.getLineMetrics("|", frc);
 
         /* Offset of the actual plot in the y direction is the height of the info string */
         final int plotOffsetY = (int) Math.ceil(informationMetrics.getHeight()) + 1;
         int plotHeight = height - plotOffsetY;
 
-        final var upperDbMarker = String.format("%.2fdB", Utils.calcDbAmplitude(max, 1));
+        final String upperDbMarker = String.format("%.2fdB", Utils.calcDbAmplitude(max, 1));
 
         /* Offset of the actual plot in the x direction, the width of the zero marker */
         final int plotOffsetX = (int) font.getStringBounds(upperDbMarker, frc).getWidth() + 4;
@@ -234,14 +236,14 @@ public final class FilterPlot extends JPanel {
                 halfSampleRate,
                 false));
 
-        final var markerString = String.format("Mark freq.: %.2f %s | Mark att.: %.2fdB",
+        final String markerString = String.format("Mark freq.: %.2f %s | Mark att.: %.2fdB",
                 markerF > 1000 ? markerF / 1000F : markerF,
                 markerF > 1000 ? "kHz" : "Hz",
                 markerAtt
         );
 
         /* Make information string */
-        final var information = String.format(
+        final String information = String.format(
                 "| Max. Att.: %.2fdB | dB/div: %.2f | %s",
                 Utils.calcDbAmplitude(min, 1),
                 dbPerDiv,

@@ -101,7 +101,7 @@ public class Canvas extends JComponent {
     }
 
     public Layer createLayer(int x, int y, int width, int height) {
-        var lay = new Layer(this, x, y, width, height);
+        Layer lay = new Layer(this, x, y, width, height);
         layers.add(lay);
         return lay;
     }

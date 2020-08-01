@@ -70,7 +70,7 @@ public final class Dtmf extends HeadlessDecoder<Integer, Character> {
         int maxIndex = 0;
 
         for (int i = 1; i < inputs.length; ++i) {
-            var value = inputs[i];
+            float value = inputs[i];
 
             if (value > max) {
                 maxIndex = i;
@@ -82,7 +82,7 @@ public final class Dtmf extends HeadlessDecoder<Integer, Character> {
     }
 
     private static PipelineComponent<Float, Integer> createFilterBank(int[] frequencies) {
-        var filters = new LinkedList<PipelineComponent<Float, Float>>();
+        LinkedList<PipelineComponent<Float, Float>> filters = new LinkedList<>();
         for (int frequency : frequencies)
             filters.add(new GoertzelFilter(FILTER_TAPS, frequency));
 
@@ -108,7 +108,7 @@ public final class Dtmf extends HeadlessDecoder<Integer, Character> {
 
         Utils.addClearContextMenu(outputTextArea, () -> outputTextArea.setText(""));
 
-        var scroll = new JScrollPane(
+        JScrollPane scroll = new JScrollPane(
                 outputTextArea,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED

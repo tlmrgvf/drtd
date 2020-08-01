@@ -55,7 +55,7 @@ public final class PLLDialog extends JDialog {
         super(Drtd.getMainGui().getPipelineDialog());
         this.pll = pll;
         downSampler = new DownSampler(pll.getInputSampleRate(), 200);
-        var listener = new ListenerImpl();
+        ListenerImpl listener = new ListenerImpl();
         loopFilterDialog = new BiquadFilterDialog(pll.getLoopFilter());
         lowpassFilterDialog = new BiquadFilterDialog(pll.getLowpassFilter());
 
@@ -68,14 +68,14 @@ public final class PLLDialog extends JDialog {
         setLayout(new BorderLayout());
         addWindowListener(listener);
 
-        final var graphPanel = new JPanel(new BorderLayout());
+        final JPanel graphPanel = new JPanel(new BorderLayout());
         graphPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(4, 4, 4, 4),
                 Utils.createLabeledBorder("Phase error")));
         graph = new RollingScope();
         graphPanel.add(graph);
 
-        final var settingsPanel = new JPanel(new GridLayout(0, 2, 4, 4));
+        final JPanel settingsPanel = new JPanel(new GridLayout(0, 2, 4, 4));
         settingsPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(4, 4, 4, 4),
                 Utils.createLabeledBorder("Settings")));
@@ -91,8 +91,8 @@ public final class PLLDialog extends JDialog {
         settingsPanel.add(new JLabel("Loop gain:"));
         settingsPanel.add(gainSpinner);
 
-        var loopFilter = new JButton("Loop filter");
-        var lpFilter = new JButton("Lowpass filter");
+        JButton loopFilter = new JButton("Loop filter");
+        JButton lpFilter = new JButton("Lowpass filter");
 
         settingsPanel.add(loopFilter);
         settingsPanel.add(lpFilter);
@@ -114,7 +114,7 @@ public final class PLLDialog extends JDialog {
     }
 
     public void updateDialog(float error) {
-        var downSampled = downSampler.sample(error);
+        Float downSampled = downSampler.sample(error);
         if (downSampled != null)
             graph.append(downSampled);
     }
@@ -123,7 +123,7 @@ public final class PLLDialog extends JDialog {
 
         @Override
         public void stateChanged(ChangeEvent changeEvent) {
-            var source = changeEvent.getSource();
+            Object source = changeEvent.getSource();
             if (source == frequencySpinner)
                 pll.setFrequency((float) (double) frequencySpinner.getValue());
             else if (source == gainSpinner)

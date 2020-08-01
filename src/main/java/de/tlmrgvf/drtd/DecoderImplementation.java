@@ -81,7 +81,7 @@ public enum DecoderImplementation {
 
     public static DecoderImplementation findByName(String name) {
         name = name.trim();
-        for (var implementation : values()) {
+        for (DecoderImplementation implementation : values()) {
             if (implementation.name().equalsIgnoreCase(name))
                 return implementation;
         }

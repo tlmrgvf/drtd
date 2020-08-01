@@ -153,7 +153,7 @@ public final class Ax25 extends Decoder<Boolean> {
         dataIndicator.forceState(false);
         syncIndicator.forceState(false);
 
-        Byte[] bytes = packetBuffer.toArray(Byte[]::new);
+        Byte[] bytes = packetBuffer.toArray(new Byte[0]);
         if (bytes.length > 0) {
             Ax25Packet parse = Ax25Packet.parse(Arrays.copyOfRange(bytes, 1, bytes.length));
             if (parse != null) model.addPacket(parse);
@@ -207,7 +207,7 @@ public final class Ax25 extends Decoder<Boolean> {
             if (bar != null) bar.setValue(bar.getMaximum());
         });
 
-        var indicatorContainer = new JPanel();
+        JPanel indicatorContainer = new JPanel();
         indicatorContainer.setLayout(new BoxLayout(indicatorContainer, BoxLayout.X_AXIS));
         indicatorContainer.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(2, 2, 2, 2),

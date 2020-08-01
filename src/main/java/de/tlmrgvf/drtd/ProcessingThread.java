@@ -64,7 +64,7 @@ public final class ProcessingThread extends Thread {
 
     @Override
     public void run() {
-        final var format = new AudioFormat(sampleRate, 16, 1, true, true);
+        final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
         LOGGER.info(String.format(
                 "Started processing thread with %d channel(s), %d bits, sample rate of %.0f",
                 format.getChannels(),
@@ -72,8 +72,8 @@ public final class ProcessingThread extends Thread {
                 format.getSampleRate())
         );
 
-        try (line) {
-            try (var inputStream = new AudioInputStream(line)) {
+        try {
+            try (AudioInputStream inputStream = new AudioInputStream(line)) {
                 line.open(format, AUDIO_BUFFER_SIZE);
                 line.start();
                 LOGGER.info(String.format("Actual buffer size: %d", line.getBufferSize()));
@@ -102,6 +102,9 @@ public final class ProcessingThread extends Thread {
             }
         } catch (LineUnavailableException e) {
             LOGGER.throwing("ProcessingThread", "run", e);
+        } finally {
+            if (line != null)
+                line.close();
         }
 
         LOGGER.info("Processing thread stopped!");

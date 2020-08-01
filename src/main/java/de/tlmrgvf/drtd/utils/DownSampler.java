@@ -19,7 +19,7 @@ public final class DownSampler {
             if (averagedValues == 0)
                 return 0F;
 
-            var value = average / averagedValues;
+            float value = average / averagedValues;
             averagedValues = 0;
             average = 0;
             ret = value;

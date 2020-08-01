@@ -155,7 +155,7 @@ public abstract class PipelineComponent<T, U> {
 
         allComponents.add(this);
         if (containing != null) {
-            for (var component : containing)
+            for (PipelineComponent<?, ?> component : containing)
                 component.ensureUnique(allComponents);
         }
     }
@@ -185,7 +185,7 @@ public abstract class PipelineComponent<T, U> {
 
     public final void draw(Point absolutePosition, Graphics2D graphics) {
         this.absolutePosition = absolutePosition.getLocation();
-        var size = calculateSize(graphics);
+        Dimension size = calculateSize(graphics);
         graphics = (Graphics2D) (type == ComponentType.NORMAL ?
                 graphics.create(this.absolutePosition.x, this.absolutePosition.y, size.width, size.height) :
                 graphics.create());
@@ -208,14 +208,14 @@ public abstract class PipelineComponent<T, U> {
     }
 
     public final PipelineComponent<?, ?> getClickedComponent(Point clickPoint, Graphics2D graphics) {
-        var componentSize = new Rectangle(absolutePosition, calculateSize(graphics));
+        Rectangle componentSize = new Rectangle(absolutePosition, calculateSize(graphics));
 
         if (componentSize.contains(clickPoint)) {
             if (containing == null) {
                 return this;
             } else {
-                for (var comp : containing) {
-                    var clicked = comp.getClickedComponent(clickPoint, graphics);
+                for (PipelineComponent<?, ?> comp : containing) {
+                    PipelineComponent<?, ?> clicked = comp.getClickedComponent(clickPoint, graphics);
                     if (clicked != null)
                         return clicked;
                 }

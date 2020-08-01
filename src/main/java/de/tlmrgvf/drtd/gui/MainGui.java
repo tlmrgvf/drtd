@@ -31,6 +31,7 @@ package de.tlmrgvf.drtd.gui;
 
 import de.tlmrgvf.drtd.DecoderImplementation;
 import de.tlmrgvf.drtd.Drtd;
+import de.tlmrgvf.drtd.ProcessingThread;
 import de.tlmrgvf.drtd.decoder.Decoder;
 import de.tlmrgvf.drtd.dsp.Interpreter;
 import de.tlmrgvf.drtd.dsp.component.BiquadFilterComponent;
@@ -108,8 +109,8 @@ public final class MainGui extends JFrame {
         decoderComboBox = new JComboBox<>(DecoderImplementation.values());
         decoderComboBox.addItemListener(listener);
 
-        var leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        var rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         frequencySpinner = new JSpinner();
         updateFrequencySpinner(22050, 0);
@@ -203,7 +204,7 @@ public final class MainGui extends JFrame {
         GenericFirFilter.closeDialog();
         BiquadFilterComponent.closeDialog();
         PLL.closeDialog();
-        final var insets = getInsets();
+        final Insets insets = getInsets();
         setMinimumSize(Utils.resize(rootPanel.getMinimumSize(),
                 insets.left + insets.right,
                 insets.top + insets.bottom));
@@ -273,7 +274,7 @@ public final class MainGui extends JFrame {
 
         @Override
         public void windowClosing(WindowEvent windowEvent) {
-            var old = Drtd.getProcessingThread();
+            ProcessingThread old = Drtd.getProcessingThread();
             if (old != null)
                 old.getDecoder().saveSettings();
             SettingsManager.saveManagers();
@@ -302,7 +303,7 @@ public final class MainGui extends JFrame {
         public void stateChanged(ChangeEvent changeEvent) {
             int frequency = (Integer) frequencySpinner.getValue();
 
-            var processingThread = Drtd.getProcessingThread();
+            ProcessingThread processingThread = Drtd.getProcessingThread();
             if (processingThread != null)
                 processingThread.getDecoder().setCenterFrequency(frequency);
         }

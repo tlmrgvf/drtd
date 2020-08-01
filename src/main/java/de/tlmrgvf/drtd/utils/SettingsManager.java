@@ -102,7 +102,7 @@ public final class SettingsManager {
 
     private static <T> T getSetting(String key, T initial, Class<T> saveClass) {
         if (settings.map.containsKey(key)) {
-            var saved = settings.map.get(key);
+            Object saved = settings.map.get(key);
             if (saved == null || saveClass.isInstance(saved)) {
                 return saveClass.cast(saved);
             } else {
@@ -174,7 +174,7 @@ public final class SettingsManager {
 
         void load() {
             if (Drtd.isGuiMode() || enableEvenWhenHeadless) {
-                var value = SettingsManager.getSetting(key, initialValue, saveClass);
+                T value = SettingsManager.getSetting(key, initialValue, saveClass);
                 setter.set(value);
                 LOGGER.finer("Load " + key + " as " + value);
             }
@@ -182,7 +182,7 @@ public final class SettingsManager {
 
         void save() {
             if (Drtd.isGuiMode()) {
-                var value = provider.get();
+                T value = provider.get();
                 SettingsManager.setSetting(key, value);
                 LOGGER.finer("Save " + key + " as " + value);
             }

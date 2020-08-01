@@ -33,6 +33,7 @@ import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.decoder.Decoder;
 import de.tlmrgvf.drtd.dsp.Interpreter;
 import de.tlmrgvf.drtd.dsp.PipelineComponent;
+import de.tlmrgvf.drtd.gui.component.Waterfall;
 import de.tlmrgvf.drtd.gui.utils.Canvas;
 import de.tlmrgvf.drtd.gui.utils.Layer;
 import de.tlmrgvf.drtd.utils.TargetLineWrapper;
@@ -41,6 +42,7 @@ import de.tlmrgvf.drtd.utils.Utils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.font.LineMetrics;
 
 public final class PipelineDialog extends JFrame {
     private final static int PADDING = 20;
@@ -61,10 +63,10 @@ public final class PipelineDialog extends JFrame {
         canvas = new Canvas();
         draw = canvas.createLayer(0, 0, 10, 10);
 
-        var centerPanel = new JPanel(new GridBagLayout());
+        JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.add(canvas);
 
-        var listener = new ListenerImpl();
+        ListenerImpl listener = new ListenerImpl();
         canvas.addMouseListener(listener);
         JScrollPane scrollPane = new JScrollPane(
                 centerPanel,
@@ -75,7 +77,7 @@ public final class PipelineDialog extends JFrame {
         canvas.setToolTipText("Right click: configure, Ctrl & left/right click:"
                 + " Monitor input/output");
 
-        var resetButton = new JButton("Reset Pipeline");
+        JButton resetButton = new JButton("Reset Pipeline");
         resetButton.addActionListener((e) -> {
             if (JOptionPane.showConfirmDialog(
                     PipelineDialog.this,
@@ -88,7 +90,7 @@ public final class PipelineDialog extends JFrame {
         });
         performanceLabel = new JLabel();
 
-        var lowerPanel = new JPanel();
+        JPanel lowerPanel = new JPanel();
         lowerPanel.setLayout(new BoxLayout(lowerPanel, BoxLayout.X_AXIS));
         lowerPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         lowerPanel.add(resetButton);
@@ -102,7 +104,7 @@ public final class PipelineDialog extends JFrame {
         inputCombobox.setMaximumSize(new Dimension(200, Integer.MAX_VALUE));
         inputCombobox.addItemListener(listener);
 
-        var upperPanel = new JPanel();
+        JPanel upperPanel = new JPanel();
         upperPanel.setLayout(new BoxLayout(upperPanel, BoxLayout.Y_AXIS));
 
         shownValue = new JComboBox<>(new String[]{"(Nothing available)"});
@@ -164,7 +166,7 @@ public final class PipelineDialog extends JFrame {
 
     public void redraw() {
         draw.clear();
-        final var graphics = draw.getGraphics();
+        final Graphics2D graphics = draw.getGraphics();
         graphics.translate(PADDING, PADDING);
 
         decoder.getPipeline().draw(new Point(), draw.getGraphics());
@@ -200,7 +202,7 @@ public final class PipelineDialog extends JFrame {
                 return;
             }
 
-            var clicked = decoder.getPipeline().getClickedComponent(
+            PipelineComponent<?, ?> clicked = decoder.getPipeline().getClickedComponent(
                     new Point(mouseEvent.getX(), mouseEvent.getY()),
                     draw.getGraphics());
 
@@ -216,7 +218,7 @@ public final class PipelineDialog extends JFrame {
                     clicked.setMonitoring(clicked != decoder.getOutput()
                             && (type != ClickType.MONITOR_INPUT || clicked == decoder.getInput()));
 
-                    var waterfall = Drtd.getMainGui().getWaterfall();
+                    Waterfall waterfall = Drtd.getMainGui().getWaterfall();
                     waterfall.setSampleRate(but == MouseEvent.BUTTON1
                             ? clicked.getInputSampleRate()
                             : clicked.getOutputSampleRate());

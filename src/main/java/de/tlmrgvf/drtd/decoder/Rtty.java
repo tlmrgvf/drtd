@@ -146,7 +146,7 @@ public final class Rtty extends HeadlessDecoder<Boolean, String> {
         shiftSpinner = new JSpinner(new SpinnerNumberModel(shift, 10, 1500, 10));
         baudrateSpinner = new JSpinner(new SpinnerNumberModel(baudrate, 40, 300, 5));
 
-        var listener = new ListenerImpl();
+        ListenerImpl listener = new ListenerImpl();
         shiftSpinner.addChangeListener(listener);
         baudrateSpinner.addChangeListener(listener);
         showTuningCheckbox.addActionListener(listener);
@@ -167,12 +167,12 @@ public final class Rtty extends HeadlessDecoder<Boolean, String> {
 
     @Override
     protected PipelineComponent<Float, Boolean> buildPipeline() {
-        var mark = markMixer.pipeline()
+        PipelineComponent<Float, Float> mark = markMixer.pipeline()
                 .then(markFilter)
                 .then(new Mapper<>(Float.class, Complex::magnitudeSquared))
                 .build(markNormalizer);
 
-        var space = spaceMixer.pipeline()
+        PipelineComponent<Float, Float> space = spaceMixer.pipeline()
                 .then(spaceFilter)
                 .then(new Mapper<>(Float.class, Complex::magnitudeSquared))
                 .build(spaceNormalizer);
@@ -190,11 +190,11 @@ public final class Rtty extends HeadlessDecoder<Boolean, String> {
     public boolean setupParameters(String[] args) {
         int param = 0;
         try {
-            var center = Integer.parseInt(args[0]);
+            int center = Integer.parseInt(args[0]);
             ++param;
-            var shift = Integer.parseInt(args[1]);
+            int shift = Integer.parseInt(args[1]);
             ++param;
-            var baudRate = Float.parseFloat(args[2]);
+            float baudRate = Float.parseFloat(args[2]);
 
             if (shift < 10 || shift > 1500) {
                 printInvalidParameterErrorMessage(1);
@@ -239,11 +239,11 @@ public final class Rtty extends HeadlessDecoder<Boolean, String> {
     public void addGuiComponents(JPanel parent) {
         parent.setLayout(new BorderLayout());
 
-        var topPanel = new JPanel();
+        JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
 
-        var topLeftPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        var settingsPanel = new JPanel(new GridLayout(0, 2, 2, 5));
+        JPanel topLeftPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        JPanel settingsPanel = new JPanel(new GridLayout(0, 2, 2, 5));
         settingsPanel.add(new JLabel("Baudrate:"));
         settingsPanel.add(baudrateSpinner);
         settingsPanel.add(new JLabel("Shift:"));
@@ -263,7 +263,7 @@ public final class Rtty extends HeadlessDecoder<Boolean, String> {
         topPanel.add(Box.createHorizontalGlue());
         topPanel.add(tuningPanel);
 
-        var scrollPane = new JScrollPane(
+        JScrollPane scrollPane = new JScrollPane(
                 outputTextArea,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
@@ -401,14 +401,13 @@ public final class Rtty extends HeadlessDecoder<Boolean, String> {
     private class ListenerImpl implements ChangeListener, ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            var source = actionEvent.getSource();
-            if (source == showTuningCheckbox)
+            if (actionEvent.getSource() == showTuningCheckbox)
                 tuningPanel.setVisible(showTuningCheckbox.isSelected());
         }
 
         @Override
         public void stateChanged(ChangeEvent changeEvent) {
-            var source = changeEvent.getSource();
+            Object source = changeEvent.getSource();
             if (source == baudrateSpinner) {
                 setBaudrate((Double) baudrateSpinner.getValue());
             } else if (source == shiftSpinner) {
