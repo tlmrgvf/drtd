@@ -76,7 +76,7 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
     private boolean tick = false;
     private int levelCount = 0;
     private long lastUpdate = 0;
-    private int bitsReveived = 0;
+    private int bitsReceived = 0;
     private int bits = 0;
     private int ticks = 0;
     private int seconds = 0;
@@ -190,7 +190,7 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
     @Override
     protected void onSetup() {
         state = State.WAIT_FOR_MINUTE_MARKER;
-        bitsReveived = 0;
+        bitsReceived = 0;
         time = new TimeInfo();
         receiving = new TimeInfo();
         bits = 0;
@@ -248,7 +248,7 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
                 if (state == State.WAIT_FOR_MINUTE_MARKER) {
                     if (lastLevel && levelCount > BAUDRATE * 1.5 && levelCount <= 2 * BAUDRATE) {
                         state = State.READ_START_OF_MINUTE;
-                        bitsReveived = 0;
+                        bitsReceived = 0;
                         bits = 0;
                         seconds = -1;
                         time = receiving;
@@ -271,7 +271,7 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
                             receiving = new TimeInfo();
                         }
 
-                        if (state.pointOfRead == bitsReveived) {
+                        if (state.pointOfRead == bitsReceived) {
                             LOGGER.fine("Received in " + state + ": " + Integer.toBinaryString(bits));
                             if (state == State.READ_START_OF_MINUTE && bits == 1 ||
                                     state == State.READ_START_OF_TIME && bits == 0) {
@@ -323,8 +323,8 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
                                 parity = false;
                         }
 
-                        bitsReveived++;
-                        if (bitsReveived == 59) {
+                        bitsReceived++;
+                        if (bitsReceived == 59) {
                             LOGGER.fine("Successfully received!");
                             rxFailIndicator.forceState(false);
                             state = State.WAIT_FOR_MINUTE_MARKER;
@@ -441,7 +441,7 @@ public final class Dcf77 extends HeadlessDecoder<Boolean, String> {
     private enum State {
         WAIT_FOR_MINUTE_MARKER(0, "Waiting for begin of minute..."),
         READ_START_OF_MINUTE(0, "Reading start of minute..."),
-        READ_CIVIL_WARINING(14, "Reading civil warning bits..."),
+        READ_CIVIL_WARNING(14, "Reading civil warning bits..."),
         READ_STATUS(19, "Reading status bits..."),
         READ_START_OF_TIME(20, "Reading start of time bit..."),
         READ_MINUTES(28, "Reading minute..."),

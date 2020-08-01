@@ -45,7 +45,7 @@ public enum ValueInterpreter {
     INTEGER(Integer.class, new SimpleInterpreter("Integer", new Color(.4F, .8F, .4F)) {
         @Override
         public Float interpret(Object value) {
-            return (float) (int) value; //Can't cast a Integer directly to a Float
+            return (float) (int) value; //Can't cast an Integer directly to a Float
         }
     }),
     BOOLEAN(Boolean.class, new SimpleInterpreter("Boolean", new Color(.9F, .3F, .3F)) {
