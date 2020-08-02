@@ -34,6 +34,9 @@ import de.tlmrgvf.drtd.decoder.HeadlessDecoder;
 import de.tlmrgvf.drtd.dsp.Interpreter;
 import de.tlmrgvf.drtd.dsp.component.BitConverter;
 import de.tlmrgvf.drtd.gui.MainGui;
+import de.tlmrgvf.drtd.thread.ProcessingThread;
+import de.tlmrgvf.drtd.thread.SoundCardProcessingThread;
+import de.tlmrgvf.drtd.thread.UIUpdateThread;
 import de.tlmrgvf.drtd.utils.LogHandler;
 import de.tlmrgvf.drtd.utils.SettingsManager;
 import de.tlmrgvf.drtd.utils.TargetLineWrapper;
@@ -289,16 +292,18 @@ public final class Drtd {
             try {
                 processingThread.join();
             } catch (InterruptedException e) {
+                LOGGER.throwing("Drtd", "stopProcessing", e);
                 Utils.die();
             }
             /* Now the processing thread should be dead */
+            processingThread.cleanUp();
         }
     }
 
     private static void startProcessing(Decoder<?> decoder) {
-        processingThread = new ProcessingThread(availableLines[activeTargetLineIndex].getDataLine(),
-                decoder,
-                decoder.getInputSampleRate());
+        assert processingThread == null || !processingThread.isAlive();
+
+        processingThread = OPTIONS.inputSource.provider.createNewInstance(decoder);
         processingThread.setDaemon(guiMode);
         processingThread.start();
     }
@@ -426,6 +431,21 @@ public final class Drtd {
         return mainGui;
     }
 
+    private enum InputSource {
+        SOUND_CARD((decoder) ->
+                new SoundCardProcessingThread(decoder, availableLines[activeTargetLineIndex].getDataLine()));
+
+        private final ProcessingThreadProvider provider;
+
+        InputSource(ProcessingThreadProvider provider) {
+            this.provider = provider;
+        }
+    }
+
+    private interface ProcessingThreadProvider {
+        ProcessingThread createNewInstance(Decoder<?> decoder);
+    }
+
     private static class Options {
         private final static int INPUT_NONE_SPECIFIED = -1;
         private final static int INPUT_SHOW_AVAILABLE = -2;
@@ -434,6 +454,7 @@ public final class Drtd {
         private DecoderImplementation headlessDecoder;
         private final List<String> decoderParameters = new LinkedList<>();
         private int inputIndex = INPUT_NONE_SPECIFIED;
+        private final InputSource inputSource = InputSource.SOUND_CARD;
 
         @Override
         public String toString() {
@@ -443,6 +464,7 @@ public final class Drtd {
                     ", headlessDecoder=" + headlessDecoder +
                     ", decoderParameters=" + decoderParameters +
                     ", inputIndex=" + inputIndex +
+                    ", inputSource=" + inputSource +
                     '}';
         }
     }

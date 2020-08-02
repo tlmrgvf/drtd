@@ -27,42 +27,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package de.tlmrgvf.drtd.utils;
+package de.tlmrgvf.drtd.thread;
 
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
+import de.tlmrgvf.drtd.decoder.Decoder;
 
-public final class LogHandler extends Handler {
-    @Override
-    public void publish(LogRecord logRecord) {
-        String str = String.format(
-                "[%s][%s][%s]: %s",
-                pad(logRecord.getLoggerName(), 26),
-                pad(logRecord.getSourceMethodName(), 20),
-                pad(logRecord.getLevel().getName(), 7),
-                logRecord.getMessage()
-        );
+public abstract class ProcessingThread extends Thread {
+    public final static int SAMPLE_BUFFER_SIZE = 1024;
+    private final Decoder<?> decoder;
+    private volatile boolean run = true;
 
-        System.out.println(str);
-        if (logRecord.getThrown() != null) logRecord.getThrown().printStackTrace(System.err);
+    public ProcessingThread(Decoder<?> decoder) {
+        super("Processing thread");
+        this.decoder = decoder;
     }
 
-    @Override
-    public void flush() {
-        System.err.flush();
-        System.out.flush();
+    public abstract void cleanUp();
+
+    public final Decoder<?> getDecoder() {
+        return decoder;
     }
 
-    @Override
-    public void close() throws SecurityException {
-        System.err.close();
-        System.out.close();
+    public final void requestStop() {
+        run = false;
     }
 
-    private String pad(String string, int padTo) {
-        padTo = Math.max(0, padTo - string.length());
-        final StringBuilder builder = new StringBuilder(string);
-        for (; padTo > 0; padTo--) builder.append(" ");
-        return builder.toString();
+    protected abstract boolean fillBuffer(float[] buffer);
+
+    @Override
+    public final void run() {
+        float[] buffer = new float[SAMPLE_BUFFER_SIZE];
+
+        while (run) {
+            if (fillBuffer(buffer)) {
+                for (float i : buffer)
+                    decoder.process(i);
+            }
+        }
     }
 }

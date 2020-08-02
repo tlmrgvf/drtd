@@ -31,7 +31,6 @@ package de.tlmrgvf.drtd.gui;
 
 import de.tlmrgvf.drtd.DecoderImplementation;
 import de.tlmrgvf.drtd.Drtd;
-import de.tlmrgvf.drtd.ProcessingThread;
 import de.tlmrgvf.drtd.decoder.Decoder;
 import de.tlmrgvf.drtd.dsp.Interpreter;
 import de.tlmrgvf.drtd.dsp.component.BiquadFilterComponent;
@@ -41,6 +40,7 @@ import de.tlmrgvf.drtd.gui.component.Scope;
 import de.tlmrgvf.drtd.gui.component.Waterfall;
 import de.tlmrgvf.drtd.gui.dialog.PipelineDialog;
 import de.tlmrgvf.drtd.gui.utils.config.ConfigureDialog;
+import de.tlmrgvf.drtd.thread.ProcessingThread;
 import de.tlmrgvf.drtd.utils.SettingsManager;
 import de.tlmrgvf.drtd.utils.Utils;
 
