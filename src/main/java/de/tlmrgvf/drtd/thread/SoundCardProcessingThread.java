@@ -48,7 +48,7 @@ public final class SoundCardProcessingThread extends ProcessingThread {
     private final byte[] samples = new byte[SAMPLE_BUFFER_SIZE * 2];
 
     public SoundCardProcessingThread(Decoder<?> decoder, TargetDataLine line) {
-        super(decoder);
+        super(decoder, decoder.getInputSampleRate());
         this.line = line;
         AudioFormat format = new AudioFormat(decoder.getInputSampleRate(), 16, 1, true, true);
         audioInputStream = new AudioInputStream(line);
@@ -77,6 +77,7 @@ public final class SoundCardProcessingThread extends ProcessingThread {
                 audioInputStream.close();
             } catch (IOException e) {
                 LOGGER.throwing("ProcessingThread", "cleanUp", e);
+                Utils.die();
             }
         }
 

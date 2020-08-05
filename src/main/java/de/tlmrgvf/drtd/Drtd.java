@@ -36,6 +36,7 @@ import de.tlmrgvf.drtd.dsp.component.BitConverter;
 import de.tlmrgvf.drtd.gui.MainGui;
 import de.tlmrgvf.drtd.thread.ProcessingThread;
 import de.tlmrgvf.drtd.thread.SoundCardProcessingThread;
+import de.tlmrgvf.drtd.thread.StdinProcessingThread;
 import de.tlmrgvf.drtd.thread.UIUpdateThread;
 import de.tlmrgvf.drtd.utils.LogHandler;
 import de.tlmrgvf.drtd.utils.SettingsManager;
@@ -384,6 +385,49 @@ public final class Drtd {
                     case "--help":
                         printUsageAndExit();
                         break;
+                    case "-s":
+                    case "--stdin":
+                        if (iterator.hasNext()) {
+                            OPTIONS.inputSource = InputSource.STDIN;
+                            try {
+                                int rate = Integer.parseInt(iterator.next());
+                                if (rate < 0)
+                                    printUsageAndExit();
+
+                                OPTIONS.inputSampleRate = rate;
+                            } catch (NumberFormatException e) {
+                                System.out.println("A valid sample rate needs to be specified!");
+                                printUsageAndExit();
+                            }
+                        } else {
+                            System.out.println("A valid sample rate needs to be specified!");
+                            printUsageAndExit();
+                        }
+                        break;
+                    case "--bits":
+                        if (iterator.hasNext()) {
+                            try {
+                                StdinProcessingThread.SampleSize sampleSize =
+                                        StdinProcessingThread.SampleSize.getByBits(Integer.parseInt(iterator.next()));
+
+                                if (sampleSize == null) {
+                                    System.out.println("A valid amount of bits needs to be specified!");
+                                    printUsageAndExit();
+                                }
+
+                                OPTIONS.inputSampleSize = sampleSize;
+                            } catch (NumberFormatException e) {
+                                System.out.println("A valid amount of bits needs to be specified!");
+                                printUsageAndExit();
+                            }
+                        } else {
+                            System.out.println("A valid amount of bits needs to be specified!");
+                            printUsageAndExit();
+                        }
+                        break;
+                    case "--big-endian":
+                        OPTIONS.inputBigEndian = true;
+                        break;
                     default:
                         if (OPTIONS.headlessDecoder == null) {
                             System.out.println("Decoder parameters can only be specified in headless mode!");
@@ -412,12 +456,18 @@ public final class Drtd {
     private static void printUsageAndExit() {
         System.out.println("Usage: java -jar " + NAME.toLowerCase() + ".jar [Options] [Decoder parameters]");
         System.out.println("Options:");
-        System.out.println("    -g <Decoder>, --headless        Headless mode using the specified decoder. " +
+        System.out.println("    -g, --headless <Decoder>        Headless mode using the specified decoder. " +
                 "Specify none to show available decoders.\n" +
                 "                                    Leave parameters empty to show available arguments.");
-        System.out.println("    -i, --input <Device index>      Use input device. Specify \"-\" to show all available");
+        System.out.println("    -i, --input <Device index>      Use specific audio input device. " +
+                "Specify \"-\" to show all available");
+        System.out.println("    -s, --stdin <Sample rate>       Read samples directly from stdin sampled using" +
+                " specified sample rate");
+        System.out.println("        --bits <8/16>               When reading from stdin: sample size (default 8)");
+        System.out.println("        --big-endian                When reading from stdin: endianess of samples > 8 bit" +
+                " is big");
         System.out.println("    -h, --help                      Show this help");
-        System.out.println("          --no-text-aa              Don't force text anti-aliasing");
+        System.out.println("        --no-text-aa                Don't force text anti-aliasing");
         System.out.println("    -l, --level <LEVEL>             Set the log level");
         System.out.println("                                    Levels: OFF, SEVERE, WARNING,\n" +
                 "                                          INFO, CONFIG, FINE,\n" +
@@ -433,7 +483,11 @@ public final class Drtd {
 
     private enum InputSource {
         SOUND_CARD((decoder) ->
-                new SoundCardProcessingThread(decoder, availableLines[activeTargetLineIndex].getDataLine()));
+                new SoundCardProcessingThread(decoder, availableLines[activeTargetLineIndex].getDataLine())),
+        STDIN(((decoder -> new StdinProcessingThread(decoder,
+                OPTIONS.inputSampleSize,
+                OPTIONS.inputSampleRate,
+                OPTIONS.inputBigEndian))));
 
         private final ProcessingThreadProvider provider;
 
@@ -454,7 +508,10 @@ public final class Drtd {
         private DecoderImplementation headlessDecoder;
         private final List<String> decoderParameters = new LinkedList<>();
         private int inputIndex = INPUT_NONE_SPECIFIED;
-        private final InputSource inputSource = InputSource.SOUND_CARD;
+        private InputSource inputSource = InputSource.SOUND_CARD;
+        private int inputSampleRate = 44100;
+        private StdinProcessingThread.SampleSize inputSampleSize = StdinProcessingThread.SampleSize.BITS_8;
+        private boolean inputBigEndian = false;
 
         @Override
         public String toString() {
@@ -465,6 +522,9 @@ public final class Drtd {
                     ", decoderParameters=" + decoderParameters +
                     ", inputIndex=" + inputIndex +
                     ", inputSource=" + inputSource +
+                    ", inputSampleRate=" + inputSampleRate +
+                    ", inputSampleSize=" + inputSampleSize +
+                    ", inputBigEndian=" + inputBigEndian +
                     '}';
         }
     }

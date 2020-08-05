@@ -32,7 +32,7 @@ package de.tlmrgvf.drtd.gui.dialog;
 import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.dsp.component.PLL;
 import de.tlmrgvf.drtd.gui.component.RollingScope;
-import de.tlmrgvf.drtd.utils.DownSampler;
+import de.tlmrgvf.drtd.utils.ReSampler;
 import de.tlmrgvf.drtd.utils.Utils;
 
 import javax.swing.*;
@@ -47,14 +47,14 @@ public final class PLLDialog extends JDialog {
     private final RollingScope graph;
     private final JSpinner frequencySpinner;
     private final JSpinner gainSpinner;
-    private final DownSampler downSampler;
+    private final ReSampler reSampler;
     private final BiquadFilterDialog loopFilterDialog;
     private final BiquadFilterDialog lowpassFilterDialog;
 
     public PLLDialog(PLL pll) {
         super(Drtd.getMainGui().getPipelineDialog());
         this.pll = pll;
-        downSampler = new DownSampler(pll.getInputSampleRate(), 200);
+        reSampler = new ReSampler(pll.getInputSampleRate(), 200);
         ListenerImpl listener = new ListenerImpl();
         loopFilterDialog = new BiquadFilterDialog(pll.getLoopFilter());
         lowpassFilterDialog = new BiquadFilterDialog(pll.getLowpassFilter());
@@ -114,8 +114,9 @@ public final class PLLDialog extends JDialog {
     }
 
     public void updateDialog(float error) {
-        Float downSampled = downSampler.sample(error);
-        if (downSampled != null)
+        reSampler.processInputSample(error);
+        Float downSampled;
+        while ((downSampled = reSampler.readOutputSample()) != null)
             graph.append(downSampled);
     }
 

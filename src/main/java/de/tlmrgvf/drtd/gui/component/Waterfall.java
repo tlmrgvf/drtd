@@ -38,7 +38,7 @@ import de.tlmrgvf.drtd.dsp.window.Window;
 import de.tlmrgvf.drtd.gui.dialog.WaterfallDialog;
 import de.tlmrgvf.drtd.gui.utils.Canvas;
 import de.tlmrgvf.drtd.gui.utils.Layer;
-import de.tlmrgvf.drtd.utils.DownSampler;
+import de.tlmrgvf.drtd.utils.ReSampler;
 import de.tlmrgvf.drtd.utils.SettingsManager;
 import de.tlmrgvf.drtd.utils.Utils;
 import de.tlmrgvf.drtd.utils.structure.RingBuffer;
@@ -152,9 +152,9 @@ public final class Waterfall extends Canvas {
 
         fft.complexForward(unwrapped);
 
-        final DownSampler downsampler = new DownSampler(1, binZoomFactor());
+        final ReSampler reSampler = new ReSampler(1, binZoomFactor());
         float max = 0;
-        int downsampleIndex = 0;
+        int downSampleIndex = 0;
         final int pseudoBins = Math.round(binZoomFactor() * bins);
         final float[] binValues = new float[zoomOut ? pseudoBins / 2 : bins / 2];
 
@@ -164,12 +164,13 @@ public final class Waterfall extends Canvas {
                 magnitude = (float) Math.sqrt(magnitude);
 
             if (zoomOut) {
-                if ((magnitude = downsampler.sample(magnitude)) != null) {
+                reSampler.processInputSample(magnitude);
+                if ((magnitude = reSampler.readOutputSample()) != null) {
                     max = Math.max(max, magnitude);
-                    if (downsampleIndex >= binValues.length)
+                    if (downSampleIndex >= binValues.length)
                         break;
 
-                    binValues[downsampleIndex++] = magnitude;
+                    binValues[downSampleIndex++] = magnitude;
                 }
             } else {
                 binValues[i / 2] = magnitude;

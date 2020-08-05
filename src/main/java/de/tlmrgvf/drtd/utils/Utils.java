@@ -137,7 +137,7 @@ public final class Utils {
 
     public static void die() {
         LOGGER.severe("A fatal error has occurred and the application has to quit.");
-        Arrays.stream(Thread.currentThread().getStackTrace()).forEach(System.out::println);
+        Arrays.stream(Thread.currentThread().getStackTrace()).forEach(System.err::println);
         System.exit(1); //Should not return
         assert false;
     }

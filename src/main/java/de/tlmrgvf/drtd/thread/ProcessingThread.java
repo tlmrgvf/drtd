@@ -30,15 +30,22 @@
 package de.tlmrgvf.drtd.thread;
 
 import de.tlmrgvf.drtd.decoder.Decoder;
+import de.tlmrgvf.drtd.utils.ReSampler;
+import de.tlmrgvf.drtd.utils.Utils;
 
 public abstract class ProcessingThread extends Thread {
     public final static int SAMPLE_BUFFER_SIZE = 1024;
     private final Decoder<?> decoder;
-    private volatile boolean run = true;
+    private final ReSampler resampler;
+    protected volatile boolean run = true;
 
-    public ProcessingThread(Decoder<?> decoder) {
+    public ProcessingThread(Decoder<?> decoder, int sourceSampleRate) {
         super("Processing thread");
         this.decoder = decoder;
+        if (sourceSampleRate == decoder.getInputSampleRate())
+            resampler = null;
+        else
+            resampler = new ReSampler(sourceSampleRate, decoder.getInputSampleRate());
     }
 
     public abstract void cleanUp();
@@ -59,8 +66,20 @@ public abstract class ProcessingThread extends Thread {
 
         while (run) {
             if (fillBuffer(buffer)) {
-                for (float i : buffer)
-                    decoder.process(i);
+                if (resampler == null) {
+                    for (float i : buffer)
+                        decoder.process(i);
+                } else {
+                    for (float i : buffer) {
+                        resampler.processInputSample(i);
+                        Float resampled;
+                        while ((resampled = resampler.readOutputSample()) != null)
+                            decoder.process(resampled);
+                    }
+                }
+            } else {
+                System.err.println("Error reading sample!");
+                Utils.die();
             }
         }
     }
