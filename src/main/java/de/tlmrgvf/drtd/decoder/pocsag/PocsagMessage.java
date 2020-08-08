@@ -31,8 +31,6 @@ package de.tlmrgvf.drtd.decoder.pocsag;
 
 import de.tlmrgvf.drtd.utils.Utils;
 
-import java.util.ArrayList;
-
 public final class PocsagMessage {
     /* https://www.raveon.com/pdfiles/AN142(POCSAG).pdf */
 
@@ -40,53 +38,28 @@ public final class PocsagMessage {
     private final static char[] NUMERIC_MAP =
             new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', 'U', ' ', '-', ')', '('};
 
+    private final ContentType contentType;
     private final PocsagData address;
     private final String alphanumericalContents;
     private final String numericalContents;
     private final boolean containsInvalidCodeword;
     private final boolean containsData;
+    private final int baudRate;
 
-    public PocsagMessage(PocsagData address,
+    public PocsagMessage(ContentType contentType,
+                         PocsagData address,
                          String alphanumericalContents,
                          String numericalContents,
                          boolean containsInvalidCodeword,
-                         boolean containsData) {
+                         boolean containsData,
+                         int baudRate) {
+        this.contentType = contentType;
         this.address = address;
         this.alphanumericalContents = alphanumericalContents;
         this.numericalContents = numericalContents;
         this.containsInvalidCodeword = containsInvalidCodeword;
         this.containsData = containsData;
-    }
-
-    public static MessageBuilder builder() {
-        return new MessageBuilder();
-    }
-
-    public static PocsagMessage[] fromData(PocsagData[] dataArray) {
-        ArrayList<PocsagMessage> messages = new ArrayList<>();
-        PocsagMessage.MessageBuilder builder = PocsagMessage.builder();
-
-        for (PocsagData data : dataArray) {
-            if (data == null) {
-                builder.setContainsInvalidCodeword();
-                continue;
-            }
-
-            if (data.getType() == PocsagData.Type.ADDRESS) {
-                if (builder.isValid())
-                    messages.add(builder.build());
-
-                builder = PocsagMessage.builder();
-                builder.setAddress(data);
-            } else if (data.getType() == PocsagData.Type.DATA) {
-                builder.appendData(data);
-            }
-        }
-
-        if (builder.isValid())
-            messages.add(builder.build());
-
-        return messages.toArray(new PocsagMessage[0]);
+        this.baudRate = baudRate;
     }
 
     public boolean containsInvalidCodeword() {
@@ -107,6 +80,57 @@ public final class PocsagMessage {
 
     public String getNumericalContents() {
         return numericalContents;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("POCSAG");
+        builder.append(baudRate);
+
+        builder.append(" ; Address: ");
+        builder.append(address == null ? "-" : address.toString());
+
+        builder.append(" ; Function: ");
+        builder.append(address == null ? "-" : address.getFunctionBits());
+
+        if (containsInvalidCodeword)
+            builder.append(" ; Errors detected!");
+
+        if (containsData) {
+            if (contentType == ContentType.ALPHANUMERIC || contentType == ContentType.BOTH) {
+                builder.append("\n\tAlphanumeric: ");
+                builder.append(alphanumericalContents);
+            }
+
+            if (contentType == ContentType.NUMERIC || contentType == ContentType.BOTH) {
+                builder.append("\n\tNumeric: ");
+                builder.append(numericalContents);
+            }
+        }
+
+        builder.append('\n');
+        return builder.toString();
+    }
+
+    public enum ContentType {
+        NONE,
+        NUMERIC,
+        ALPHANUMERIC,
+        BOTH;
+
+        public static ContentType fromName(String name) {
+            for (ContentType t : values())
+                if (t.name().equalsIgnoreCase(name))
+                    return t;
+
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            return name().charAt(0) + name().substring(1).toLowerCase();
+        }
     }
 
     public static class MessageBuilder {
@@ -139,6 +163,13 @@ public final class PocsagMessage {
         }
 
         public void appendData(PocsagData data) {
+            if (data.getType() == PocsagData.Type.ADDRESS) {
+                setAddress(data);
+                return;
+            } else if (data.getType() == PocsagData.Type.IDLE) {
+                return;
+            }
+
             containsData = true;
             valid = true;
             int contents = data.getContents();
@@ -165,13 +196,15 @@ public final class PocsagMessage {
                 numericalBuilder.append(NUMERIC_MAP[((contents & 0xF0000) >> 16)]);
         }
 
-        public PocsagMessage build() {
+        public PocsagMessage build(ContentType type, int baudRate) {
             return new PocsagMessage(
+                    type,
                     address,
                     alphaBuilder.toString(),
                     numericalBuilder.toString(),
                     containsInvalidCodeword,
-                    containsData
+                    containsData,
+                    baudRate
             );
         }
     }

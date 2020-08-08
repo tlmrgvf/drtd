@@ -47,12 +47,11 @@ import de.tlmrgvf.drtd.utils.structure.BitBuffer;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-public final class Pocsag extends HeadlessDecoder<Boolean, String> {
+public final class Pocsag extends HeadlessDecoder<Boolean, PocsagMessage> {
     private final static BchCode BCH_CODE = new BchCode(
             BchCode.EncodingType.PREFIX,
             new Z2Polynomial(0b11101101001), //x^10 + x^9 + x^8 + x^6 + x^5 + x^3 + 1
@@ -66,27 +65,23 @@ public final class Pocsag extends HeadlessDecoder<Boolean, String> {
     private final static int INPUT_FILTER_INITIAL_CUTOFF = 2400 + INPUT_FILTER_CUTOFF_DISTANCE;
     private final static Logger LOGGER = Drtd.getLogger(Pocsag.class);
 
-    private final PocsagData[] receivingBatch = new PocsagData[PocsagMessage.CODEWORDS_PER_BATCH];
-    private final List<PocsagData> allMessages = new ArrayList<>();
-    private final JTextArea outputTextArea;
-    private final JCheckBox showAlphaCheckBox;
-    private final JCheckBox showNumericCheckBox;
+    private final JComboBox<PocsagMessage.ContentType> contentSelector;
     private final LabeledIndicator dataIndicator;
     private final LabeledIndicator syncIndicator;
     private final MovingAverage filter;
     private final FirFilter inputFilter;
     private final BitConverter bitConverter;
+    private final JTextArea outputTextArea;
+    private PocsagMessage.ContentType selectetContentType = PocsagMessage.ContentType.BOTH;
     private State state = State.FIRST_BIT_SINCE_SYNC;
+    private PocsagMessage.MessageBuilder messageBuilder;
 
     private final BitBuffer bitBuffer;
     private int preambleCount = 0;
     private int codewordCount = 0;
-    private int baudRate = 0;
     private boolean receivedParity = false;
     private boolean inverted = false;
     private boolean lastBit = false;
-    private boolean showAlpha = false;
-    private boolean showNumeric = false;
 
     public Pocsag() {
         super(Boolean.class, SAMPLE_RATE);
@@ -100,18 +95,17 @@ public final class Pocsag extends HeadlessDecoder<Boolean, String> {
         inputFilter = new FirFilter(new HammingWindow(), 51, 0, INPUT_FILTER_INITIAL_CUTOFF);
         bitConverter = new BitConverter(
                 (float samplesPerBit, float bauds) -> {
-                    baudRate = (int) bauds;
                     filter.setTaps(Math.round(samplesPerBit));
-                    inputFilter.setStopFrequency(baudRate + INPUT_FILTER_CUTOFF_DISTANCE);
+                    inputFilter.setStopFrequency((int) bauds + INPUT_FILTER_CUTOFF_DISTANCE);
                 },
                 25,
                 512, 1200, 2400);
         bitBuffer = new BitBuffer(false, PocsagData.CODEWORD_BITS);
-        showAlphaCheckBox = new JCheckBox("Show Alphanumeric");
-        showNumericCheckBox = new JCheckBox("Show Numeric");
+        contentSelector = new JComboBox<>(PocsagMessage.ContentType.values());
+        contentSelector.addActionListener((actionEvent) ->
+                selectetContentType = (PocsagMessage.ContentType) contentSelector.getSelectedItem());
         getSettingsManager()
-                .mapOption(Boolean.class, showAlphaCheckBox::isSelected, showAlphaCheckBox::setSelected, true)
-                .mapOption(Boolean.class, showNumericCheckBox::isSelected, showNumericCheckBox::setSelected, true)
+                .mapOption(Integer.class, contentSelector::getSelectedIndex, contentSelector::setSelectedIndex, 3)
                 .loadAll();
         Utils.setupSmartAutoscroll(outputTextArea);
     }
@@ -121,6 +115,7 @@ public final class Pocsag extends HeadlessDecoder<Boolean, String> {
         filter.setTaps(1);
         inputFilter.setStopFrequency(INPUT_FILTER_INITIAL_CUTOFF);
         bitConverter.waitForSync();
+        reset();
     }
 
     @Override
@@ -131,78 +126,46 @@ public final class Pocsag extends HeadlessDecoder<Boolean, String> {
                 .build(bitConverter);
     }
 
-    private String buildMessageString() {
-        LOGGER.fine("Received POCSAG message @ " + baudRate + " baud");
-
-        StringBuilder builder = new StringBuilder();
-        for (PocsagMessage message : PocsagMessage.fromData(allMessages.toArray(new PocsagData[0]))) {
-            PocsagData address = message.getAddress();
-
-            builder.append("POCSAG");
-            builder.append(baudRate);
-
-            builder.append(" ; Address: ");
-            builder.append(address == null ? "-" : address.toString());
-
-            builder.append(" ; Function: ");
-            builder.append(address == null ? "-" : address.getFunctionBits());
-
-            if (message.containsInvalidCodeword())
-                builder.append(" ; Errors detected!");
-
-            if (message.containsData()) {
-                if (showAlphaCheckBox.isSelected() || showAlpha) {
-                    builder.append("\n\tAlphanumeric: ");
-                    builder.append(message.getAlphanumericalContents());
-                }
-
-                if (showNumericCheckBox.isSelected() || showNumeric) {
-                    builder.append("\n\tNumeric: ");
-                    builder.append(message.getNumericalContents());
-                }
-            }
-
-            builder.append('\n');
-        }
-
-        return builder.toString();
-    }
-
     private void reset() {
         bitConverter.waitForSync();
         codewordCount = 0;
         inverted = false;
         bitBuffer.reset();
         preambleCount = 0;
-        allMessages.clear();
         filter.setTaps(1);
         inputFilter.setStopFrequency(INPUT_FILTER_INITIAL_CUTOFF);
         dataIndicator.forceState(false);
         syncIndicator.forceState(false);
         updateState(State.FIRST_BIT_SINCE_SYNC);
+        messageBuilder = new PocsagMessage.MessageBuilder();
     }
 
     @Override
     public boolean setupParameters(String[] args) {
-        showAlpha = args[0].equalsIgnoreCase("alpha") || args[0].equalsIgnoreCase("both");
-        showNumeric = args[0].equalsIgnoreCase("numeric") || args[0].equalsIgnoreCase("both");
-        return showAlpha || showNumeric;
+        PocsagMessage.ContentType type = PocsagMessage.ContentType.fromName(args[0]);
+        if (type == null)
+            return false;
+
+        selectetContentType = type;
+        return true;
     }
 
     @Override
     public String[] getChangeableParameters() {
-        return new String[]{"Alpha/Numeric/Both"};
+        return new String[]{Arrays.stream(PocsagMessage.ContentType.values())
+                .map(PocsagMessage.ContentType::toString)
+                .collect(Collectors.joining("/"))};
     }
 
     @Override
-    protected void showResultInGui(String result) {
-        Utils.doSmartAutoscroll(outputTextArea, result);
+    protected void showResultInGui(PocsagMessage result) {
+        Utils.doSmartAutoscroll(outputTextArea, result.toString());
     }
 
     @Override
-    protected String calculateResult(Boolean inputBit) {
-        String result = null;
-        inputBit = inputBit ^ inverted;
+    protected PocsagMessage calculateResult(Boolean inputBit) {
+        PocsagMessage finalMessage = null;
+        inputBit ^= inverted;
         receivedParity ^= inputBit;
         bitBuffer.push(inputBit);
         dataIndicator.setState(inputBit);
@@ -239,7 +202,7 @@ public final class Pocsag extends HeadlessDecoder<Boolean, String> {
                         LOGGER.fine("Inverted Sync detected, inverting all other bits from here on out!");
                     } else if (state == State.WAIT_FOR_IMMEDIATE_SYNC_WORD) {
                         LOGGER.fine("Did not get expected sync codeword, message done.");
-                        result = buildMessageString();
+                        finalMessage = messageBuilder.build(selectetContentType, (int) bitConverter.getBaudrate());
                         reset();
                         break;
                     } else {
@@ -265,23 +228,29 @@ public final class Pocsag extends HeadlessDecoder<Boolean, String> {
 
                 long corrected = BCH_CODE.correctCodeword((bitBuffer.getBuffer() >> 1) & ~0x80000000);
                 if (corrected == BchCode.INVALID) {
-                    receivingBatch[codewordCount++] = null;
+                    messageBuilder.setContainsInvalidCodeword();
                 } else {
-                    receivingBatch[codewordCount] = PocsagData.fromBits(codewordCount, (int) corrected);
+                    PocsagData data = PocsagData.fromBits(codewordCount, (int) corrected);
+                    messageBuilder.appendData(data);
+
+                    if (data.getType() == PocsagData.Type.IDLE || data.getType() == PocsagData.Type.ADDRESS) {
+                        if (messageBuilder.isValid())
+                            finalMessage = messageBuilder.build(selectetContentType, (int) bitConverter.getBaudrate());
+                        messageBuilder = new PocsagMessage.MessageBuilder();
+                    }
                     ++codewordCount;
                 }
 
                 if (codewordCount == PocsagMessage.CODEWORDS_PER_BATCH) {
                     updateState(State.WAIT_FOR_IMMEDIATE_SYNC_WORD);
                     codewordCount = 0;
-                    allMessages.addAll(Arrays.asList(receivingBatch));
                 }
 
                 receivedParity = true;
                 break;
         }
 
-        return result;
+        return finalMessage;
     }
 
     private void updateState(State newState) {
@@ -320,14 +289,15 @@ public final class Pocsag extends HeadlessDecoder<Boolean, String> {
         indicatorContainer.add(syncIndicator);
         indicatorContainer.add(Box.createHorizontalStrut(8));
         indicatorContainer.add(dataIndicator);
-        indicatorContainer.add(Box.createHorizontalStrut(8));
-        indicatorContainer.add(showAlphaCheckBox);
-        indicatorContainer.add(Box.createHorizontalStrut(8));
-        indicatorContainer.add(showNumericCheckBox);
         indicatorContainer.add(Box.createHorizontalGlue());
 
-        parent.add(indicatorContainer, BorderLayout.NORTH);
+        JPanel selectorPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        selectorPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        selectorPanel.add(new JLabel("Print:"));
+        selectorPanel.add(contentSelector);
 
+        indicatorContainer.add(selectorPanel);
+        parent.add(indicatorContainer, BorderLayout.NORTH);
         updateState(State.FIRST_BIT_SINCE_SYNC);
     }
 
