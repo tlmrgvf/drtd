@@ -121,11 +121,10 @@ public final class BitConverter extends PipelineComponent<Boolean, Boolean> {
             maxSamples = Math.min(samples, maxSamples);
         }
 
-        if (samplesPerBit.length == 1) {
+        if (samplesPerBit.length == 1)
             currentSamplesPerBit = samplesPerBit[0];
-        } else {
+        else
             currentSamplesPerBit = 0;
-        }
     }
 
     @Override
@@ -171,7 +170,7 @@ public final class BitConverter extends PipelineComponent<Boolean, Boolean> {
                         syncBits = 0;
                         syncing = false;
 
-                        float bauds = sampleRate / currentSamplesPerBit;
+                        float bauds = getBaudrate();
                         LOGGER.fine("Synced to " + bauds + " baud");
                         if (callback != null)
                             callback.onSyncAquired(currentSamplesPerBit, bauds);
@@ -209,6 +208,10 @@ public final class BitConverter extends PipelineComponent<Boolean, Boolean> {
         receiving.clear();
 
         return bitBuffer.pop();
+    }
+
+    public float getBaudrate() {
+        return sampleRate / currentSamplesPerBit;
     }
 
     private class ReceivedLevel {
