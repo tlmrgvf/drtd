@@ -43,15 +43,14 @@ public final class BchCode {
     private final int k;
     private final int t;
 
-    public BchCode(EncodingType type, Z2Polynomial generatorPolynomial, Z2Polynomial irreducible, int n, int k, int t) {
-        if (n < k || t < 0 || k < 0)
+    public BchCode(EncodingType type, Z2Polynomial generatorPolynomial, int n, int k, int t) {
+        if (n < k || t < 0 || k < 0 || n < 1)
             throw new IllegalArgumentException("Invalid n, k or t!");
 
         int order = (int) Math.ceil(Math.log10(n + 1) / Math.log10(2));
-        assert irreducible.degree() == order;
 
         this.type = type;
-        this.field = new FiniteField(order, irreducible);
+        this.field = new FiniteField(order);
         this.generatorPolynomial = generatorPolynomial;
         this.n = n;
         this.k = k;

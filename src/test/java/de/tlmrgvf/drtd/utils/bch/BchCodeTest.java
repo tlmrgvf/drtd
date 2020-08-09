@@ -37,14 +37,12 @@ class BchCodeTest {
 
     final static BchCode FACTOR_CODE = new BchCode(BchCode.EncodingType.FACTOR,
             new Z2Polynomial(0b11101101001),
-            new Z2Polynomial(0b100101),
             31,
             21,
             2);
 
     final static BchCode PREFIX_CODE = new BchCode(BchCode.EncodingType.PREFIX,
             new Z2Polynomial(0b11101101001),
-            new Z2Polynomial(0b100101),
             31,
             21,
             2);

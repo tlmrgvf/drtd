@@ -55,7 +55,6 @@ public final class Pocsag extends HeadlessDecoder<Boolean, PocsagMessage> {
     private final static BchCode BCH_CODE = new BchCode(
             BchCode.EncodingType.PREFIX,
             new Z2Polynomial(0b11101101001), //x^10 + x^9 + x^8 + x^6 + x^5 + x^3 + 1
-            new Z2Polynomial(0b100101), //x^5 + x^2 + 1 (irreducible)
             31,
             21,
             2

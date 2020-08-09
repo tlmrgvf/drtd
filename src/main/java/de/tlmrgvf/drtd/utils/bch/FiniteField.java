@@ -29,18 +29,56 @@
 
 package de.tlmrgvf.drtd.utils.bch;
 
+import de.tlmrgvf.drtd.Drtd;
+
+import java.util.logging.Logger;
+
 public final class FiniteField {
+    private final static Logger LOGGER = Drtd.getLogger(FiniteField.class);
     private final long[] primitiveRoots;
     private final int[] primitiveRootsLog;
     private final int elements;
     private final int exponent;
 
-    public FiniteField(int exponent, Z2Polynomial irreducible) {
+    public FiniteField(int exponent) {
         this.exponent = exponent;
+
         //Or else we won't be able to use an array to map roots to their exponents
         assert exponent <= Integer.SIZE - 1;
         assert exponent > 0;
-        assert irreducible.degree() == exponent;
+
+        LOGGER.finer("Starting search for an irreducible polynomial of degree " + exponent + "...");
+        int irreducibleSearch = 1 << exponent;
+        Z2Polynomial irreducible = null;
+
+        /*
+         * REALLY primitive way of searching for an irreducible polynomial, basically just like the primitive prime
+         * number check, but the exponent should not get too big with BCH codes and this is only calculated once
+         */
+        for (int i = 0; i < irreducibleSearch; ++i) {
+            final Z2Polynomial irreducibleCandidate = new Z2Polynomial(irreducibleSearch ^ i);
+
+            boolean isIrreducible = true;
+            /* Start at x^1 as every polynomial is divisible by 1 */
+            for (int test = 2; test < (irreducibleSearch ^ (irreducibleSearch - 1)); ++test) {
+                Z2Polynomial remainder = irreducibleCandidate.remainder(new Z2Polynomial(test));
+                if (remainder.getCoefficients() != 0 && test == irreducibleCandidate.getCoefficients() ||
+                        remainder.getCoefficients() == 0 && test != irreducibleCandidate.getCoefficients()) {
+                    isIrreducible = false;
+                    break;
+                }
+            }
+
+            if (isIrreducible) {
+                LOGGER.finer("Found irreducible polynomial: " + irreducibleCandidate);
+                irreducible = irreducibleCandidate;
+                break;
+            }
+        }
+
+        /* This should never happen, I think? */
+        if (irreducible == null)
+            throw new IllegalStateException("Could not find an irreducible!");
 
         primitiveRoots = new long[(int) (Math.pow(2, exponent) - 1)];
         elements = primitiveRoots.length;
