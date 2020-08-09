@@ -41,6 +41,7 @@ public final class Z2Polynomial {
     private final long coefficients;
     private final int degree;
     private List<Integer> exponents;
+    private String stringValue;
 
     public Z2Polynomial(long coefficients) {
         this.coefficients = coefficients;
@@ -155,31 +156,35 @@ public final class Z2Polynomial {
 
     @Override
     public String toString() {
-        List<Integer> exponentValues = getExponentValues();
-        String val = "0";
-        if (exponentValues != null) {
-            Collections.reverse(exponentValues);
-            StringBuilder sb = new StringBuilder();
-            Iterator<Integer> iterator = exponentValues.iterator();
+        if (stringValue == null) {
+            List<Integer> exponentValues = new ArrayList<>(getExponentValues());
+            if (exponentValues == null) {
+                stringValue = "0";
+            } else {
+                Collections.reverse(exponentValues);
+                StringBuilder sb = new StringBuilder();
+                Iterator<Integer> iterator = exponentValues.iterator();
 
-            while (iterator.hasNext()) {
-                int i = iterator.next();
+                while (iterator.hasNext()) {
+                    int i = iterator.next();
 
-                if (i == 0) {
-                    sb.append("1");
-                } else {
-                    sb.append("x^");
-                    sb.append(i);
-                    if (iterator.hasNext()) sb.append("+");
+                    if (i == 0) {
+                        sb.append("1");
+                    } else {
+                        sb.append("x^");
+                        sb.append(i);
+                        if (iterator.hasNext()) sb.append("+");
+                    }
                 }
+
+                stringValue = sb.toString();
             }
 
-            val = sb.toString();
         }
 
         return "Z2Polynomial{" +
                 "coefficents=0b" + Long.toBinaryString(coefficients) +
-                ", " + val +
+                ", " + stringValue +
                 ", degree=" + degree +
                 '}';
     }
