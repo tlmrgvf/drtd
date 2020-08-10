@@ -29,6 +29,7 @@
 
 package de.tlmrgvf.drtd.decoder.ax25;
 
+import de.tlmrgvf.drtd.Drtd;
 import de.tlmrgvf.drtd.decoder.ax25.protocol.Ax25Address;
 import de.tlmrgvf.drtd.decoder.ax25.protocol.Ax25Packet;
 import de.tlmrgvf.drtd.utils.Utils;
@@ -43,6 +44,8 @@ public final class PacketDialog extends JDialog {
     public PacketDialog(Ax25Packet packet) {
         setLayout(new BorderLayout());
         setResizable(false);
+        setTitle("Packet information");
+        setIconImages(Drtd.ICONS);
 
         Ax25Address[] repeaters = packet.getRepeaters();
         Object[][] objArr = new Object[repeaters.length + 2][5];
@@ -89,8 +92,8 @@ public final class PacketDialog extends JDialog {
         for (String desc : map.keySet())
             addProperty(propertyPanel, desc, map.get(desc));
 
-        rawPanel.setBorder(Utils.createLabeledBorder("Raw data"));
-        final Byte[] data = packet.getRaw();
+        rawPanel.setBorder(Utils.createLabeledBorder("Packet data"));
+        final Byte[] data = packet.getData();
 
         JTextArea hex = new JTextArea();
         hex.setEditable(false);
@@ -103,7 +106,7 @@ public final class PacketDialog extends JDialog {
         } else {
             int lines = data.length / 16 + 1;
             hex.setRows(lines);
-            hex.setColumns(71);
+            hex.setColumns(70);
             hex.setLineWrap(true);
 
             final StringBuilder builder = new StringBuilder();
@@ -134,6 +137,7 @@ public final class PacketDialog extends JDialog {
         add(rawPanel, BorderLayout.CENTER);
         add(tableScroll, BorderLayout.SOUTH);
         pack();
+        setLocationRelativeTo(null);
     }
 
     private void addProperty(JPanel propertyPanel, String name, String value) {
