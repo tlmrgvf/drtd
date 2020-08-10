@@ -88,7 +88,8 @@ public final class Drtd {
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             LOGGER.severe("Uncaught exception in thread \"" + t.getName() + "\"!");
-            LOGGER.throwing("Drtd", "UncaughtHandler", e);
+            System.err.println("An unexpected exception occurred and the application has to quit:");
+            e.printStackTrace(System.err);
             System.exit(1);
         });
 
