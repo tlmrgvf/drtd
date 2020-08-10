@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public abstract class Ax25Packet {
     public final static char MAGIC_FLAG = 0x7E;
@@ -163,14 +164,12 @@ public abstract class Ax25Packet {
     private final Ax25Address[] repeaters;
     private final byte control;
     private final boolean poll;
-    private final Byte[] raw;
     private Byte[] data;
 
     public Ax25Packet(Type type,
                       Ax25Address sourceAddress,
                       Ax25Address destinationAddress,
                       Ax25Address[] repeaters,
-                      Byte[] raw,
                       byte control,
                       boolean poll) {
         this.sourceAddress = sourceAddress;
@@ -178,7 +177,6 @@ public abstract class Ax25Packet {
         this.repeaters = repeaters;
         this.type = type;
         this.control = control;
-        this.raw = raw;
         this.poll = poll;
     }
 
@@ -233,7 +231,6 @@ public abstract class Ax25Packet {
                     sourceAddr,
                     destAddr,
                     repeaterArray,
-                    raw,
                     contol,
                     poll,
                     pid
@@ -241,9 +238,9 @@ public abstract class Ax25Packet {
             pack.setData(bytes);
             return pack;
         } else if (type == Type.SUPERVISORY) {
-            return new Ax25Supervisory(type, sourceAddr, destAddr, repeaterArray, raw, contol, poll);
+            return new Ax25Supervisory(type, sourceAddr, destAddr, repeaterArray, contol, poll);
         } else if (type == Type.UNNUMBERED) {
-            Ax25Unnumbered frame = new Ax25Unnumbered(type, sourceAddr, destAddr, repeaterArray, raw, contol, poll);
+            Ax25Unnumbered frame = new Ax25Unnumbered(type, sourceAddr, destAddr, repeaterArray, contol, poll);
             if (frame.getControlType() == null) {
                 logParseError("Unknown control type");
                 return null;
@@ -283,10 +280,6 @@ public abstract class Ax25Packet {
         LOGGER.info("Could not parse packet: " + description);
     }
 
-    public Byte[] getRaw() {
-        return raw;
-    }
-
     public abstract Map<String, String> getPropertyMap();
 
     public Byte[] getData() {
@@ -319,6 +312,45 @@ public abstract class Ax25Packet {
 
     public byte getControl() {
         return control;
+    }
+
+    @Override
+    public final String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(sourceAddress);
+        builder.append(" -> ");
+
+        if (repeaters.length > 0) {
+            builder.append(Arrays.stream(repeaters)
+                    .map(Ax25Address::toString)
+                    .collect(Collectors.joining(" -> ")));
+            builder.append(" -> ");
+        }
+
+        builder.append(destinationAddress);
+        builder.append(" ; ");
+        builder.append(type);
+
+        if (isPoll())
+            builder.append("[P]");
+
+        if (getPropertyMap().size() > 0) {
+            builder.append(" (");
+            builder.append(String.join(", ", getPropertyMap().values()));
+            builder.append(")");
+        }
+        builder.append('\n');
+
+        if (data == null) {
+            builder.append("[Packet has no data field]");
+        } else {
+            for (byte b : getData())
+                builder.append(Utils.escapeAscii((char) (0x7F & b)));
+        }
+
+        builder.append('\n');
+        builder.append('\n');
+        return builder.toString();
     }
 
     public enum Type {

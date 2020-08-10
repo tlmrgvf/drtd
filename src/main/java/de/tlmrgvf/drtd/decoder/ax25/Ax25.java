@@ -30,7 +30,7 @@
 package de.tlmrgvf.drtd.decoder.ax25;
 
 import de.tlmrgvf.drtd.Drtd;
-import de.tlmrgvf.drtd.decoder.Decoder;
+import de.tlmrgvf.drtd.decoder.HeadlessDecoder;
 import de.tlmrgvf.drtd.decoder.ax25.protocol.Ax25Packet;
 import de.tlmrgvf.drtd.decoder.utils.Marker;
 import de.tlmrgvf.drtd.decoder.utils.MarkerGroup;
@@ -51,7 +51,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public final class Ax25 extends Decoder<Boolean> {
+public final class Ax25 extends HeadlessDecoder<Boolean, Ax25Packet> {
     private final static int SAMPLE_RATE = 22050;
     private final static int BAUD_RATE = 1200;
     private final static int HEADERS_NEEDED = 5;
@@ -107,9 +107,39 @@ public final class Ax25 extends Decoder<Boolean> {
     }
 
     @Override
-    protected void onPipelineResult(Boolean result) {
-        Boolean pbit = processBit(delayBuffer.push(inBuffer.push(result)));
-        if (pbit != null) processedBuffer.push(pbit);
+    public boolean setupParameters(String[] args) {
+        return true;
+    }
+
+    @Override
+    public String[] getChangeableParameters() {
+        return new String[0];
+    }
+
+    @Override
+    protected void showResultInGui(Ax25Packet result) {
+        model.addPacket(result);
+    }
+
+    @Override
+    protected Ax25Packet calculateResult(Boolean result) {
+        Boolean inBit = delayBuffer.push(inBuffer.push(result));
+
+        if (oneCount >= 5) {
+            oneCount = 0;
+            if (inBit && state == State.WAIT_END) {
+                LOGGER.fine("Expected zero is one, assuming packet is done?");
+                return packetReceived();
+            }
+        } else {
+            if (inBit) {
+                ++oneCount;
+            } else {
+                oneCount = 0;
+            }
+
+            processedBuffer.push(inBit);
+        }
 
         char bte = (char) inBuffer.getBuffer();
         char pbte = (char) processedBuffer.getBuffer();
@@ -125,7 +155,7 @@ public final class Ax25 extends Decoder<Boolean> {
                 }
                 break;
             case COUNT_FLAG:
-                if (!inBuffer.bitsAligned()) return;
+                if (!inBuffer.bitsAligned()) return null;
 
                 if (bte == Ax25Packet.MAGIC_FLAG) {
                     if (++headerCount >= HEADERS_NEEDED) changeState(State.WAIT_DATA);
@@ -141,24 +171,24 @@ public final class Ax25 extends Decoder<Boolean> {
             case WAIT_END:
                 if (bte == Ax25Packet.MAGIC_FLAG) {
                     changeState(State.WAIT_FLAG);
-                    packetReceived();
+                    return packetReceived();
                 } else if (processedBuffer.bitsAligned()) {
                     packetBuffer.add((byte) pbte);
                 }
                 break;
         }
+        return null;
     }
 
-    private void packetReceived() {
+    private Ax25Packet packetReceived() {
         dataIndicator.forceState(false);
         syncIndicator.forceState(false);
 
         Byte[] bytes = packetBuffer.toArray(new Byte[0]);
-        if (bytes.length > 0) {
-            Ax25Packet parse = Ax25Packet.parse(Arrays.copyOfRange(bytes, 1, bytes.length));
-            if (parse != null) model.addPacket(parse);
-        }
         packetBuffer.clear();
+        if (bytes.length > 0)
+            return Ax25Packet.parse(Arrays.copyOfRange(bytes, 1, bytes.length));
+        return null;
     }
 
     private void changeState(State next) {
@@ -171,24 +201,6 @@ public final class Ax25 extends Decoder<Boolean> {
         inBuffer.resetBitCounter();
         state = next;
         setStatus(next.label);
-    }
-
-    private Boolean processBit(Boolean bit) {
-        if (oneCount >= 5) {
-            oneCount = 0;
-            if (bit && state == State.WAIT_END) {
-                LOGGER.fine("Expected zero is one, assuming packet is done?");
-                packetReceived();
-                changeState(State.WAIT_FLAG);
-            }
-            return null;
-        } else if (bit) {
-            ++oneCount;
-        } else {
-            oneCount = 0;
-        }
-
-        return bit;
     }
 
     @Override

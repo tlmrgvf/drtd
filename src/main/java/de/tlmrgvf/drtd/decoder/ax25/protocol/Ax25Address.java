@@ -98,6 +98,11 @@ public final class Ax25Address {
         return reserved;
     }
 
+    @Override
+    public String toString() {
+        return name.trim() + (isRepeated() ? "[R]" : isCommand() ? "[C]" : "");
+    }
+
     public enum Type {
         DESTINATION("Destination"),
         SOURCE("Source"),

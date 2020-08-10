@@ -42,10 +42,9 @@ public final class Ax25Unnumbered extends Ax25Packet {
                           Ax25Address sourceAddress,
                           Ax25Address destinationAddress,
                           Ax25Address[] repeaters,
-                          Byte[] raw,
                           byte control,
                           boolean poll) {
-        super(type, sourceAddress, destinationAddress, repeaters, raw, control, poll);
+        super(type, sourceAddress, destinationAddress, repeaters, control, poll);
         this.controlType = ControlType.getByControlByte(control);
     }
 

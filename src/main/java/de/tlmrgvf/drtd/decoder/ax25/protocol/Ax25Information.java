@@ -41,11 +41,10 @@ public final class Ax25Information extends Ax25Packet {
                            Ax25Address sourceAddress,
                            Ax25Address destinationAddress,
                            Ax25Address[] repeaters,
-                           Byte[] raw,
                            byte control,
                            boolean poll,
                            byte pid) {
-        super(type, sourceAddress, destinationAddress, repeaters, raw, control, poll);
+        super(type, sourceAddress, destinationAddress, repeaters, control, poll);
         this.pid = Pid.getByByte(pid);
         this.sendSequenceNumber = (byte) ((control >> 1) & 0x07);
         this.receiveSequenceNumber = (byte) ((control >> 5) & 0x07);

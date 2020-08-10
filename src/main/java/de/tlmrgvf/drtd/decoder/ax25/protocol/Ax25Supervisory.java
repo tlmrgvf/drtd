@@ -41,10 +41,9 @@ public final class Ax25Supervisory extends Ax25Packet {
                            Ax25Address sourceAddress,
                            Ax25Address destinationAddress,
                            Ax25Address[] repeaters,
-                           Byte[] raw,
                            byte control,
                            boolean poll) {
-        super(type, sourceAddress, destinationAddress, repeaters, raw, control, poll);
+        super(type, sourceAddress, destinationAddress, repeaters, control, poll);
         this.receiveType = ReceiveType.getByControlByte(control);
         this.receiveSequenceNumber = (byte) (0x7 & control << 5);
     }
