@@ -4,7 +4,7 @@ A digital radio transmission decoder
 ![Screenshot](https://raw.githubusercontent.com/tlmrgvf/drtd/master/rtty.gif)
 
 ## Currently supported
-* AX.25/APRS
+* AX.25/APRS _(*)_
 * RTTY _(*)_
 * POCSAG 512/1200/2400 _(*)_ 
 * DTMF _(*)_
