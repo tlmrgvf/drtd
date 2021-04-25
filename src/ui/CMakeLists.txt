@@ -1,0 +1,19 @@
+add_subdirectory(component)
+set(SOURCES
+    ConfigDialog.cpp
+    ConfigDialog.hpp
+    MainGui.cpp 
+    MainGui.hpp
+    ScopeDialog.cpp 
+    ScopeDialog.hpp 
+    WaterfallDialog.cpp 
+    WaterfallDialog.hpp
+    FirFilterDialog.cpp
+    FirFilterDialog.hpp
+    BiquadFilterDialog.cpp
+    BiquadFilterDialog.hpp
+    MovingAverageDialog.cpp
+    MovingAverageDialog.hpp
+    IQMixerDialog.hpp
+    IQMixerDialog.cpp)
+add_library(ui ${SOURCES})

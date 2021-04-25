@@ -1,0 +1,24 @@
+set(SOURCES
+    Nothing.hpp
+    FirFilter.hpp
+    Biquad.cpp 
+    Biquad.hpp
+    Window.hpp
+    Window.cpp
+    BiquadFilterComponent.hpp
+    MovingAverage.hpp
+    Mapper.hpp
+    AngleDifference.cpp
+    AngleDifference.hpp
+    IQMixer.cpp
+    IQMixer.hpp
+    BitConverter.cpp
+    BitConverter.hpp
+    NRZIDecoder.cpp
+    NRZIDecoder.hpp
+    Normalizer.hpp
+    Normalizer.cpp
+    FirFilterBase.cpp
+    GoertzelFilter.hpp
+    GoertzelFilter.cpp)
+add_library(dsp ${SOURCES})

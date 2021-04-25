@@ -1,9 +1,5 @@
-*.iml
 .drtd
-.attach_pid*
-target/
-.idea/
-plugins/
-/drtd
-hs_err_pid*
+build
+.kdev4
+drtd.kdev4
 

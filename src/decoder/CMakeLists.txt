@@ -1,0 +1,25 @@
+set(SOURCES
+    Decoder.hpp
+    DecoderBase.cpp 
+    DecoderBase.hpp 
+    null/Null.cpp
+    null/Null.hpp
+    ax25/Ax25.cpp
+    ax25/Ax25.hpp
+    ax25/Packet.cpp
+    ax25/Packet.hpp
+    ax25/Address.cpp
+    ax25/Address.hpp
+    rtty/Rtty.cpp
+    rtty/Rtty.hpp
+    pocsag/Pocsag.cpp
+    pocsag/Pocsag.hpp
+    pocsag/PocsagData.cpp
+    pocsag/PocsagData.hpp
+    pocsag/PocsagMessage.cpp
+    pocsag/PocsagMessage.hpp
+    dtmf/Dtmf.hpp
+    dtmf/Dtmf.cpp
+    dcf77/Dcf77.hpp
+    dcf77/Dcf77.cpp)
+add_library(decoder ${SOURCES})
