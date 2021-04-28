@@ -100,7 +100,13 @@ Fl_Widget* Ax25::build_ui(Point top_left, Size ui_size) {
     auto control_offset = top_left.translated(4, 4);
     Size control_size(ui_size.w() - 8, controls->h() - 8);
 
-    m_sync_indicator = new Ui::Indicator(control_offset.x(), control_offset.y(), 40, control_size.h(), Ui::Indicator::yellow_on, Ui::Indicator::yellow_off, "Sync");
+    m_sync_indicator = new Ui::Indicator(control_offset.x(),
+                                         control_offset.y(),
+                                         40,
+                                         control_size.h(),
+                                         Ui::Indicator::yellow_on,
+                                         Ui::Indicator::yellow_off,
+                                         "Sync");
     m_sync_indicator->set_state(false);
 
     m_data_indicator = new Ui::Indicator(m_sync_indicator->x() + m_sync_indicator->w() + 2,
@@ -131,7 +137,6 @@ Fl_Widget* Ax25::build_ui(Point top_left, Size ui_size) {
 Pipe::Line<float, bool> Ax25::build_pipeline() {
     return Pipe::line(
         IQMixer(1700),
-        //        Biquad::FilterComponent<Cmplx>(Biquad::Type::Lowpass, 1200, Biquad::invsqrt2),
         FirFilter<Cmplx>(WindowType::Hamming, 41, 0, 600),
         AngleDifference(),
         MovingAverage<float>(std::round(sample_rate / static_cast<float>(baud_rate))),

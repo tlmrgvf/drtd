@@ -126,7 +126,7 @@ int Waterfall::handle(int event) {
         if (event == FL_PUSH)
             s_log.info() << "Clicked at " << freq << " Hz";
 
-        if (m_decoder->marker().moveable && m_input_limiter.limit())
+        if (m_decoder->marker().moveable && m_input_limiter.limit() && m_show_marker)
             m_decoder->set_center_frequency(std::max(m_decoder->min_center_frequency(), std::min(static_cast<u16>(m_sample_rate / 2), freq)));
         return 1;
     } else if (event == FL_MOUSEWHEEL) {
