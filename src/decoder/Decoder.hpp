@@ -54,8 +54,8 @@ public:
             return false;
 
         bool result = Pipe::ComponentBase<T, T>::clicked_component(clicked_at, event);
-        if (result)
-            Drtd::main_gui().waterfall().show_marker(!m_output);
+        if (result && event == Pipe::ClickEvent::MonitorOutput && !m_output)
+            Drtd::main_gui().waterfall().show_marker(true);
         return result;
     }
 

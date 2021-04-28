@@ -96,6 +96,7 @@ void Waterfall::force_redraw() {
 
 void Waterfall::set_decoder(std::shared_ptr<Dsp::DecoderBase>& decoder) {
     m_decoder = decoder;
+    m_show_marker = true;
     redraw_scale_later();
 }
 
