@@ -114,8 +114,8 @@ public:
 
         auto input_component = IoComponent<float>(false);
         auto in_ref = input_component.make_ref();
-        auto line = Pipe::line(std::move(input_component), build_pipeline(), IoComponent<PipelineResult>(true));
-        m_pipeline = std::make_unique<Pipe::Line<float, PipelineResult>>(std::move(line));
+        m_pipeline = std::make_unique<Pipe::Line<float, PipelineResult>>(
+            Pipe::line(std::move(input_component), build_pipeline(), IoComponent<PipelineResult>(true)));
 
         int id = 0;
         m_pipeline->init(input_sample_rate(), id);
