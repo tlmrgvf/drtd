@@ -95,7 +95,7 @@ void Rtty::update_marker() {
 
 void Rtty::on_setup() {
     if (Drtd::using_ui())
-        Util::Config::load(config_path() + ".Settings", m_settings, {});
+        Util::Config::load(config_path("Settings"), m_settings, {});
 
     update_marker();
     update_filters();
@@ -104,7 +104,7 @@ void Rtty::on_setup() {
 
 void Rtty::on_tear_down() {
     if (Drtd::using_ui())
-        Util::Config::save(config_path() + ".Settings", m_settings);
+        Util::Config::save(config_path("Settings"), m_settings);
 }
 
 void Rtty::update_filters() {

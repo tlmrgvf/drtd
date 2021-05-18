@@ -33,19 +33,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace Dsp;
 
-constexpr const char* conf_waterfall_settings { ".Base.WaterfallSettings" };
-constexpr const char* conf_center_frequency { ".Base.CenterFrequency" };
+constexpr const char* conf_waterfall_settings { "Base.WaterfallSettings" };
+constexpr const char* conf_center_frequency { "Base.CenterFrequency" };
 
 void DecoderBase::save_ui_settings() {
-    Util::Config::save(m_config_path + conf_waterfall_settings, Drtd::main_gui().waterfall().settings());
-    Util::Config::save(m_config_path + conf_center_frequency, m_center_frequency);
+    Util::Config::save(config_path(conf_waterfall_settings), Drtd::main_gui().waterfall().settings());
+    Util::Config::save(config_path(conf_center_frequency), m_center_frequency);
 }
 
 void DecoderBase::load_ui_settings() {
     auto settings = Drtd::main_gui().waterfall().settings();
-    Util::Config::load(m_config_path + conf_waterfall_settings, settings, settings);
+    Util::Config::load(config_path(conf_waterfall_settings), settings, settings);
     Drtd::main_gui().waterfall().update_settings_later(settings);
-    Util::Config::load(m_config_path + conf_center_frequency, m_center_frequency, m_center_frequency);
+    Util::Config::load(config_path(conf_center_frequency), m_center_frequency, m_center_frequency);
     set_center_frequency(m_center_frequency);
 }
 

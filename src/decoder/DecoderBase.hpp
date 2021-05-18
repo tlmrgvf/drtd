@@ -75,7 +75,6 @@ public:
     void save_ui_settings();
     void load_ui_settings();
     std::string name() const { return m_name; }
-    std::string config_path() const { return m_config_path; }
     u16 input_sample_rate() const { return m_input_sample_rate; }
     bool headless() const { return m_headless == Headless::Yes; }
     const Util::MarkerGroup& marker() const { return m_marker; }
@@ -93,6 +92,7 @@ public:
     virtual Pipe::GenericComponent& pipeline() = 0;
 
 protected:
+    std::string config_path(const std::string& property_name) const { return m_config_path + '.' + property_name; }
     const Logger& logger() const { return m_log; }
     void set_marker(Util::MarkerGroup);
     virtual void on_marker_move([[maybe_unused]] Hertz center_frequency) {}

@@ -139,12 +139,12 @@ Fl_Widget* Pocsag::build_ui(Point top_left, Size ui_size) {
 void Pocsag::on_setup() {
     reset(false);
     if (Drtd::using_ui())
-        Util::Config::load(config_path() + ".ContentType", m_content_type, PocsagProtocol::Message::ContentType::AlphaNumeric);
+        Util::Config::load(config_path("ContentType"), m_content_type, PocsagProtocol::Message::ContentType::AlphaNumeric);
 }
 
 void Pocsag::on_tear_down() {
     if (Drtd::using_ui())
-        Util::Config::save(config_path() + ".ContentType", m_content_type);
+        Util::Config::save(config_path("ContentType"), m_content_type);
 }
 
 void Pocsag::reset(bool reset_indicators) {
