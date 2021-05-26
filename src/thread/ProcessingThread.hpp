@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <thread>
 #include <util/Buffer.hpp>
 #include <util/Resampler.hpp>
+#include <util/Logger.hpp>
 
 namespace Dsp {
 
@@ -70,6 +71,7 @@ private:
     virtual void on_stop_requested() {};
     virtual size_t fill_buffer(Util::Buffer<float>&) = 0;
 
+    Logger m_log {"Processing thread"};
     std::unique_ptr<Util::Resampler> m_resampler;
     std::shared_ptr<Dsp::DecoderBase> m_decoder;
     std::atomic<bool> m_run { true };

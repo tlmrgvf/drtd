@@ -96,7 +96,7 @@ void ProcessingThread::run() {
                 Fl::awake();
                 Fl::unlock();
             } else if (m_run.load()) {
-                Util::die("Error reading samples!");
+                m_log.warning() << "Could not read samples!";
             }
         }
     } else {
@@ -112,7 +112,7 @@ void ProcessingThread::run() {
                 Fl::awake();
                 Fl::unlock();
             } else if (m_run.load()) {
-                Util::die("Error reading samples!");
+                m_log.warning() << "Could not read samples!";
             }
         }
     }
