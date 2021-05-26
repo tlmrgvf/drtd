@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PocsagMessage.hpp"
 #include <cassert>
 #include <util/Util.hpp>
+#include <chrono>
 
 using namespace Dsp::PocsagProtocol;
 
@@ -68,6 +69,9 @@ std::string Message::content_name(ContentType type) {
 
 std::string Message::str() const {
     std::ostringstream builder;
+    auto time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+    builder << "Received at " << std::ctime(&time);
     builder << "POCSAG" << m_baud_rate << " | Address: ";
     if (m_address.has_value())
         builder << m_address.value().contents();
@@ -93,7 +97,7 @@ std::string Message::str() const {
         builder << " (No data)";
     }
 
-    builder << "\n";
+    builder << "\n\n";
     return builder.str();
 }
 

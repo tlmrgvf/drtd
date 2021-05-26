@@ -234,9 +234,7 @@ std::optional<Packet> Packet::parse(const std::vector<u8>& bytes) {
 
 std::string Packet::format() const {
     std::ostringstream builder;
-
-    auto now = std::chrono::system_clock::now();
-    auto time = std::chrono::system_clock::to_time_t(now);
+    auto time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
     builder << "Received at " << std::ctime(&time);
     builder << "Type: ";
