@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <dsp/Mapper.hpp>
 #include <dsp/MovingAverage.hpp>
 #include <dsp/Normalizer.hpp>
+#include <dsp/Tap.hpp>
 #include <iomanip>
 #include <util/Util.hpp>
 
@@ -45,7 +46,8 @@ static constexpr std::array bcd_lookup { 1, 2, 4, 8, 10, 20, 40, 80 };
 static constexpr std::array dow_lookup { "---", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
 Dcf77::Dcf77()
-    : Decoder<bool>("DCF77", sample_rate, DecoderBase::Headless::Yes, 240) {
+    : Decoder<bool>("DCF77", sample_rate, DecoderBase::Headless::Yes, 240)
+    , m_snr_calculator(sample_rate * 2) {
     set_marker({ .markers = { Util::Marker { .offset = 0, .bandwidth = 10 } }, .moveable = true });
 }
 
@@ -173,13 +175,26 @@ Pipe::Line<float, bool> Dcf77::build_pipeline() {
     m_mixer = mixer.make_ref();
 
     return Pipe::line(std::move(mixer),
+                      Tap<Cmplx>([&](Cmplx sample) {
+                          /*
+                           * The upper side band will be filtered out in the next step and did not exist in the original signal.
+                           * Half the power here to compensate for this.
+                           */
+                          m_snr_calculator.collect_signal_and_noise_sample(sample.magnitude_squared() / 2);
+                      }),
                       MovingAverage<Cmplx>(samples_per_bit),
+                      Tap<Cmplx>([&](Cmplx sample) {
+                          m_snr_calculator.collect_signal_sample(sample.magnitude_squared());
+                      }),
                       Mapper<Cmplx, float>([](Cmplx cmplx) { return cmplx.magnitude(); }),
                       Normalizer(static_cast<WindowSize>(sample_rate * 2.2f), Normalizer::Lookahead::No, Normalizer::OffsetMode::Average),
                       Mapper<float, bool>([](float in) { return in > -.5f; }));
 }
 
 void Dcf77::process_pipeline_result(bool sample) {
+    if (m_snr_calculator.commit_samples())
+        update_snr(m_snr_calculator.snr_db());
+
     bool new_second = false;
 
     if (sample != m_last_level) {

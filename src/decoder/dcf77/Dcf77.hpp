@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <decoder/Decoder.hpp>
 #include <dsp/IQMixer.hpp>
 #include <ui/component/Indicator.hpp>
+#include <util/SNRCalculator.hpp>
 
 namespace Dsp {
 
@@ -103,6 +104,7 @@ private:
     std::string create_time_string() const;
 
     ConfigRef<IQMixer> m_mixer;
+    Util::SNRCalculator m_snr_calculator;
     State m_state { State::WaitForMinuteMarker };
     TimeInfo m_time;
     TimeInfo m_receiving;
