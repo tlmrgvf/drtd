@@ -144,8 +144,11 @@ bool Drtd::start_processing(u8 index) {
     auto& decoder = s_decoders[s_active_decoder_index];
     s_log.info() << "start_processing(): Decoder \"" << decoder->name() << "\" S/R " << decoder->input_sample_rate();
 
-    if (using_ui())
-        main_gui().set_status("Ready.");
+    if (using_ui()) {
+        auto& gui = main_gui();
+        gui.set_status("Ready.");
+        gui.hide_snr();
+    }
 
     decoder->setup();
     if (using_ui()) {

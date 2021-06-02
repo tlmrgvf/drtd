@@ -83,6 +83,7 @@ public:
     u16 min_ui_height() const { return m_min_ui_height; }
     void set_center_frequency(Hertz center_frequency);
     void set_status(const std::string&);
+    void update_snr(float);
 
     virtual void setup() = 0;
     virtual void tear_down() = 0;

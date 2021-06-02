@@ -49,6 +49,11 @@ void DecoderBase::load_ui_settings() {
     set_center_frequency(m_center_frequency);
 }
 
+void DecoderBase::update_snr(float snr) {
+    if (Drtd::using_ui())
+        Drtd::main_gui().update_snr(snr);
+}
+
 void DecoderBase::set_marker(Util::MarkerGroup marker) {
     m_marker = std::move(marker);
     m_min_center_frequency = 0;

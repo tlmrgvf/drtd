@@ -69,7 +69,15 @@ MainGui::MainGui(u8 initial_decoder_index, WindowProperties properties)
                                        header_component_height,
                                        "Configure...");
 
-    auto* header_spring = new Fl_Box(m_configure_button->x() + m_configure_button->w(), m_configure_button->y(), 1, 1);
+    m_snr = new Fl_Box(m_configure_button->x() + m_configure_button->w() + 4,
+                       m_configure_button->y(),
+                       100,
+                       m_configure_button->h());
+    m_snr->box(FL_DOWN_BOX);
+    update_snr(std::numeric_limits<float>().quiet_NaN());
+    m_snr->hide();
+
+    auto* header_spring = new Fl_Box(m_snr->x() + m_snr->w(), m_snr->y(), 1, 1);
     constexpr int spinner_width = 100;
     m_frequency_spinner = new Fl_Spinner(m_header_group->x() + m_header_group->w() - spinner_width - 4,
                                          m_header_group->y() + header_component_offset,
@@ -135,6 +143,27 @@ MainGui::MainGui(u8 initial_decoder_index, WindowProperties properties)
     m_status_bar->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
     m_status_bar->labelfont(FL_BOLD);
     end();
+}
+
+void MainGui::hide_snr() {
+    m_snr->hide();
+}
+
+void MainGui::update_snr(float snr) {
+    if (!m_snr->visible())
+        m_snr->show();
+
+    if (std::isnan(snr) || std::isinf(snr)) {
+        m_snr->label("SNR: --.-- dB");
+    } else {
+        std::ostringstream builder;
+        builder << "SNR: "<< std::left;
+        builder.precision(3);
+        builder.fill(' ');
+        builder.width(5);
+        builder  << snr << " dB";
+        m_snr->copy_label(builder.str().c_str());
+    }
 }
 
 void MainGui::ensure_content_box_size() {

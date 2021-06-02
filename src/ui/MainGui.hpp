@@ -61,6 +61,8 @@ public:
     void monitor(float);
     void update_center_frequency();
     void update_decoder();
+    void update_snr(float);
+    void hide_snr();
 
     Scope& scope() const { return *m_scope; }
     Waterfall& waterfall() const { return *m_waterfall; }
@@ -82,6 +84,7 @@ private:
     Fl_Group* m_header_group { nullptr };
     Fl_Choice* m_decoder_choice { nullptr };
     Fl_Button* m_configure_button { nullptr };
+    Fl_Box* m_snr { nullptr };
     Fl_Spinner* m_frequency_spinner { nullptr };
     Fl_Tile* m_splitter_tile { nullptr };
     Scope* m_scope { nullptr };
