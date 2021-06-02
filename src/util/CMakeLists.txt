@@ -20,7 +20,9 @@ set(SOURCES
     BitBuffer.hpp
     Types.hpp
     CallbackManager.hpp
-    CallbackManager.cpp)
+    CallbackManager.cpp
+    SNRCalculator.hpp
+    SNRCalculator.cpp)
 add_library(util ${SOURCES})
 add_subdirectory(bch)
 target_link_libraries(util dsp bch)
