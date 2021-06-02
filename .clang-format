@@ -1,0 +1,16 @@
+Language: Cpp
+BasedOnStyle: LLVM
+SpaceAfterTemplateKeyword: false
+BreakBeforeInheritanceComma: true
+BreakConstructorInitializers: BeforeComma
+IndentWidth: 4
+ContinuationIndentWidth: 4
+PointerAlignment: Left
+UseTab: Never
+FixNamespaceComments: false
+AlwaysBreakTemplateDeclarations: Yes
+ColumnLimit: 0
+AccessModifierOffset: -4
+SpaceBeforeCpp11BracedList: true
+AlignTrailingComments: true
+Cpp11BracedListStyle: false
