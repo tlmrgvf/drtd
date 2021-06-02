@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <util/BitBuffer.hpp>
 #include <util/CallbackManager.hpp>
 #include <util/Util.hpp>
+#include <util/SNRCalculator.hpp>
 
 namespace Dsp {
 
@@ -72,6 +73,8 @@ private:
     void update_filters();
     void update_scope(float, float);
 
+    Util::SNRCalculator m_mark_snr;
+    Util::SNRCalculator m_space_snr;
     Settings m_settings;
     float m_scope_phase { 0 };
     bool m_wait_start { true };

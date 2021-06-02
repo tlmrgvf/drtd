@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "Rtty.hpp"
 #include <dsp/Mapper.hpp>
+#include <dsp/Tap.hpp>
 #include <pipe/Parallel.hpp>
 #include <util/Config.hpp>
 #include <util/Types.hpp>
@@ -82,7 +83,9 @@ static constexpr std::array baudot_codes {
 };
 
 Rtty::Rtty()
-    : Decoder<bool>("RTTY", sample_rate, DecoderBase::Headless::Yes, 160) {
+    : Decoder<bool>("RTTY", sample_rate, DecoderBase::Headless::Yes, 160)
+    , m_mark_snr(sample_rate * .5)
+    , m_space_snr(sample_rate * .5) {
 }
 
 void Rtty::update_marker() {
@@ -164,13 +167,21 @@ Fl_Widget* Rtty::build_ui(Util::Point top_left, Util::Size size) {
         update_filters();
     });
 
-    auto* mark_space_swap = new Fl_Check_Button(shift->x() + shift->w() + 6, shift->y(), 175, 30, "Swap mark and space");
+    auto* mark_space_swap = new Fl_Check_Button(shift->x() + shift->w() + 6,
+                                                shift->y(),
+                                                175,
+                                                30,
+                                                "Swap mark and space");
     mark_space_swap->value(m_settings.swap_mark_and_space);
     m_callback_manager.register_callback(*mark_space_swap, [&, mark_space_swap]() {
         m_settings.swap_mark_and_space = static_cast<bool>(mark_space_swap->value());
     });
 
-    auto* show_scope = new Fl_Check_Button(mark_space_swap->x(), mark_space_swap->y() + mark_space_swap->h() + 2, 170, 30, "Show tuning scope");
+    auto* show_scope = new Fl_Check_Button(mark_space_swap->x(),
+                                           mark_space_swap->y() + mark_space_swap->h() + 2,
+                                           170,
+                                           30,
+                                           "Show tuning scope");
     m_callback_manager.register_callback(*show_scope, [&, show_scope]() {
         if (show_scope->value())
             m_scope->show();
@@ -180,12 +191,21 @@ Fl_Widget* Rtty::build_ui(Util::Point top_left, Util::Size size) {
     });
     show_scope->value(m_settings.show_tuning);
 
-    auto* clear_button = new Fl_Button(control_offset.x() + control_size.w() - 60, control_offset.y() + Util::center(control_size.h(), 30), 60, 30, "Clear");
+    auto* clear_button = new Fl_Button(control_offset.x() + control_size.w() - 60,
+                                       control_offset.y() + Util::center(control_size.h(), 30),
+                                       60,
+                                       30,
+                                       "Clear");
     m_callback_manager.register_callback(*clear_button, [&]() {
         m_text_box->clear();
     });
 
-    m_scope = new Ui::XYScope(mark_space_swap->x() + mark_space_swap->w() + 4, control_offset.y() + Util::center(control_size.h(), 60), 60, 200, .90f, true);
+    m_scope = new Ui::XYScope(mark_space_swap->x() + mark_space_swap->w() + 4,
+                              control_offset.y() + Util::center(control_size.h(), 60),
+                              60,
+                              200,
+                              .90f,
+                              true);
     if (!m_settings.show_tuning)
         m_scope->hide();
 
@@ -264,18 +284,39 @@ Pipe::Line<float, bool> Rtty::build_pipeline() {
 
     auto mark_detector = Pipe::line(
         std::move(mark_mixer),
+        Tap<Cmplx>([&](Cmplx sample) {
+            /*
+             * The upper side band will be filtered out in the next step and did not exist in the original signal.
+             * Half the power here to compensate for this.
+             */
+            m_mark_snr.collect_signal_and_noise_sample(sample.magnitude_squared() / 2);
+        }),
         std::move(mark_filter),
-        Mapper<Cmplx, float>([](Cmplx in) { return in.magnitude_squared(); }),
+        Mapper<Cmplx, float>([&](Cmplx in) {
+            float power = in.magnitude_squared();
+            m_mark_snr.collect_signal_sample(power);
+            return power;
+        }),
         std::move(mark_normalizer));
 
     auto space_detector = Pipe::line(
         std::move(space_mixer),
+        Tap<Cmplx>([&](Cmplx sample) {
+            m_space_snr.collect_signal_and_noise_sample(sample.magnitude_squared() / 2);
+        }),
         std::move(space_filter),
-        Mapper<Cmplx, float>([](Cmplx in) { return in.magnitude_squared(); }),
+        Mapper<Cmplx, float>([&](Cmplx in) {
+            float power = in.magnitude_squared();
+            m_space_snr.collect_signal_sample(power);
+            return power;
+        }),
         std::move(space_normalizer));
 
     std::function<bool(const Buffer<float>&)> compare_space_mark = [&](const auto& results) {
         update_scope(results[0], results[1]);
+        if (m_mark_snr.commit_samples() | m_space_snr.commit_samples())
+            update_snr(m_mark_snr.snr_db() + m_space_snr.snr_db());
+
         return (results[0] - results[1]) > 0;
     };
 
