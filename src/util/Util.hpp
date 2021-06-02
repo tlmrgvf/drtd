@@ -59,6 +59,7 @@ int center(int total, int size);
 float linear_interpolate(float floatIndex, const Buffer<float>& inputValues);
 bool rect_contains(Point check, Point point, Size size);
 float db_voltage(float value, float reference);
+float db_power(float value, float reference);
 float scale_log(float value, float source_min, float source_max, bool invert = false);
 std::optional<int> parse_int(const std::string&);
 std::optional<float> parse_float(const std::string&);

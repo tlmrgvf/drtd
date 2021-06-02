@@ -108,6 +108,10 @@ float Util::db_voltage(float value, float reference) {
     return 20 * log10f(value / reference);
 }
 
+float Util::db_power(float value, float reference) {
+    return 10 * log10f(value / reference);
+}
+
 float Util::scale_log(float value, float source_min, float source_max, bool invert) {
     value = std::clamp(value, source_min, source_max);
     value = (value - source_min) / (source_max - source_min);
