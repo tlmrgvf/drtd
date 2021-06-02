@@ -20,5 +20,6 @@ set(SOURCES
     Normalizer.cpp
     FirFilterBase.cpp
     GoertzelFilter.hpp
-    GoertzelFilter.cpp)
+    GoertzelFilter.cpp
+    Tap.hpp)
 add_library(dsp ${SOURCES})
