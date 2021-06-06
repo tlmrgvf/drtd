@@ -32,12 +32,29 @@ using namespace Pipe;
 
 template<>
 Interpreter<float> Pipe::interpreter() {
-    return { { .names = { "Float" }, .color = 0xE6993300 }, [](u8, float& f) { return f; } };
+    return { { .names = { "Float" }, .color = 0xE6993300 },
+             [](u8, float& f) {
+                 return f;
+             } };
 }
 
 template<>
 Interpreter<Cmplx> Pipe::interpreter() {
-    return { { .names = { "Real", "Imaginary" }, .color = 0x8080CC00 }, [](u8 index, Cmplx& c) { return c[index]; } };
+    return { { .names = { "Real", "Imaginary", "Magnitude", "Power" }, .color = 0x8080CC00 },
+             [](u8 index, Cmplx& c) {
+                 switch (index) {
+                 case 0:
+                     return c.real();
+                 case 1:
+                     return c.imag();
+                 case 2:
+                     return c.magnitude();
+                 case 3:
+                     return c.magnitude_squared();
+                 default:
+                     return 0.f;
+                 }
+             } };
 }
 
 template<>
