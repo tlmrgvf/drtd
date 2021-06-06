@@ -71,7 +71,7 @@ MainGui::MainGui(u8 initial_decoder_index, WindowProperties properties)
 
     m_snr = new Fl_Box(m_configure_button->x() + m_configure_button->w() + 4,
                        m_configure_button->y(),
-                       100,
+                       110,
                        m_configure_button->h());
     m_snr->box(FL_DOWN_BOX);
     update_snr(std::numeric_limits<float>().quiet_NaN());
@@ -158,9 +158,9 @@ void MainGui::update_snr(float snr) {
     } else {
         std::ostringstream builder;
         builder << "SNR: "<< std::left;
-        builder.precision(3);
-        builder.fill(' ');
         builder.width(5);
+        builder.precision(2);
+        builder.fill(' ');
         builder  << snr << " dB";
         m_snr->copy_label(builder.str().c_str());
     }
