@@ -166,8 +166,7 @@ template<typename... Others,
          typename In = typename FirstComponent<Others...>::InputType,
          typename Out = typename LastOutputOf<Others...>::OutputType>
 static Line<In, Out> line(Others&&... others) {
-    auto container = std::make_unique<LineContainer<In, Out, Others...>>(
-        std::make_tuple(std::move(others)...));
+    auto container = std::make_unique<LineContainer<In, Out, Others...>>(std::make_tuple(std::move(others)...));
     return Line<In, Out>(std::move(container));
 }
 

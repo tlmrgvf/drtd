@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <util/Util.hpp>
 
 namespace Pipe::Container {
+
 template<typename In, typename Out>
 struct ComponentContainerBase {
     ComponentContainerBase() {}
@@ -45,4 +46,5 @@ struct ComponentContainerBase {
     virtual GenericComponent& last() = 0;
     virtual size_t size() = 0;
 };
+
 }
