@@ -27,8 +27,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "PocsagMessage.hpp"
 #include <cassert>
-#include <util/Util.hpp>
 #include <chrono>
+#include <util/Util.hpp>
 
 using namespace Dsp::PocsagProtocol;
 

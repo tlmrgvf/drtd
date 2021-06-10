@@ -301,9 +301,10 @@ void Pocsag::process_pipeline_result(bool sample) {
         code_word = m_bch_code.correct((m_incoming_buffer.data<u32>() >> 1) & ~0x80000000);
         if (code_word.has_value()) {
             const auto data = PocsagProtocol::Data::from_codeword(m_codeword_count, code_word.value());
-            m_message_builder.append_data(data);
             if (data.type() == PocsagProtocol::Data::Type::Idle || data.type() == PocsagProtocol::Data::Type::Address)
                 message_done();
+
+            m_message_builder.append_data(data);
         } else {
             logger().info() << "Could not correct code word!";
             m_message_builder.set_has_invalid_codeword();
