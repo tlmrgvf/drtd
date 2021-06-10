@@ -140,7 +140,7 @@ void BitConverter::draw_at(Point p) {
     fl_draw_pixmap(bitconverter_xpm, p.x(), p.y());
 }
 
-float BitConverter::get_current_baud_rate() const {
+float BitConverter::current_baud_rate() const {
     return input_sample_rate() / m_current_samples_per_bit;
 }
 
@@ -169,7 +169,7 @@ bool BitConverter::process(bool sample) {
                 if (m_counted_sync_bits == m_required_sync_bits) {
                     m_counted_sync_bits = 0;
                     m_syncing = false;
-                    float bauds = get_current_baud_rate();
+                    float bauds = current_baud_rate();
                     logger().info() << "Synced to " << bauds << " bauds";
                     if (sync_callback)
                         sync_callback({ m_current_samples_per_bit, bauds });

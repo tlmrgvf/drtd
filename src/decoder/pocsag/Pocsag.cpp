@@ -186,7 +186,7 @@ Pipe::Line<float, bool> Pocsag::build_pipeline() {
 }
 
 void Pocsag::message_done() {
-    const auto message = m_message_builder.build(m_content_type, static_cast<BaudRate>(m_converter->get_current_baud_rate()));
+    const auto message = m_message_builder.build(m_content_type, static_cast<BaudRate>(m_converter->current_baud_rate()));
     if (m_message_builder.valid()) {
         if (Drtd::using_ui()) {
             const bool scroll = m_text_box->should_autoscroll();
@@ -281,11 +281,11 @@ void Pocsag::process_pipeline_result(bool sample) {
 
         update_state(State::ReadPocsagBatch);
         if (update_ui) {
-            if (m_converter->get_current_baud_rate() == 512)
+            if (m_converter->current_baud_rate() == 512)
                 m_sync_512_indicator->set_state(true);
-            else if (m_converter->get_current_baud_rate() == 1200)
+            else if (m_converter->current_baud_rate() == 1200)
                 m_sync_1200_indicator->set_state(true);
-            else if (m_converter->get_current_baud_rate() == 2400)
+            else if (m_converter->current_baud_rate() == 2400)
                 m_sync_2400_indicator->set_state(true);
         }
         m_received_parity = true;

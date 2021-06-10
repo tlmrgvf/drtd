@@ -46,7 +46,7 @@ public:
     void wait_for_sync();
     void set_baud_rates(Buffer<float>);
     Buffer<float> baud_rates() const;
-    float get_current_baud_rate() const;
+    float current_baud_rate() const;
     virtual Size calculate_size() override;
 
     std::function<void(SyncInfo)> sync_callback;
