@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "XYScope.hpp"
 #include <Fl/fl_draw.H>
 #include <util/Point.hpp>
+#include <optional>
 
 Ui::XYScope::XYScope(int x, int y, int size, WindowSize window_size, float fade_factor, bool connect)
     : Canvas(x, y, size, size, 2)
