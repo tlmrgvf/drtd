@@ -89,7 +89,7 @@ public:
 
         const auto coefficients = calculate_error_locator_polynomial(build_syndrome_matrix(syndromes), syndromes);
         if (coefficients.empty())
-            return code_word; //Non zero syndromes but empty polynomial, just assume the code word is correct
+            return {};
 
         u8 zeroes_found = 0;
         for (const auto& root : m_field.primitive_roots()) {
