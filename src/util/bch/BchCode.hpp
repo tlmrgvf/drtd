@@ -54,7 +54,7 @@ public:
 
     Message encode(Message message) const {
         Z2Polynomial result(message);
-        assert(result.degree() < k);
+        assert(result.is_zero() || result.degree() < k);
 
         if constexpr (encoding_type == EncodingType::Factor) {
             return (result * m_generator).coefficients();
