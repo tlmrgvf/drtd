@@ -80,7 +80,7 @@ void IQMixer::draw_at(Point p) {
 }
 
 Cmplx IQMixer::process(float sample) {
-    Cmplx result(sample * std::cos(m_phase), sample * std::sin(m_phase));
+    Cmplx result(sample * std::cos(m_phase), sample * -std::sin(m_phase));
     m_phase += m_phase_step;
     m_phase = std::remainder(m_phase, Util::two_pi_f);
     return result;
