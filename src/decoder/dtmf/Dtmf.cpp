@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace Dsp;
 
-static constexpr SampleRate sample_rate { 5512 };
+static constexpr SampleRate sample_rate { 4000 };
 static constexpr Taps filter_taps { sample_rate / 50 };                                           //About 50 Hz per bin
 static constexpr Samples required_samples_per_symbol { static_cast<Samples>(sample_rate * .05) }; //> 50 ms
 static constexpr Samples minimum_samples_per_space { static_cast<Samples>(sample_rate * .01) };   //> 10 ms
@@ -173,3 +173,4 @@ Pipe::Line<float, u8> Dtmf::build_pipeline() {
     std::function<u8(const Buffer<u8>&)> func = [](const Buffer<u8>& in) { return in[0] + in[1] * 10; };
     return Pipe::line(Pipe::parallel(func, column_filter_bank(), row_filter_bank()));
 }
+
