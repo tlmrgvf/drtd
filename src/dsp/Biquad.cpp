@@ -45,14 +45,14 @@ std::string Coefficients::parameter_description_for(Type type) {
     return parameter_descriptions[static_cast<size_t>(type)];
 }
 
-Coefficients::Coefficients(Type type, SampleRate sample_rate, float center, float q)
+Coefficients::Coefficients(Type type, SampleRate sample_rate, float center, float parameter)
     : m_sample_rate(sample_rate) {
     assert(sample_rate);
 
     float w0 = Util::two_pi_f * (center / sample_rate);
     float cos_w0 = std::cos(w0);
-    const float alpha_q = std::sin(w0) / (2 * q);
-    const float alpha_bandwidth = sinf(w0) * sinhf(logf(2) / 2 * q * (w0 / sinf(w0)));
+    const float alpha_q = std::sin(w0) / (2 * parameter);
+    const float alpha_bandwidth = sinf(w0) * sinhf(logf(2) / 2 * parameter * (w0 / sinf(w0)));
 
     switch (type) {
     case Type::Lowpass:
