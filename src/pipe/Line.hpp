@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/fl_draw.H>
+#include <FL/fl_draw.H>
 #include <pipe/Component.hpp>
 #include <pipe/ComponentContainer.hpp>
 

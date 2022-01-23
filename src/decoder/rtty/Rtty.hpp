@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/Fl_Check_Button.H>
+#include <FL/Fl_Check_Button.H>
 #include <decoder/Decoder.hpp>
 #include <dsp/BitConverter.hpp>
 #include <dsp/IQMixer.hpp>

@@ -26,7 +26,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "Drtd.hpp"
-#include <Fl/Fl.H>
+#include <FL/Fl.H>
 #include <alsa/asoundlib.h>
 #include <cassert>
 #include <csignal>

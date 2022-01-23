@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Canvas.hpp"
-#include <Fl/Fl.H>
+#include <FL/Fl.H>
 #include <limits>
 #include <util/Buffer.hpp>
 #include <util/Limiter.hpp>

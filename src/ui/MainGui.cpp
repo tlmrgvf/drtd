@@ -28,9 +28,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MainGui.hpp"
 #include "ConfigDialog.hpp"
 #include <Drtd.hpp>
-#include <Fl/Fl_Button.H>
-#include <Fl/Fl_Spinner.H>
-#include <Fl/Fl_Tile.H>
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Spinner.H>
+#include <FL/Fl_Tile.H>
 #include <decoder/Decoder.hpp>
 #include <ui/FirFilterDialog.hpp>
 #include <ui/ScopeDialog.hpp>

@@ -29,7 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "PocsagData.hpp"
 #include "PocsagMessage.hpp"
-#include <Fl/Fl_Choice.H>
+#include <FL/Fl_Choice.H>
 #include <decoder/Decoder.hpp>
 #include <dsp/BitConverter.hpp>
 #include <dsp/FirFilter.hpp>

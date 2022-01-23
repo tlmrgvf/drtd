@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/Fl_Double_Window.H>
+#include <FL/Fl_Double_Window.H>
 #include <util/CallbackManager.hpp>
 #include <util/Point.hpp>
 #include <util/Size.hpp>

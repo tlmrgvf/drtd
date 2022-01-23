@@ -27,10 +27,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/Fl_Check_Button.H>
-#include <Fl/Fl_Light_Button.H>
-#include <Fl/Fl_Slider.H>
-#include <Fl/Fl_Window.H>
+#include <FL/Fl_Check_Button.H>
+#include <FL/Fl_Light_Button.H>
+#include <FL/Fl_Slider.H>
+#include <FL/Fl_Window.H>
 #include <stdio.h>
 #include <util/Singleton.hpp>
 

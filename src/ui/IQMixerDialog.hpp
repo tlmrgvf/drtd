@@ -27,8 +27,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/Fl_Spinner.H>
-#include <Fl/Fl_Window.H>
+#include <FL/Fl_Spinner.H>
+#include <FL/Fl_Window.H>
 #include <pipe/Component.hpp>
 #include <util/Singleton.hpp>
 

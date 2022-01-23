@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Types.hpp"
-#include <Fl/Fl.H>
+#include <FL/Fl.H>
 #include <cmath>
 #include <memory>
 #include <optional>

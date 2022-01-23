@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/Fl_RGB_Image.H>
+#include <FL/Fl_RGB_Image.H>
 #include <functional>
 #include <memory>
 #include <string>

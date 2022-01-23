@@ -26,7 +26,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "XYScope.hpp"
-#include <Fl/fl_draw.H>
+#include <FL/fl_draw.H>
 #include <util/Point.hpp>
 #include <optional>
 

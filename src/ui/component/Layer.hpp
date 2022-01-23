@@ -27,9 +27,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/Fl_Device.H>
-#include <Fl/fl_draw.H>
-#include <Fl/x.H>
+#include <FL/Fl_Device.H>
+#include <FL/fl_draw.H>
+#include <FL/x.H>
 #include <memory>
 #include <mutex>
 #include <stdint.h>

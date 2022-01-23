@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Packet.hpp"
-#include <Fl/Fl_Text_Buffer.H>
+#include <FL/Fl_Text_Buffer.H>
 #include <decoder/Decoder.hpp>
 #include <list>
 #include <sstream>

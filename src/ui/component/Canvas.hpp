@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Layer.hpp"
-#include <Fl/Fl_Box.H>
+#include <FL/Fl_Box.H>
 #include <functional>
 #include <memory>
 #include <util/Types.hpp>

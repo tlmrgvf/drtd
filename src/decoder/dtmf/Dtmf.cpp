@@ -26,7 +26,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "Dtmf.hpp"
-#include <Fl/Fl_Button.H>
+#include <FL/Fl_Button.H>
 #include <dsp/GoertzelFilter.hpp>
 #include <dsp/Mapper.hpp>
 #include <pipe/Parallel.hpp>

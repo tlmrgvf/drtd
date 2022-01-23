@@ -26,7 +26,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "Scope.hpp"
-#include <Fl/Fl.H>
+#include <FL/Fl.H>
 #include <ui/ScopeDialog.hpp>
 #include <util/Point.hpp>
 

@@ -2,7 +2,7 @@
 
 #include <pipe/Component.hpp>
 #include <functional>
-#include <Fl/fl_draw.H>
+#include <FL/fl_draw.H>
 
 namespace Dsp {
 

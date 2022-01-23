@@ -27,8 +27,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "GenericComponent.hpp"
 #include <Drtd.hpp>
-#include <Fl/fl_ask.H>
-#include <Fl/fl_draw.H>
+#include <FL/fl_ask.H>
+#include <FL/fl_draw.H>
 #include <ui/MainGui.hpp>
 #include <ui/component/Waterfall.hpp>
 #include <util/Logger.hpp>

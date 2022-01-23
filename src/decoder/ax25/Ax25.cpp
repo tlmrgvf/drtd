@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "Ax25.hpp"
 #include "Packet.hpp"
-#include <Fl/Fl_Slider.H>
+#include <FL/Fl_Slider.H>
 #include <dsp/AngleDifference.hpp>
 #include <dsp/BiquadFilterComponent.hpp>
 #include <dsp/BitConverter.hpp>

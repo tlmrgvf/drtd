@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Point.hpp"
 #include "Size.hpp"
 #include "Types.hpp"
-#include <Fl/fl_draw.H>
+#include <FL/fl_draw.H>
 #include <algorithm>
 #include <cassert>
 #include <cmath>

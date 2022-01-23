@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Singleton.hpp"
-#include <Fl/Fl_Widget.H>
+#include <FL/Fl_Widget.H>
 #include <functional>
 #include <map>
 #include <memory>

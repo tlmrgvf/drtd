@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/Fl_Text_Display.H>
+#include <FL/Fl_Text_Display.H>
 #include <memory>
 
 namespace Ui {

@@ -27,12 +27,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/Fl.H>
-#include <Fl/Fl_Box.H>
-#include <Fl/Fl_Button.H>
-#include <Fl/Fl_Choice.H>
-#include <Fl/Fl_Scroll.H>
-#include <Fl/Fl_Window.H>
+#include <FL/Fl.H>
+#include <FL/Fl_Box.H>
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Choice.H>
+#include <FL/Fl_Scroll.H>
+#include <FL/Fl_Window.H>
 #include <functional>
 #include <sstream>
 #include <ui/component/Canvas.hpp>

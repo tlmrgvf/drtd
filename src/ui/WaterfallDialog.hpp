@@ -27,11 +27,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/Fl_Check_Button.H>
-#include <Fl/Fl_Choice.H>
-#include <Fl/Fl_Slider.H>
-#include <Fl/Fl_Spinner.H>
-#include <Fl/Fl_Window.H>
+#include <FL/Fl_Check_Button.H>
+#include <FL/Fl_Choice.H>
+#include <FL/Fl_Slider.H>
+#include <FL/Fl_Spinner.H>
+#include <FL/Fl_Window.H>
 #include <ui/component/Waterfall.hpp>
 #include <util/Singleton.hpp>
 

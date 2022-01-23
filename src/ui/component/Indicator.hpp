@@ -27,8 +27,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <Fl/Fl_Box.H>
-#include <Fl/Fl_Group.H>
+#include <FL/Fl_Box.H>
+#include <FL/Fl_Group.H>
 
 namespace Ui {
 

@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "ConfigDialog.hpp"
 #include <Drtd.hpp>
-#include <Fl/fl_ask.H>
+#include <FL/fl_ask.H>
 #include <decoder/Decoder.hpp>
 #include <pipe/Component.hpp>
 #include <util/Buffer.hpp>
