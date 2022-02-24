@@ -124,9 +124,9 @@ protected:
         bool remove_high = (stop_frequency() < mid_range_hi) ^ is_band_stop();
 
         fl_rect(p.x(), p.y(), size.w(), size.h());
-        draw_sine(p, remove_low, 0);
+        draw_sine(p, remove_high, 0);
         draw_sine(p, remove_mid, 1);
-        draw_sine(p, remove_high, 2);
+        draw_sine(p, remove_low, 2);
     }
 
     virtual void show_config_dialog() override {
