@@ -2,6 +2,7 @@ set(SOURCES
     Drtd.cpp
     Drtd.hpp)
 add_executable(drtd ${SOURCES})
+target_compile_features(drtd PUBLIC cxx_std_17)
 
 add_subdirectory(decoder)
 add_subdirectory(dsp)
